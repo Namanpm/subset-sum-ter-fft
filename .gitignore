@@ -277,3 +277,11 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# TER T0 migration ignores
+/build/
+/build-release/
+/build-gcc/
+/build-asan-msvc/
+/build-analyze-msvc/
+/graphify-out/
