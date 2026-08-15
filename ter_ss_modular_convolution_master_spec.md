@@ -1,4 +1,9 @@
 # TER + Schroeppel–Shamir + Modular Convolution
+
+> Status note (2026-08-15): the T0 merge milestone is complete and full
+> classical depth-3 TER is now in scope under `AGENTS.md`. NTT/FFT,
+> Schroeppel-Shamir integration, sparse convolution, quantum TER, and
+> parallelism remain out of scope for the current implementation phase.
 ## Standalone Master Research Specification for Random Density-1 Subset Sum
 
 **Document status:** Master standalone specification  

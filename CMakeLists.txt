@@ -49,6 +49,7 @@ endif()
 
 add_library(ter_t0 STATIC
   src/arithmetic.cpp
+  src/full_ter.cpp
   src/generator.cpp
   src/instance.cpp
   src/merge.cpp
@@ -93,7 +94,18 @@ ter_enable_strict_warnings(ter_packed_tests)
 ter_enable_release_ipo(ter_packed_tests)
 add_test(NAME ter_packed_tests COMMAND ter_packed_tests)
 
+add_executable(ter_full_tests tests/full_ter_tests.cpp)
+target_link_libraries(ter_full_tests PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_full_tests)
+ter_enable_release_ipo(ter_full_tests)
+add_test(NAME ter_full_tests COMMAND ter_full_tests)
+
 add_executable(ter_baseline_bench bench/ter_baseline_bench.cpp)
 target_link_libraries(ter_baseline_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_baseline_bench)
 ter_enable_release_ipo(ter_baseline_bench)
+
+add_executable(ter_full_bench bench/ter_full_bench.cpp)
+target_link_libraries(ter_full_bench PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_full_bench)
+ter_enable_release_ipo(ter_full_bench)

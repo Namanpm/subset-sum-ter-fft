@@ -1,5 +1,10 @@
 # TER Minimal Prototype Implementation Plan
 
+> Historical T0 plan: this document governed the now-frozen single-merge
+> prototype. Full classical depth-3 TER was subsequently authorized and is
+> governed by `AGENTS.md`; statements below that defer full TER describe the
+> original T0 milestone, not the repository's current scope.
+
 Status: T0 baseline implemented and verified as of 2026-08-14.
 
 Current implementation stop line: only the authentic child generation, exact audit,

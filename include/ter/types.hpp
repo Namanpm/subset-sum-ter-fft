@@ -9,12 +9,25 @@ using QuotientResidue = std::uint32_t;
 
 enum class Status : std::uint8_t {
   Completed,
+  Found,
+  NoWitnessThisAttempt,
+  AttemptLimitReached,
   InvalidConfiguration,
   InvalidShape,
   GenerationIncomplete,
   ResourceLimit,
   Cancelled,
   InvariantViolation,
+};
+
+enum class TerExecutionMode : std::uint8_t {
+  FullTer,
+  FixtureTer,
+};
+
+enum class TerTargetMode : std::uint8_t {
+  Random,
+  GuidedPlanted,
 };
 
 enum class ShapeFamily : std::uint8_t {
