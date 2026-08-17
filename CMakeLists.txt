@@ -54,6 +54,7 @@ add_library(ter_t0 STATIC
   src/instance.cpp
   src/merge.cpp
   src/packed.cpp
+  src/q3report_audit.cpp
   src/reference_vector.cpp
   src/shape.cpp
   src/validator.cpp
@@ -100,6 +101,12 @@ ter_enable_strict_warnings(ter_full_tests)
 ter_enable_release_ipo(ter_full_tests)
 add_test(NAME ter_full_tests COMMAND ter_full_tests)
 
+add_executable(ter_q3report_audit_tests tests/q3report_audit_tests.cpp)
+target_link_libraries(ter_q3report_audit_tests PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_q3report_audit_tests)
+ter_enable_release_ipo(ter_q3report_audit_tests)
+add_test(NAME ter_q3report_audit_tests COMMAND ter_q3report_audit_tests)
+
 add_executable(ter_baseline_bench bench/ter_baseline_bench.cpp)
 target_link_libraries(ter_baseline_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_baseline_bench)
@@ -109,3 +116,8 @@ add_executable(ter_full_bench bench/ter_full_bench.cpp)
 target_link_libraries(ter_full_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_full_bench)
 ter_enable_release_ipo(ter_full_bench)
+
+add_executable(ter_q3report_bench bench/ter_q3report_bench.cpp)
+target_link_libraries(ter_q3report_bench PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_q3report_bench)
+ter_enable_release_ipo(ter_q3report_bench)

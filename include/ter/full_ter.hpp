@@ -128,6 +128,17 @@ struct FullTerResult {
   std::string message;
 };
 
+// A narrowly scoped extraction seam for the count-only Q3REPORT experiment.
+// It captures one genuine complete Full TER L2(A,B,C)->L1 group.  It is not a
+// general solver hook and does not expose Full TER's internal packed entries.
+struct FullTerL2CaptureResult {
+  Status status = Status::InvalidConfiguration;
+  InputSnapshot snapshot{};
+  FullTerParameters parameters{};
+  std::uint32_t group = 0;
+  std::string message;
+};
+
 struct Level3Generation {
   std::vector<ReferenceTernaryVector> first_half;
   std::vector<ReferenceTernaryVector> second_half;
@@ -159,5 +170,10 @@ struct Level3GenerationResult {
 
 [[nodiscard]] FullTerResult solve_full_ter(const Instance& instance,
                                            const FullTerConfig& config);
+
+[[nodiscard]] FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
+    const Instance& instance,
+    const FullTerConfig& config,
+    std::uint32_t group);
 
 }  // namespace ter

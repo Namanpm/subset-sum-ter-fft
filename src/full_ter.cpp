@@ -2,6 +2,7 @@
 
 #include "ter/packed.hpp"
 #include "ter/reference_vector.hpp"
+#include "ter/validator.hpp"
 
 #include <algorithm>
 #include <array>
@@ -2363,6 +2364,198 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
   result.telemetry.total_solver_ns = elapsed_ns(solver_start);
   result.telemetry.fingerprint = fingerprint({}, result.telemetry);
   return result;
+}
+
+FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
+    const Instance& instance,
+    const FullTerConfig& config,
+    const std::uint32_t group) {
+  try {
+    FullTerL2CaptureResult result;
+    result.group = group;
+    if (group >= 3U || config.execution_mode != TerExecutionMode::FullTer ||
+        config.memory_limit_bytes == 0U || instance.n == 0U ||
+        instance.words_per_value !=
+            (static_cast<std::uint64_t>(instance.n) + 63U) / 64U ||
+        instance.values_le.size() !=
+            static_cast<std::size_t>(instance.n) * instance.words_per_value ||
+        instance.root_target_le.size() != instance.words_per_value) {
+      result.message =
+          "capture requires one complete Full TER group and a valid full instance";
+      return result;
+    }
+    const auto parameters = derive_full_ter_parameters(config.family, instance.n, instance.n);
+    if (parameters.status != Status::Completed) {
+      result.status = parameters.status;
+      result.message = parameters.message;
+      return result;
+    }
+    result.parameters = parameters.value;
+    // Q3REPORT has a deliberately native, signed 64-bit quotient contract.
+    if (parameters.value.r1 > 62U || parameters.value.r2 == 0U ||
+        parameters.value.r2 >= parameters.value.r1 ||
+        parameters.value.r1 - parameters.value.r2 > 32U) {
+      result.message =
+          "this genuine Full TER instance is outside Q3REPORT's native quotient range";
+      return result;
+    }
+    if (config.cancellation != nullptr &&
+        config.cancellation->load(std::memory_order_relaxed)) {
+      result.status = Status::Cancelled;
+      result.message = "full TER capture was cancelled";
+      return result;
+    }
+    auto generated = generate_level3_lists(parameters.value,
+                                           TerExecutionMode::FullTer,
+                                           config.fixture_level3_limit,
+                                           config.memory_limit_bytes);
+    if (generated.status != Status::Completed) {
+      result.status = generated.status;
+      result.message = generated.message;
+      return result;
+    }
+    const auto coefficients = instance_coefficients(instance);
+    Targets targets;
+    if (config.target_mode == TerTargetMode::GuidedPlanted) {
+      const auto guided = build_guided_tree(instance, parameters.value);
+      if (!guided.has_value()) {
+        result.message =
+            "guided native capture requires a planted binary root balanced across halves";
+        return result;
+      }
+      targets = guided_targets(*guided, coefficients, parameters.value);
+    } else if (config.target_mode == TerTargetMode::Random) {
+      targets = random_targets(instance, parameters.value, config.seed);
+    } else {
+      result.message = "native capture target mode is invalid";
+      return result;
+    }
+    if (!targets_are_consistent(targets, instance, parameters.value)) {
+      result.status = Status::InvariantViolation;
+      result.message = "captured Full TER targets are inconsistent";
+      return result;
+    }
+    const BigInt full_mask = pow2_mask(instance.n);
+    const auto left_base = materialize_entries(
+        std::move(generated.value.first_half), coefficients, full_mask);
+    const auto right_base = materialize_entries(
+        std::move(generated.value.second_half), coefficients, full_mask);
+    std::uint64_t resident = 0;
+    if (!checked_add(estimated_entries_bytes(left_base),
+                     estimated_entries_bytes(right_base), resident) ||
+        resident > config.memory_limit_bytes) {
+      result.status = Status::ResourceLimit;
+      result.message = "native capture level-3 buffers exceed the memory ceiling";
+      return result;
+    }
+    std::array<std::vector<BigEntry>, 3> children;
+    for (std::size_t child = 0; child < children.size(); ++child) {
+      if (resident >= config.memory_limit_bytes) {
+        result.status = Status::ResourceLimit;
+        result.message = "native capture has no remaining level-2 workspace";
+        return result;
+      }
+      FullTerStageTelemetry telemetry;
+      Status stage_status = Status::InvariantViolation;
+      children[child] = binary_mitm(
+          left_base,
+          right_base,
+          targets.level2[group * 3U + child],
+          parameters.value.r2,
+          parameters.value.level2,
+          config.memory_limit_bytes - resident,
+          telemetry,
+          nullptr,
+          stage_status,
+          result.message);
+      if (stage_status != Status::Completed) {
+        result.status = stage_status;
+        return result;
+      }
+      if (!checked_add(resident, estimated_entries_bytes(children[child]), resident) ||
+          resident > config.memory_limit_bytes) {
+        result.status = Status::ResourceLimit;
+        result.message = "native capture level-2 residents exceed the memory ceiling";
+        return result;
+      }
+    }
+
+    const auto arithmetic = build_arithmetic(
+        instance.n,
+        static_cast<std::uint8_t>(parameters.value.r2),
+        static_cast<std::uint8_t>(parameters.value.r1),
+        targets.level2[group * 3U].to_uint64(),
+        targets.level2[group * 3U + 1U].to_uint64(),
+        targets.level1[group].to_uint64());
+    if (arithmetic.status != Status::Completed ||
+        arithmetic.value.target_c2 != targets.level2[group * 3U + 2U].to_uint64()) {
+      result.status = Status::InvariantViolation;
+      result.message = "native capture could not derive the exact L2-to-L1 merge arithmetic";
+      return result;
+    }
+    InputSnapshot snapshot;
+    snapshot.instance = instance;
+    snapshot.instance.b1 = static_cast<std::uint8_t>(parameters.value.r1);
+    snapshot.instance.residues_m1.clear();
+    snapshot.instance.residues_m1.reserve(coefficients.size());
+    for (const auto& coefficient : coefficients) {
+      snapshot.instance.residues_m1.push_back(
+          coefficient.to_uint64() & arithmetic.value.mask_m1);
+    }
+    snapshot.spec.shape.family = config.family;
+    snapshot.spec.shape.n = instance.n;
+    snapshot.spec.shape.half = parameters.value.level3_active_half;
+    snapshot.spec.shape.child = parameters.value.level2;
+    snapshot.spec.shape.parent = parameters.value.level1;
+    snapshot.spec.arithmetic = arithmetic.value;
+    snapshot.spec.memory_limit_bytes = config.memory_limit_bytes;
+    constexpr std::array<ListRole, 3> roles{ListRole::A, ListRole::B, ListRole::C};
+    const std::array<std::uint64_t, 3> child_targets{
+        arithmetic.value.target_a2, arithmetic.value.target_b2, arithmetic.value.target_c2};
+    for (std::size_t child = 0; child < children.size(); ++child) {
+      struct ConvertedEntry {
+        ReferenceTernaryVector digits;
+        std::uint64_t residue = 0;
+      };
+      std::vector<ConvertedEntry> converted;
+      converted.reserve(children[child].size());
+      for (const auto& entry : children[child]) {
+        converted.push_back(
+            {unpack_digits(entry.digits), entry.residue.to_uint64() & arithmetic.value.mask_m1});
+      }
+      std::sort(converted.begin(), converted.end(), [](const auto& left, const auto& right) {
+        return left.digits < right.digits;
+      });
+      auto& list = snapshot.lists[child];
+      list.role = roles[child];
+      list.target_m2 = child_targets[child];
+      list.entries.reserve(converted.size());
+      list.residues_m1.reserve(converted.size());
+      for (std::size_t id = 0; id < converted.size(); ++id) {
+        list.residues_m1.push_back(converted[id].residue);
+        list.entries.push_back(ReferenceEntry{
+            static_cast<EntryId>(id),
+            quotient_residue(converted[id].residue, child_targets[child], arithmetic.value),
+            std::move(converted[id].digits)});
+      }
+    }
+    const auto audited = audit_snapshot_children(snapshot);
+    if (audited.status != Status::Completed) {
+      result.status = Status::InvariantViolation;
+      result.message = "native capture did not survive the shared TER child audit: " +
+                       audited.message;
+      return result;
+    }
+    result.snapshot = std::move(snapshot);
+    result.status = Status::Completed;
+    return result;
+  } catch (const std::bad_alloc&) {
+    return {Status::ResourceLimit, {}, {}, group, "native Full TER capture allocation failed"};
+  } catch (const std::length_error& error) {
+    return {Status::ResourceLimit, {}, {}, group, error.what()};
+  } catch (const std::invalid_argument& error) {
+    return {Status::InvariantViolation, {}, {}, group, error.what()};
+  }
 }
 
 FullTerResult solve_full_ter(const Instance& instance, const FullTerConfig& config) {
