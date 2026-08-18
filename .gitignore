@@ -285,3 +285,5 @@ Testing/
 /build-asan-msvc/
 /build-analyze-msvc/
 /graphify-out/
+
+.claude/worktrees/
