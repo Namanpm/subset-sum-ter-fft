@@ -386,7 +386,7 @@ void precomputed_twiddles_match_direct_modular_exponentiation() {
         prime == ter::kPaperNttPrime1 ? ter::kPaperNttRoot1 : ter::kPaperNttRoot2;
     for (const std::uint64_t q : {std::uint64_t{2}, std::uint64_t{8}, std::uint64_t{64},
                                   std::uint64_t{256}}) {
-      const auto plan = ter::build_ntt_plan(q, prime, root);
+      const auto plan = ter::build_paper_ntt_plan(q, prime, root);
       require(plan.status == ter::PaperCrossoverStatus::Completed, "twiddle plan must build");
       require(plan.value.forward_twiddles.size() == static_cast<std::size_t>(q) - 1U,
               "the flattened forward table must hold exactly q-1 entries");
@@ -418,6 +418,86 @@ void precomputed_twiddles_match_direct_modular_exponentiation() {
         }
         require(mirrored == reference, "table-driven reversal must equal direct bit reversal");
       }
+    }
+  }
+}
+
+// --- Transform ordering: Gentleman-Sande forward emits the bit-reversed
+// --- spectrum, and composing it with the Cooley-Tukey inverse is the identity,
+// --- so no explicit bit-reversal pass is required anywhere.
+
+void gentleman_sande_forward_emits_the_bit_reversed_spectrum() {
+  for (const std::uint64_t prime : {ter::kPaperNttPrime1, ter::kPaperNttPrime2}) {
+    const std::uint64_t root =
+        prime == ter::kPaperNttPrime1 ? ter::kPaperNttRoot1 : ter::kPaperNttRoot2;
+    for (const std::uint64_t q : {std::uint64_t{2}, std::uint64_t{4}, std::uint64_t{8},
+                                  std::uint64_t{16}, std::uint64_t{64}}) {
+      const auto plan = ter::build_paper_ntt_plan(q, prime, root);
+      require(plan.status == ter::PaperCrossoverStatus::Completed, "ordering plan must build");
+      std::vector<std::uint32_t> input(static_cast<std::size_t>(q));
+      std::uint64_t state = 0x9e3779b97f4a7c15ULL ^ q ^ prime;
+      for (auto& value : input) {
+        state ^= state << 13U;
+        state ^= state >> 7U;
+        state ^= state << 17U;
+        value = static_cast<std::uint32_t>(state % prime);
+      }
+
+      // Independent naive transform: X[k] = sum_n x[n] * w^(n*k) mod p.
+      const std::uint64_t omega = ter::modular_power(root, (prime - 1U) / q, prime);
+      require(ter::modular_power(omega, q, prime) == 1U, "omega must have order dividing Q");
+      std::vector<std::uint32_t> naive(static_cast<std::size_t>(q), 0U);
+      for (std::uint64_t k = 0; k < q; ++k) {
+        std::uint64_t accumulator = 0;
+        for (std::uint64_t n = 0; n < q; ++n) {
+          accumulator =
+              (accumulator + static_cast<std::uint64_t>(input[static_cast<std::size_t>(n)]) *
+                                 ter::modular_power(omega, (n * k) % q, prime)) %
+              prime;
+        }
+        naive[static_cast<std::size_t>(k)] = static_cast<std::uint32_t>(accumulator);
+      }
+
+      const auto forward = ter::ntt_forward_transform(plan.value, input);
+      require(forward.status == ter::PaperCrossoverStatus::Completed,
+              "the forward transform must complete");
+      require(forward.counts.size() == static_cast<std::size_t>(q),
+              "the forward transform must preserve length");
+      for (std::uint32_t index = 0; index < static_cast<std::uint32_t>(q); ++index) {
+        const std::uint32_t mirrored = plan.value.bit_reverse(index);
+        require(forward.counts[index] == naive[mirrored],
+                "Gentleman-Sande output index i must equal the naive spectrum at bit_reverse(i)");
+      }
+      // A pure permutation of the naive spectrum: same multiset, different order.
+      std::vector<std::uint32_t> sorted_forward = forward.counts;
+      std::vector<std::uint32_t> sorted_naive = naive;
+      std::sort(sorted_forward.begin(), sorted_forward.end());
+      std::sort(sorted_naive.begin(), sorted_naive.end());
+      require(sorted_forward == sorted_naive,
+              "the forward spectrum must be a permutation of the naive spectrum");
+
+      // Forward then inverse must be the identity with no permutation pass.
+      // The inverse is exercised through the public convolution against a
+      // delta list, which multiplies the spectrum by the all-ones transform.
+      std::vector<std::uint32_t> delta{0U};
+      std::vector<std::uint32_t> signal;
+      for (std::uint32_t index = 0; index < static_cast<std::uint32_t>(q); ++index) {
+        for (std::uint32_t repeat = 0; repeat < (index % 3U); ++repeat) {
+          signal.push_back(index);
+        }
+      }
+      if (signal.empty()) {
+        continue;
+      }
+      const auto round_trip = ter::ntt_cyclic_pair_counts(plan.value, signal, delta);
+      require(round_trip.status == ter::PaperCrossoverStatus::Completed,
+              "the delta convolution must complete");
+      std::vector<std::uint32_t> expected(static_cast<std::size_t>(q), 0U);
+      for (const std::uint32_t value : signal) {
+        ++expected[value];
+      }
+      require(round_trip.counts == expected,
+              "convolving with a delta must return the original histogram in natural order");
     }
   }
 }
@@ -454,7 +534,7 @@ void ntt_convolution_is_exact_for_both_verified_primes() {
         // N. deliberately repeat residues so multiplicities are exercised.
         right[index] = static_cast<std::uint32_t>((index % 3U == 0U) ? 0U : next() % item.q);
       }
-      const auto plan = ter::build_ntt_plan(item.q, item.prime, item.root);
+      const auto plan = ter::build_paper_ntt_plan(item.q, item.prime, item.root);
       require(plan.status == ter::PaperCrossoverStatus::Completed, "kernel plan must build");
       const auto transformed = ter::ntt_cyclic_pair_counts(plan.value, left, right);
       const auto direct = ter::direct_full_pair_counts(left, right, item.q);
@@ -469,7 +549,7 @@ void ntt_convolution_is_exact_for_both_verified_primes() {
       require(conserved == static_cast<std::uint64_t>(population) * population,
               "pair conservation must hold exactly");
       // Q. cold plan and warm plan must agree coefficient-for-coefficient.
-      const auto cold_plan = ter::build_ntt_plan(item.q, item.prime, item.root);
+      const auto cold_plan = ter::build_paper_ntt_plan(item.q, item.prime, item.root);
       require(cold_plan.status == ter::PaperCrossoverStatus::Completed, "cold plan must build");
       const auto cold = ter::ntt_cyclic_pair_counts(cold_plan.value, left, right);
       require(cold.status == ter::PaperCrossoverStatus::Completed, "cold NTT must complete");
@@ -480,7 +560,7 @@ void ntt_convolution_is_exact_for_both_verified_primes() {
 
 void cyclic_wraparound_and_multiplicity_are_exact() {
   constexpr std::uint64_t kQ = 64U;
-  const auto plan = ter::build_ntt_plan(kQ, ter::kPaperNttPrime1, ter::kPaperNttRoot1);
+  const auto plan = ter::build_paper_ntt_plan(kQ, ter::kPaperNttPrime1, ter::kPaperNttRoot1);
   require(plan.status == ter::PaperCrossoverStatus::Completed, "wraparound plan must build");
 
   // M. residues that straddle 0 and Q-1.
@@ -543,7 +623,7 @@ void unsupported_lengths_and_unsafe_coefficients_fail_closed() {
   require(unsafe.prime == 0U, "an unsafe selection must not name a prime");
 
   constexpr std::uint64_t kQ = std::uint64_t{1} << 15U;
-  const auto plan = ter::build_ntt_plan(kQ, ter::kPaperNttPrime1, ter::kPaperNttRoot1);
+  const auto plan = ter::build_paper_ntt_plan(kQ, ter::kPaperNttPrime1, ter::kPaperNttRoot1);
   require(plan.status == ter::PaperCrossoverStatus::Completed, "safety plan must build");
   const std::vector<std::uint32_t> wide(31'624U, 1U);
   require(static_cast<std::uint64_t>(wide.size()) * wide.size() >= ter::kPaperNttPrime1,
@@ -553,7 +633,7 @@ void unsupported_lengths_and_unsafe_coefficients_fail_closed() {
           "the kernel must refuse coefficients that can wrap the modulus");
   require(refused.counts.empty(), "a refused kernel must not publish counts");
 
-  const auto unusable = ter::build_ntt_plan(std::uint64_t{1} << 24U, ter::kPaperNttPrime1,
+  const auto unusable = ter::build_paper_ntt_plan(std::uint64_t{1} << 24U, ter::kPaperNttPrime1,
                                             ter::kPaperNttRoot1);
   require(unusable.status == ter::PaperCrossoverStatus::NotApplicable,
           "p1 must refuse transform lengths beyond 2^23");
@@ -622,7 +702,7 @@ void experiment_conserves_triples_and_never_mutates_its_snapshot() {
       arithmetic.q, static_cast<std::uint64_t>(a_quotients.size()) * b_quotients.size());
   require(prime.status == ter::PaperCrossoverStatus::Completed, "reference prime must exist");
   require(prime.prime == first.telemetry.prime.prime, "the experiment must use the selected prime");
-  const auto plan = ter::build_ntt_plan(arithmetic.q, first.telemetry.prime.prime,
+  const auto plan = ter::build_paper_ntt_plan(arithmetic.q, first.telemetry.prime.prime,
                                         first.telemetry.prime.primitive_root);
   require(plan.status == ter::PaperCrossoverStatus::Completed, "reference plan must build");
   const auto transformed = ter::ntt_cyclic_pair_counts(plan.value, a_quotients, b_quotients);
@@ -761,6 +841,7 @@ int main() {
   identical_configurations_replay_and_distinct_seeds_diverge();
   the_second_ntt_modulus_is_verified_mathematically();
   precomputed_twiddles_match_direct_modular_exponentiation();
+  gentleman_sande_forward_emits_the_bit_reversed_spectrum();
   ntt_convolution_is_exact_for_both_verified_primes();
   cyclic_wraparound_and_multiplicity_are_exact();
   unsupported_lengths_and_unsafe_coefficients_fail_closed();

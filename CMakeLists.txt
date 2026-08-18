@@ -76,10 +76,13 @@ endif()
 add_library(
     ter_t0
     src/arithmetic.cpp
+    src/full_ter.cpp
     src/generator.cpp
     src/instance.cpp
     src/merge.cpp
     src/packed.cpp
+    src/q3report_audit.cpp
+    src/q3report_crossover.cpp
     src/q3report_paper_crossover.cpp
     src/reference_vector.cpp
     src/shape.cpp
@@ -211,6 +214,14 @@ add_executable(
 target_link_libraries(ter_q3report_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_q3report_bench)
 ter_enable_release_ipo(ter_q3report_bench)
+
+add_executable(
+    ter_q3report_crossover_bench
+    bench/ter_q3report_crossover_bench.cpp
+)
+target_link_libraries(ter_q3report_crossover_bench PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_q3report_crossover_bench)
+ter_enable_release_ipo(ter_q3report_crossover_bench)
 
 add_executable(
     ter_q3report_paper_crossover_bench

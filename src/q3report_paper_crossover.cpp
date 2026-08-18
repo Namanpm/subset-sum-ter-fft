@@ -627,17 +627,65 @@ struct NttComponents {
   std::uint64_t lookup_ns = 0;
 };
 
-void apply_bit_reversal(const NttPlan& plan, std::vector<std::uint32_t>& data) {
-  const auto length = static_cast<std::uint32_t>(plan.q);
-  for (std::uint32_t index = 0; index < length; ++index) {
-    const std::uint32_t mirrored = plan.bit_reverse(index);
-    if (index < mirrored) {
-      std::swap(data[index], data[mirrored]);
+// The transform pair is deliberately asymmetric so that no explicit
+// bit-reversal permutation pass is ever executed.
+//
+//   natural order --[DIF forward]--> bit-reversed spectrum
+//                    pointwise multiply (index-wise, order-agnostic)
+//   bit-reversed  --[DIT inverse]--> natural order
+//
+// Gentleman-Sande decimation-in-frequency consumes natural order and leaves its
+// output bit-reversed; Cooley-Tukey decimation-in-time consumes bit-reversed
+// input and restores natural order.  Composing them cancels the permutation
+// exactly, so the scrambling is a side effect of the stage order rather than a
+// separate O(Q) scattered-memory pass.  `PaperNttPlan::bit_reverse` is retained as
+// declared immutable plan metadata and as the independent test oracle for the
+// forward transform's output ordering.
+
+// Gentleman-Sande: stages run from the full span down to 2, the add/subtract
+// happens first, and the twiddle multiplies the difference.
+void dif_forward_stages(const PaperNttPlan& plan, std::vector<std::uint32_t>& data) {
+  const auto prime = static_cast<std::uint32_t>(plan.prime);
+  const std::uint64_t length = plan.q;
+  const std::uint32_t* const twiddles = plan.forward_twiddles.data();
+  std::uint32_t* const values = data.data();
+  for (std::uint64_t span = length; span >= 2U; span >>= 1U) {
+    const std::uint64_t half = span >> 1U;
+    const std::uint64_t base = half - 1U;
+    for (std::uint64_t start = 0; start < length; start += span) {
+      // offset 0 always has twiddle 1, so its difference needs no multiply.
+      {
+        const std::uint32_t upper = values[start];
+        const std::uint32_t lower = values[start + half];
+        std::uint32_t sum = upper + lower;
+        if (sum >= prime) {
+          sum -= prime;
+        }
+        values[start] = sum;
+        values[start + half] = upper >= lower ? upper - lower : upper + prime - lower;
+      }
+      for (std::uint64_t offset = 1U; offset < half; ++offset) {
+        const std::uint32_t twiddle = twiddles[base + offset];
+        const std::uint32_t upper = values[start + offset];
+        const std::uint32_t lower = values[start + offset + half];
+        std::uint32_t sum = upper + lower;
+        if (sum >= prime) {
+          sum -= prime;
+        }
+        const std::uint32_t difference =
+            upper >= lower ? upper - lower : upper + prime - lower;
+        values[start + offset] = sum;
+        values[start + offset + half] = static_cast<std::uint32_t>(
+            (static_cast<std::uint64_t>(difference) * twiddle) % prime);
+      }
     }
   }
 }
 
-void transform_stages(const NttPlan& plan, std::vector<std::uint32_t>& data, const bool inverse) {
+// Cooley-Tukey: stages run from 2 up to the full span, the twiddle multiplies
+// the odd leg first, and the add/subtract happens afterwards.  Inverse twiddles
+// use the radix-2 identity w^-j = -w^(len/2 - j).
+void dit_inverse_stages(const PaperNttPlan& plan, std::vector<std::uint32_t>& data) {
   const auto prime = static_cast<std::uint32_t>(plan.prime);
   const std::uint64_t length = plan.q;
   const std::uint32_t* const twiddles = plan.forward_twiddles.data();
@@ -646,7 +694,6 @@ void transform_stages(const NttPlan& plan, std::vector<std::uint32_t>& data, con
     const std::uint64_t half = span >> 1U;
     const std::uint64_t base = half - 1U;
     for (std::uint64_t start = 0; start < length; start += span) {
-      // offset 0 always has twiddle 1 in both directions.
       {
         const std::uint32_t even = values[start];
         const std::uint32_t odd = values[start + half];
@@ -654,13 +701,11 @@ void transform_stages(const NttPlan& plan, std::vector<std::uint32_t>& data, con
         if (sum >= prime) {
           sum -= prime;
         }
-        const std::uint32_t difference = even >= odd ? even - odd : even + prime - odd;
         values[start] = sum;
-        values[start + half] = difference;
+        values[start + half] = even >= odd ? even - odd : even + prime - odd;
       }
       for (std::uint64_t offset = 1U; offset < half; ++offset) {
-        const std::uint32_t twiddle =
-            inverse ? prime - twiddles[base + half - offset] : twiddles[base + offset];
+        const std::uint32_t twiddle = prime - twiddles[base + half - offset];
         const std::uint32_t even = values[start + offset];
         const auto odd = static_cast<std::uint32_t>(
             (static_cast<std::uint64_t>(values[start + offset + half]) * twiddle) % prime);
@@ -668,33 +713,26 @@ void transform_stages(const NttPlan& plan, std::vector<std::uint32_t>& data, con
         if (sum >= prime) {
           sum -= prime;
         }
-        const std::uint32_t difference = even >= odd ? even - odd : even + prime - odd;
         values[start + offset] = sum;
-        values[start + offset + half] = difference;
+        values[start + offset + half] = even >= odd ? even - odd : even + prime - odd;
       }
     }
   }
 }
 
-void forward_transform(const NttPlan& plan,
+void forward_transform(const PaperNttPlan& plan,
                        std::vector<std::uint32_t>& data,
                        NttComponents* const components) {
-  const auto reversal_start = Clock::now();
-  apply_bit_reversal(plan, data);
-  components->bit_reversal_ns += elapsed_ns(reversal_start);
   const auto stage_start = Clock::now();
-  transform_stages(plan, data, false);
+  dif_forward_stages(plan, data);
   components->forward_ns += elapsed_ns(stage_start);
 }
 
-void inverse_transform(const NttPlan& plan,
+void inverse_transform(const PaperNttPlan& plan,
                        std::vector<std::uint32_t>& data,
                        NttComponents* const components) {
-  const auto reversal_start = Clock::now();
-  apply_bit_reversal(plan, data);
-  components->bit_reversal_ns += elapsed_ns(reversal_start);
   const auto stage_start = Clock::now();
-  transform_stages(plan, data, true);
+  dit_inverse_stages(plan, data);
   components->inverse_ns += elapsed_ns(stage_start);
   const auto scale_start = Clock::now();
   const auto prime = static_cast<std::uint64_t>(plan.prime);
@@ -706,7 +744,7 @@ void inverse_transform(const NttPlan& plan,
 }
 
 [[nodiscard]] std::vector<std::uint32_t> ntt_pair_counts_internal(
-    const NttPlan& plan,
+    const PaperNttPlan& plan,
     const std::vector<std::uint32_t>& left,
     const std::vector<std::uint32_t>& right,
     NttComponents* const components) {
@@ -927,14 +965,14 @@ NttPrimeSelection select_paper_crossover_prime(const std::uint64_t q,
 // Section 12/13.
 // ---------------------------------------------------------------------------
 
-std::uint64_t NttPlan::plan_bytes() const noexcept {
-  std::uint64_t total = sizeof(NttPlan);
+std::uint64_t PaperNttPlan::plan_bytes() const noexcept {
+  std::uint64_t total = sizeof(PaperNttPlan);
   total += static_cast<std::uint64_t>(reversal_table.capacity()) * sizeof(std::uint32_t);
   total += static_cast<std::uint64_t>(forward_twiddles.capacity()) * sizeof(std::uint32_t);
   return total;
 }
 
-std::uint32_t NttPlan::bit_reverse(const std::uint32_t index) const noexcept {
+std::uint32_t PaperNttPlan::bit_reverse(const std::uint32_t index) const noexcept {
   const std::uint32_t high = reversal_bits;
   const std::uint32_t low = log_q - high;
   const std::uint32_t low_part = index & ((std::uint32_t{1} << low) - 1U);
@@ -942,13 +980,13 @@ std::uint32_t NttPlan::bit_reverse(const std::uint32_t index) const noexcept {
   return (reversal_table[low_part] >> (high - low)) << high | reversal_table[high_part];
 }
 
-std::uint32_t NttPlan::forward_twiddle(const std::uint64_t length,
+std::uint32_t PaperNttPlan::forward_twiddle(const std::uint64_t length,
                                        const std::uint64_t offset) const noexcept {
   const std::uint64_t half = length / 2U;
   return forward_twiddles[static_cast<std::size_t>(half - 1U + offset)];
 }
 
-std::uint32_t NttPlan::inverse_twiddle(const std::uint64_t length,
+std::uint32_t PaperNttPlan::inverse_twiddle(const std::uint64_t length,
                                        const std::uint64_t offset) const noexcept {
   if (offset == 0U) {
     return 1U;
@@ -958,10 +996,10 @@ std::uint32_t NttPlan::inverse_twiddle(const std::uint64_t length,
          forward_twiddles[static_cast<std::size_t>(half - 1U + half - offset)];
 }
 
-NttPlanResult build_ntt_plan(const std::uint64_t q,
-                             const std::uint64_t prime,
-                             const std::uint64_t primitive_root) {
-  NttPlanResult result;
+PaperNttPlanResult build_paper_ntt_plan(const std::uint64_t q,
+                                        const std::uint64_t prime,
+                                        const std::uint64_t primitive_root) {
+  PaperNttPlanResult result;
   if (!is_power_of_two(q) || q < 2U || prime < 3U || prime > std::numeric_limits<std::uint32_t>::max() ||
       primitive_root < 2U || primitive_root >= prime) {
     result.message = "NTT plan requires a power-of-two length and a 32-bit prime modulus";
@@ -1006,18 +1044,37 @@ NttPlanResult build_ntt_plan(const std::uint64_t q,
     return result;
   } catch (const std::bad_alloc&) {
     result.status = PaperCrossoverStatus::ResourceLimit;
-    result.value = NttPlan{};
+    result.value = PaperNttPlan{};
     result.message = "NTT plan allocation failed";
     return result;
   } catch (const std::length_error& error) {
     result.status = PaperCrossoverStatus::ResourceLimit;
-    result.value = NttPlan{};
+    result.value = PaperNttPlan{};
     result.message = error.what();
     return result;
   }
 }
 
-PairCountResult ntt_cyclic_pair_counts(const NttPlan& plan,
+PairCountResult ntt_forward_transform(const PaperNttPlan& plan, std::vector<std::uint32_t> values) {
+  PairCountResult result;
+  if (plan.q < 2U || plan.forward_twiddles.size() != static_cast<std::size_t>(plan.q) - 1U ||
+      values.size() != static_cast<std::size_t>(plan.q)) {
+    result.message = "forward transform requires an initialized plan and a length-Q input";
+    return result;
+  }
+  for (const std::uint32_t value : values) {
+    if (static_cast<std::uint64_t>(value) >= plan.prime) {
+      result.message = "forward transform input leaves the coefficient field";
+      return result;
+    }
+  }
+  dif_forward_stages(plan, values);
+  result.counts = std::move(values);
+  result.status = PaperCrossoverStatus::Completed;
+  return result;
+}
+
+PairCountResult ntt_cyclic_pair_counts(const PaperNttPlan& plan,
                                        const std::vector<std::uint32_t>& left,
                                        const std::vector<std::uint32_t>& right) {
   PairCountResult result;
@@ -1535,7 +1592,7 @@ struct MethodBudget {
   const std::uint64_t element = sizeof(std::uint32_t);
   std::uint64_t direct_full = 0;
   std::uint64_t direct_production = 0;
-  std::uint64_t plan = sizeof(NttPlan);
+  std::uint64_t plan = sizeof(PaperNttPlan);
   std::uint64_t run = 0;
   const std::uint64_t reversal_entries = std::uint64_t{1} << ((log_q + 1U) / 2U);
   if (!add_bytes(&direct_full, q, element) || !add_bytes(&direct_full, c_size, element) ||
@@ -1703,7 +1760,7 @@ struct MethodBudget {
     ids.shrink_to_fit();
     telemetry.raw_arithmetic_triples = raw_production;
 
-    auto plan = build_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
+    auto plan = build_paper_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
     if (plan.status != PaperCrossoverStatus::Completed) {
       result.status = plan.status;
       result.message = "NTT plan construction failed: " + plan.message;
@@ -1727,7 +1784,7 @@ struct MethodBudget {
 
     {
       auto cold_plan =
-          build_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
+          build_paper_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
       if (cold_plan.status != PaperCrossoverStatus::Completed) {
         result.status = cold_plan.status;
         result.message = "cold NTT plan construction failed: " + cold_plan.message;
@@ -1832,11 +1889,11 @@ struct MethodBudget {
   std::vector<std::uint64_t> target_lookup;
   std::vector<std::uint64_t> transform_totals;
 
-  NttPlanResult resident_plan;
+  PaperNttPlanResult resident_plan;
   {
     const auto start = Clock::now();
     resident_plan =
-        build_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
+        build_paper_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
     static_cast<void>(elapsed_ns(start));
   }
   if (resident_plan.status != PaperCrossoverStatus::Completed) {
@@ -1905,7 +1962,7 @@ struct MethodBudget {
     NttComponents components;
     const auto start = Clock::now();
     auto cold_plan =
-        build_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
+        build_paper_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
     const std::uint64_t build_ns = elapsed_ns(start);
     if (cold_plan.status != PaperCrossoverStatus::Completed) {
       result.status = cold_plan.status;

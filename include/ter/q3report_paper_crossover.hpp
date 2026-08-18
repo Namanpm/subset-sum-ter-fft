@@ -102,7 +102,7 @@ struct NttPrimeSelection {
 // Section 12/13: one bounded NTT kernel with a precomputed immutable plan.
 // ---------------------------------------------------------------------------
 
-struct NttPlan {
+struct PaperNttPlan {
   std::uint64_t q = 0;
   std::uint64_t prime = 0;
   std::uint64_t primitive_root = 0;
@@ -111,6 +111,11 @@ struct NttPlan {
   // Bit-reversal permutation data held as a compact two-level table: the
   // high_bits-wide reversal of every high_bits-wide index.  Both halves of a
   // log_q-bit index are reversed through this one immutable table.
+  //
+  // The transform pair is Gentleman-Sande forward / Cooley-Tukey inverse, whose
+  // permutations cancel, so no bit-reversal pass runs in the timed path.  This
+  // table remains declared plan metadata and is the independent oracle that
+  // `ntt_forward_transform` really does emit the bit-reversed spectrum.
   std::uint32_t reversal_bits = 0;
   std::vector<std::uint32_t> reversal_table;
   // Flattened forward stage twiddles: stage length `len` occupies
@@ -125,15 +130,15 @@ struct NttPlan {
                                               std::uint64_t offset) const noexcept;
 };
 
-struct NttPlanResult {
+struct PaperNttPlanResult {
   PaperCrossoverStatus status = PaperCrossoverStatus::InvalidConfiguration;
-  NttPlan value{};
+  PaperNttPlan value{};
   std::string message;
 };
 
-[[nodiscard]] NttPlanResult build_ntt_plan(std::uint64_t q,
-                                           std::uint64_t prime,
-                                           std::uint64_t primitive_root);
+[[nodiscard]] PaperNttPlanResult build_paper_ntt_plan(std::uint64_t q,
+                                                      std::uint64_t prime,
+                                                      std::uint64_t primitive_root);
 
 struct PairCountResult {
   PaperCrossoverStatus status = PaperCrossoverStatus::InvalidConfiguration;
@@ -141,9 +146,16 @@ struct PairCountResult {
   std::string message;
 };
 
+// One Gentleman-Sande forward pass.  Input is natural order; the returned
+// spectrum is in bit-reversed order, which is exactly what the Cooley-Tukey
+// inverse consumes.  Exposed so the ordering invariant can be checked against
+// an independent naive transform rather than assumed.
+[[nodiscard]] PairCountResult ntt_forward_transform(const PaperNttPlan& plan,
+                                                    std::vector<std::uint32_t> values);
+
 // Exact cyclic pair counts over Z_Q from two quotient-residue lists.
 [[nodiscard]] PairCountResult ntt_cyclic_pair_counts(
-    const NttPlan& plan,
+    const PaperNttPlan& plan,
     const std::vector<std::uint32_t>& left,
     const std::vector<std::uint32_t>& right);
 
