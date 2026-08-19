@@ -86,6 +86,7 @@ add_library(
     src/q3report_paper_crossover.cpp
     src/reference_vector.cpp
     src/shape.cpp
+    src/tiled_q3report.cpp
     src/validator.cpp
 )
 
@@ -189,6 +190,18 @@ ter_enable_release_ipo(ter_q3report_paper_crossover_tests)
 add_test(
     NAME ter_q3report_paper_crossover_tests
     COMMAND ter_q3report_paper_crossover_tests
+)
+
+add_executable(
+    ter_tiled_q3report_tests
+    tests/tiled_q3report_tests.cpp
+)
+target_link_libraries(ter_tiled_q3report_tests PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_tiled_q3report_tests)
+ter_enable_release_ipo(ter_tiled_q3report_tests)
+add_test(
+    NAME ter_tiled_q3report_tests
+    COMMAND ter_tiled_q3report_tests
 )
 
 add_executable(

@@ -617,6 +617,89 @@ struct DirectProductionComponents {
   return raw;
 }
 
+struct DirectTiledComponents {
+  std::uint64_t setup_ns = 0;
+  std::uint64_t scan_ns = 0;
+  TiledQ3ReportTelemetry tiling{};
+};
+
+// Section 11 DIRECT_PRODUCTION_TILED: the same production-relevant raw triple
+// count as DIRECT_PRODUCTION, located through the shared cache-tiled primitive
+// instead of a Q-wide random-access index.  It is an additional comparator; it
+// never replaces the historical method.
+[[nodiscard]] std::uint64_t direct_tiled_method(const std::vector<std::uint32_t>& left,
+                                                const std::vector<std::uint32_t>& right,
+                                                const std::vector<std::uint32_t>& lookup,
+                                                const std::uint64_t q,
+                                                const std::uint32_t tau,
+                                                const std::uint64_t memory_limit_bytes,
+                                                DirectTiledComponents* const components,
+                                                PaperCrossoverStatus* const status,
+                                                std::string* const message) {
+  // The primitive receives caller-owned TiledQEntry vectors, but this paper
+  // comparator creates those vectors itself.  Charge them before allocation;
+  // otherwise its advertised ceiling would be able to reject the kernel while
+  // still permitting this wrapper to exceed it first.
+  std::uint64_t input_entries = 0;
+  std::uint64_t input_bytes = 0;
+  std::uint64_t count_auxiliary = 0;
+  std::uint64_t report_auxiliary = 0;
+  if (!checked_add(left.size(), right.size(), &input_entries) ||
+      !checked_add(input_entries, lookup.size(), &input_entries) ||
+      !checked_multiply(input_entries, sizeof(TiledQEntry), &input_bytes) ||
+      !tiled_q3report_auxiliary_bytes(left.size(), right.size(), lookup.size(), q, 15U, false,
+                                      &count_auxiliary, &report_auxiliary) ||
+      !checked_add(input_bytes, count_auxiliary, &input_bytes)) {
+    *status = PaperCrossoverStatus::ResourceLimit;
+    *message = "tiled comparator memory accounting overflows";
+    return 0U;
+  }
+  if (memory_limit_bytes != 0U && input_bytes > memory_limit_bytes) {
+    *status = PaperCrossoverStatus::ResourceLimit;
+    *message = "tiled comparator inputs and auxiliary memory exceed the declared ceiling";
+    return 0U;
+  }
+  const auto to_entries = [](const std::vector<std::uint32_t>& source) {
+    std::vector<TiledQEntry> entries;
+    entries.reserve(source.size());
+    for (std::size_t index = 0; index < source.size(); ++index) {
+      entries.push_back(TiledQEntry{source[index], static_cast<EntryId>(index)});
+    }
+    return entries;
+  };
+  const auto a = to_entries(left);
+  const auto b = to_entries(right);
+  const auto c = to_entries(lookup);
+  TiledQ3ReportConfig config;
+  config.preferred_tile_bits = 15U;
+  config.memory_limit_bytes = memory_limit_bytes;
+  const auto reported = tiled_q3report_count(a, b, c, tau, q, config);
+  components->setup_ns = reported.telemetry.setup_ns;
+  components->scan_ns = reported.telemetry.scan_ns;
+  components->tiling = reported.telemetry;
+  switch (reported.status) {
+    case TiledQ3ReportStatus::Completed:
+      *status = PaperCrossoverStatus::Completed;
+      break;
+    case TiledQ3ReportStatus::NotApplicable:
+      *status = PaperCrossoverStatus::NotApplicable;
+      break;
+    case TiledQ3ReportStatus::ResourceLimit:
+      *status = PaperCrossoverStatus::ResourceLimit;
+      break;
+    case TiledQ3ReportStatus::ArithmeticSafetyFailure:
+      *status = PaperCrossoverStatus::ArithmeticSafetyFailure;
+      break;
+    case TiledQ3ReportStatus::InvalidConfiguration:
+    case TiledQ3ReportStatus::Cancelled:
+    case TiledQ3ReportStatus::InvariantViolation:
+      *status = PaperCrossoverStatus::InternalInvariantFailure;
+      break;
+  }
+  *message = reported.message;
+  return reported.telemetry.raw_triples;
+}
+
 struct NttComponents {
   std::uint64_t frequency_build_ns = 0;
   std::uint64_t bit_reversal_ns = 0;
@@ -1579,6 +1662,7 @@ namespace {
 struct MethodBudget {
   std::uint64_t direct_full = 0;
   std::uint64_t direct_production = 0;
+  std::uint64_t direct_tiled = 0;
   std::uint64_t ntt_plan = 0;
   std::uint64_t ntt_run = 0;
   std::uint64_t ntt_peak = 0;
@@ -1587,6 +1671,8 @@ struct MethodBudget {
 
 [[nodiscard]] MethodBudget compute_budgets(const std::uint64_t q,
                                            const std::uint32_t log_q,
+                                           const std::uint64_t a_size,
+                                           const std::uint64_t b_size,
                                            const std::uint64_t c_size) noexcept {
   MethodBudget budget;
   const std::uint64_t element = sizeof(std::uint32_t);
@@ -1607,8 +1693,22 @@ struct MethodBudget {
   if (!checked_add(plan, run, &peak)) {
     return budget;
   }
+  // The tiled comparator's fixed auxiliary requirement, computed by the shared
+  // primitive so the two never disagree.  It is evaluated independently of every
+  // other method and is never summed with them.
+  std::uint64_t tiled_count_bytes = 0;
+  std::uint64_t tiled_report_bytes = 0;
+  std::uint64_t tiled_input_entries = 0;
+  if (!tiled_q3report_auxiliary_bytes(a_size, b_size, c_size, q, 15U, false, &tiled_count_bytes,
+                                      &tiled_report_bytes) ||
+      !checked_add(a_size, b_size, &tiled_input_entries) ||
+      !checked_add(tiled_input_entries, c_size, &tiled_input_entries) ||
+      !add_bytes(&tiled_count_bytes, tiled_input_entries, sizeof(TiledQEntry))) {
+    return budget;
+  }
   budget.direct_full = direct_full;
   budget.direct_production = direct_production;
+  budget.direct_tiled = tiled_count_bytes;
   budget.ntt_plan = plan;
   budget.ntt_run = run;
   budget.ntt_peak = peak;
@@ -1684,7 +1784,8 @@ struct MethodBudget {
   const auto tau = static_cast<std::uint32_t>(arithmetic.tau);
   const auto mask = static_cast<std::uint32_t>(arithmetic.q - 1U);
 
-  const auto budget = compute_budgets(arithmetic.q, snapshot.point.q_bits, telemetry.c_size);
+  const auto budget = compute_budgets(arithmetic.q, snapshot.point.q_bits, telemetry.a_size,
+                                      telemetry.b_size, telemetry.c_size);
   if (!budget.representable) {
     result.status = PaperCrossoverStatus::ResourceLimit;
     result.message = "method memory accounting overflows";
@@ -1695,6 +1796,7 @@ struct MethodBudget {
   telemetry.ntt_peak_bytes = budget.ntt_peak;
   telemetry.direct_full.peak_bytes = budget.direct_full;
   telemetry.direct_production.peak_bytes = budget.direct_production;
+  telemetry.direct_tiled.peak_bytes = budget.direct_tiled;
   telemetry.ntt_warm.peak_bytes = budget.ntt_peak;
   telemetry.ntt_cold.peak_bytes = budget.ntt_peak;
 
@@ -1711,6 +1813,7 @@ struct MethodBudget {
   };
   evaluate(&telemetry.direct_full, budget.direct_full);
   evaluate(&telemetry.direct_production, budget.direct_production);
+  evaluate(&telemetry.direct_tiled, budget.direct_tiled);
   evaluate(&telemetry.ntt_warm, budget.ntt_peak);
   evaluate(&telemetry.ntt_cold, budget.ntt_peak);
   if (any_rejected) {
@@ -1760,6 +1863,31 @@ struct MethodBudget {
     ids.shrink_to_fit();
     telemetry.raw_arithmetic_triples = raw_production;
 
+    // Four-way exact agreement: direct_full_pair_counts, DIRECT_PRODUCTION,
+    // DIRECT_PRODUCTION_TILED, and (below) the NTT selected-target sum.
+    DirectTiledComponents tiled_components;
+    PaperCrossoverStatus tiled_status = PaperCrossoverStatus::InvalidConfiguration;
+    std::string tiled_message;
+    const std::uint64_t raw_tiled =
+        direct_tiled_method(quotients[0], quotients[1], quotients[2], arithmetic.q, tau,
+                            config.memory_limit_bytes, &tiled_components, &tiled_status,
+                            &tiled_message);
+    if (tiled_status != PaperCrossoverStatus::Completed) {
+      result.status = tiled_status;
+      result.message = "tiled reference count failed: " + tiled_message;
+      return result;
+    }
+    if (raw_tiled != raw_production || raw_tiled != selected_direct) {
+      result.status = PaperCrossoverStatus::InternalInvariantFailure;
+      result.message = "DIRECT_PRODUCTION_TILED disagrees with the direct authorities";
+      return result;
+    }
+    if (tiled_components.tiling.logical_pairs != telemetry.pair_universe) {
+      result.status = PaperCrossoverStatus::InternalInvariantFailure;
+      result.message = "tiled logical pair universe disagrees with |A||B|";
+      return result;
+    }
+
     auto plan = build_paper_ntt_plan(arithmetic.q, telemetry.prime.prime, telemetry.prime.primitive_root);
     if (plan.status != PaperCrossoverStatus::Completed) {
       result.status = plan.status;
@@ -1777,8 +1905,9 @@ struct MethodBudget {
     for (const std::uint32_t c : quotients[2]) {
       selected_ntt += warm.counts[(tau - c) & mask];
     }
-    telemetry.triple_conservation_passed =
-        raw_production == selected_direct && raw_production == selected_ntt;
+    telemetry.triple_conservation_passed = raw_production == selected_direct &&
+                                           raw_production == selected_ntt &&
+                                           raw_production == raw_tiled;
     direct.counts.clear();
     direct.counts.shrink_to_fit();
 
@@ -1820,12 +1949,17 @@ struct MethodBudget {
   std::vector<std::uint64_t> direct_production_totals;
   std::vector<std::uint64_t> direct_production_index;
   std::vector<std::uint64_t> direct_production_scan;
+  std::vector<std::uint64_t> direct_tiled_totals;
+  std::vector<std::uint64_t> direct_tiled_setup;
+  std::vector<std::uint64_t> direct_tiled_scan;
   direct_full_totals.reserve(config.timed_repetitions);
   direct_production_totals.reserve(config.timed_repetitions);
+  direct_tiled_totals.reserve(config.timed_repetitions);
 
   // ---- PHASE B: direct timing only.  No NTT buffer is alive here. ----
   std::uint64_t direct_full_selected = 0;
   std::uint64_t direct_production_raw = 0;
+  std::uint64_t direct_tiled_raw = 0;
   for (std::uint32_t repetition = 0; repetition < total_repetitions; ++repetition) {
     const bool measured = repetition >= config.warmup_repetitions;
     {
@@ -1857,12 +1991,43 @@ struct MethodBudget {
         direct_production_scan.push_back(components.scan_ns);
       }
     }
+    {
+      // Independently benchmarked: its own allocation, its own timing state.
+      DirectTiledComponents components;
+      PaperCrossoverStatus tiled_status = PaperCrossoverStatus::InvalidConfiguration;
+      std::string tiled_message;
+      const auto start = Clock::now();
+      direct_tiled_raw =
+          direct_tiled_method(quotients[0], quotients[1], quotients[2], arithmetic.q, tau,
+                              config.memory_limit_bytes, &components, &tiled_status,
+                              &tiled_message);
+      const std::uint64_t total = elapsed_ns(start);
+      if (tiled_status != PaperCrossoverStatus::Completed) {
+        telemetry.direct_tiled.status = tiled_status;
+        telemetry.direct_tiled.message = tiled_message;
+        result.status = tiled_status;
+        result.message = "timed tiled comparator failed: " + tiled_message;
+        return result;
+      }
+      if (measured) {
+        direct_tiled_totals.push_back(total);
+        direct_tiled_setup.push_back(components.setup_ns);
+        direct_tiled_scan.push_back(components.scan_ns);
+        telemetry.direct_tiled_tiling = components.tiling;
+      }
+    }
   }
   if (config.run_correctness_phase &&
       (direct_full_selected != telemetry.raw_arithmetic_triples ||
-       direct_production_raw != telemetry.raw_arithmetic_triples)) {
+       direct_production_raw != telemetry.raw_arithmetic_triples ||
+       direct_tiled_raw != telemetry.raw_arithmetic_triples)) {
     result.status = PaperCrossoverStatus::InternalInvariantFailure;
     result.message = "timed direct paths disagree with the untimed correctness phase";
+    return result;
+  }
+  if (direct_tiled_raw != direct_production_raw) {
+    result.status = PaperCrossoverStatus::InternalInvariantFailure;
+    result.message = "timed tiled comparator disagrees with timed DIRECT_PRODUCTION";
     return result;
   }
   telemetry.raw_arithmetic_triples = direct_production_raw;
@@ -1870,6 +2035,10 @@ struct MethodBudget {
   telemetry.direct_full.total = summarize(direct_full_totals);
   telemetry.direct_production.status = PaperCrossoverStatus::Completed;
   telemetry.direct_production.total = summarize(direct_production_totals);
+  telemetry.direct_tiled.status = PaperCrossoverStatus::Completed;
+  telemetry.direct_tiled.total = summarize(direct_tiled_totals);
+  telemetry.components.direct_tiled_setup = summarize(std::move(direct_tiled_setup));
+  telemetry.components.direct_tiled_scan = summarize(std::move(direct_tiled_scan));
   telemetry.components.direct_full_setup = summarize(std::move(direct_full_setup));
   telemetry.components.direct_full_pair_count = summarize(std::move(direct_full_count));
   telemetry.components.direct_full_lookup = summarize(std::move(direct_full_lookup));

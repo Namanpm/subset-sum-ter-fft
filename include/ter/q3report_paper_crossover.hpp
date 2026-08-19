@@ -12,6 +12,7 @@
 
 #include "ter/full_ter.hpp"
 #include "ter/model.hpp"
+#include "ter/tiled_q3report.hpp"
 #include "ter/types.hpp"
 
 #include <array>
@@ -289,6 +290,8 @@ struct PaperComponentTimings {
   PaperTimingSummary direct_full_lookup{};
   PaperTimingSummary direct_production_index{};
   PaperTimingSummary direct_production_scan{};
+  PaperTimingSummary direct_tiled_setup{};
+  PaperTimingSummary direct_tiled_scan{};
   PaperTimingSummary ntt_plan_build{};
   PaperTimingSummary ntt_frequency_build{};
   PaperTimingSummary ntt_bit_reversal{};
@@ -337,6 +340,11 @@ struct PaperCrossoverTelemetry {
 
   PaperMethodOutcome direct_full{};
   PaperMethodOutcome direct_production{};
+  // DIRECT_PRODUCTION_TILED is a separately named additional comparator.  The
+  // historical DIRECT_PRODUCTION method above is part of a completed experiment
+  // and its semantics, timings and CSV fields are deliberately untouched.
+  PaperMethodOutcome direct_tiled{};
+  TiledQ3ReportTelemetry direct_tiled_tiling{};
   PaperMethodOutcome ntt_warm{};
   PaperMethodOutcome ntt_cold{};
   std::uint64_t ntt_three_merge_amortized_ns = 0;

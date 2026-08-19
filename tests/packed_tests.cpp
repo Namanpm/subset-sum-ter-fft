@@ -148,12 +148,47 @@ void packed_baseline_matches_scalar_across_deterministic_seeds() {
   }
 }
 
+void packed_tiled_merge_matches_scalar_and_packed_baselines() {
+  for (std::uint64_t seed = 1; seed <= 12U; ++seed) {
+    const auto built = ter::build_snapshot(packed_config(0x71ED000U + seed));
+    expect(built.status == ter::Status::Completed, "tiled packed differential snapshot builds");
+    if (built.status != ter::Status::Completed) {
+      continue;
+    }
+    const auto packed = ter::pack_snapshot(built.snapshot);
+    expect(packed.status == ter::Status::Completed, "tiled packed differential snapshot packs");
+    if (packed.status != ter::Status::Completed) {
+      continue;
+    }
+
+    const auto scalar = ter::run_pair_tiled(built.snapshot, ter::OutputPolicy::Correctness);
+    const auto packed_baseline =
+        ter::run_pair_baseline_packed(packed.snapshot, ter::OutputPolicy::Correctness);
+    const auto packed_tiled =
+        ter::run_pair_tiled_packed(packed.snapshot, ter::OutputPolicy::Correctness);
+
+    expect(packed_tiled.status == ter::Status::Completed, "tiled packed merge completes");
+    expect(packed_tiled.parents == scalar.parents,
+           "tiled packed merge emits the scalar tiled canonical parent set");
+    expect(packed_tiled.parents == packed_baseline.parents,
+           "tiled packed merge emits the packed baseline canonical parent set");
+    expect(packed_tiled.valid_provenance == scalar.valid_provenance,
+           "tiled packed merge preserves scalar tiled provenance");
+    expect(packed_tiled.telemetry.candidate_triples == scalar.telemetry.candidate_triples &&
+               packed_tiled.telemetry.raw_valid_triples == scalar.telemetry.raw_valid_triples,
+           "tiled packed merge preserves arithmetic and structurally valid multiplicities");
+    expect(packed_tiled.telemetry.pair_records == 0U,
+           "tiled packed merge does not materialize pair records");
+  }
+}
+
 }  // namespace
 
 int main() {
   packed_vectors_round_trip_and_mask_high_bits();
   packed_sum_logic_matches_all_ternary_truth_table_rows();
   packed_baseline_matches_scalar_across_deterministic_seeds();
+  packed_tiled_merge_matches_scalar_and_packed_baselines();
 
   if (failures != 0) {
     std::cerr << failures << " packed assertion(s) failed\n";

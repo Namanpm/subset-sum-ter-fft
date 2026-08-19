@@ -165,6 +165,96 @@ void practical_baseline_equals_the_cubic_oracle() {
   expect(!baseline.parents.empty(), "planted triple survives into the parent list");
 }
 
+// The tiled reference merge must be semantically indistinguishable from the
+// existing exact baselines: same parents, same multiplicities, same provenance.
+void tiled_reference_merge_equals_the_exact_baselines() {
+  const auto built = ter::build_snapshot(merge_config());
+  expect(built.status == ter::Status::Completed, "tiled merge fixture builds");
+  if (built.status != ter::Status::Completed) {
+    return;
+  }
+  const auto cubic = ter::run_cubic_oracle(built.snapshot, ter::OutputPolicy::Correctness);
+  const auto baseline =
+      ter::run_pair_baseline(built.snapshot, ter::OutputPolicy::Correctness);
+  const auto tiled = ter::run_pair_tiled(built.snapshot, ter::OutputPolicy::Correctness);
+  expect(tiled.status == ter::Status::Completed, "tiled merge completes");
+  expect(tiled.parents == cubic.parents,
+         "tiled merge and cubic oracle emit the same canonical parent set");
+  expect(tiled.parents == baseline.parents,
+         "tiled merge and pair baseline emit the same canonical parent set");
+  expect(tiled.valid_provenance == baseline.valid_provenance,
+         "tiled merge preserves exact provenance multiplicity");
+  expect(tiled.telemetry.raw_valid_triples == baseline.telemetry.raw_valid_triples,
+         "tiled merge counts the same raw valid triples");
+  expect(tiled.telemetry.candidate_triples == baseline.telemetry.candidate_triples,
+         "tiled merge locates exactly the same modular candidates");
+  expect(tiled.telemetry.unique_parents == baseline.telemetry.unique_parents &&
+             tiled.telemetry.duplicate_parents == baseline.telemetry.duplicate_parents,
+         "tiled merge reports the same parent multiplicity split");
+  expect(tiled.telemetry.structural_rejects == baseline.telemetry.structural_rejects &&
+             tiled.telemetry.distribution_rejects == baseline.telemetry.distribution_rejects &&
+             tiled.telemetry.arithmetic_rejects == baseline.telemetry.arithmetic_rejects,
+         "tiled merge reproduces the same rejection breakdown");
+  expect(tiled.telemetry.orientation.pair_roles == baseline.telemetry.orientation.pair_roles &&
+             tiled.telemetry.orientation.lookup_role ==
+                 baseline.telemetry.orientation.lookup_role,
+         "tiled merge uses the same pair orientation planner");
+
+  // Structural difference: no pair-record array is materialized.
+  expect(tiled.telemetry.pair_records == 0U,
+         "the tiled path materializes no pair records");
+  expect(baseline.telemetry.pair_records == baseline.telemetry.pair_combinations,
+         "the historical baseline still materializes one record per pair");
+  expect(tiled.telemetry.pair_combinations == baseline.telemetry.pair_combinations,
+         "the logical pair universe is unchanged");
+  expect(tiled.telemetry.pair_index_bytes < baseline.telemetry.pair_index_bytes,
+         "the tiled path declares a smaller arithmetic search structure");
+
+  // Benchmark policy must agree with the baseline too.
+  const auto tiled_bench = ter::run_pair_tiled(built.snapshot, ter::OutputPolicy::Benchmark);
+  const auto baseline_bench =
+      ter::run_pair_baseline(built.snapshot, ter::OutputPolicy::Benchmark);
+  expect(tiled_bench.status == ter::Status::Completed, "tiled benchmark policy completes");
+  expect(tiled_bench.parents == baseline_bench.parents,
+         "tiled and baseline agree under benchmark policy");
+  expect(tiled_bench.valid_provenance.empty(),
+         "benchmark policy collects no provenance");
+}
+
+void tiled_reference_merge_fails_closed_and_handles_empty_results() {
+  auto built = ter::build_snapshot(merge_config());
+  expect(built.status == ter::Status::Completed, "tiled resource fixture builds");
+  if (built.status != ter::Status::Completed) {
+    return;
+  }
+  built.snapshot.spec.memory_limit_bytes = 1U;
+  const auto limited = ter::run_pair_tiled(built.snapshot, ter::OutputPolicy::Benchmark);
+  expect(limited.status == ter::Status::ResourceLimit,
+         "tiled auxiliary exhaustion reports ResourceLimit");
+  expect(limited.parents.empty(), "a resource failure exposes no partial parent list");
+
+  auto empty = ter::build_snapshot(merge_config());
+  expect(empty.status == ter::Status::Completed, "tiled empty fixture builds");
+  if (empty.status != ter::Status::Completed) {
+    return;
+  }
+  for (auto& list : empty.snapshot.lists) {
+    list.entries.clear();
+    list.residues_m1.clear();
+  }
+  const auto result = ter::run_pair_tiled(empty.snapshot, ter::OutputPolicy::Correctness);
+  expect(result.status == ter::Status::Completed,
+         "an exhaustively empty tiled merge is a successful computation");
+  expect(result.parents.empty() && result.telemetry.candidate_triples == 0U,
+         "an empty tiled merge reports zero parents and zero candidates");
+
+  auto corrupted = ter::build_snapshot(merge_config());
+  corrupted.snapshot.lists[0].entries[0].q ^= 1U;
+  expect(ter::run_pair_tiled(corrupted.snapshot, ter::OutputPolicy::Correctness).status !=
+             ter::Status::Completed,
+         "tiled merge rejects corrupted child metadata");
+}
+
 void pair_orientation_is_deterministic_and_minimal() {
   auto built = ter::build_snapshot(merge_config());
   expect(built.status == ter::Status::Completed, "orientation fixture builds");
@@ -252,6 +342,8 @@ void a_genuine_empty_result_is_completed() {
 int main() {
   audit_validator_checks_every_parent_condition();
   practical_baseline_equals_the_cubic_oracle();
+  tiled_reference_merge_equals_the_exact_baselines();
+  tiled_reference_merge_fails_closed_and_handles_empty_results();
   pair_orientation_is_deterministic_and_minimal();
   resource_failure_never_becomes_a_completed_empty_merge();
   public_merge_rejects_corrupted_child_metadata();

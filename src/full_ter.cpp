@@ -1,7 +1,9 @@
 #include "ter/full_ter.hpp"
 
+#include "ter/arithmetic.hpp"
 #include "ter/packed.hpp"
 #include "ter/reference_vector.hpp"
+#include "ter/tiled_q3report.hpp"
 #include "ter/validator.hpp"
 
 #include <algorithm>
@@ -962,6 +964,246 @@ void canonicalize(std::vector<BigEntry>& entries) {
   canonicalize(result);
   telemetry.survivors_after_dedup += result.size();
   telemetry.allocated_bytes = std::max(telemetry.allocated_bytes, pair_bytes);
+  status = Status::Completed;
+  return result;
+}
+
+// Native-width L2-to-L1 tiled reporter.  This owns no ternary arithmetic of
+// its own: it asks tiled_q3report for exact quotient witnesses, then retains
+// the established packed add_three/canonicalization/provenance semantics.
+struct FullTerTiledContext {
+  const std::vector<BigEntry>* first = nullptr;
+  const std::vector<BigEntry>* second = nullptr;
+  const std::vector<BigEntry>* third = nullptr;
+  const DigitCounts* expected = nullptr;
+  std::vector<BigEntry>* result = nullptr;
+  std::vector<ProvenanceRecord>* provenance = nullptr;
+  FullTerStageTelemetry* telemetry = nullptr;
+  std::uint64_t maximum_outputs = 0;
+};
+
+TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
+                                          const EntryId first_id,
+                                          const EntryId second_id,
+                                          const EntryId third_id) {
+  auto* const context = static_cast<FullTerTiledContext*>(opaque);
+  // Stop before constructing another parent once the pre-reserved output
+  // budget is full.  A resource limit must not silently drop a valid parent.
+  if (context->result->size() >= context->maximum_outputs) {
+    return TiledVisitDecision::ResourceLimit;
+  }
+  ++context->telemetry->modular_candidates;
+  auto parent = add_three((*context->first)[first_id].digits,
+                          (*context->second)[second_id].digits,
+                          (*context->third)[third_id].digits,
+                          *context->expected,
+                          *context->telemetry);
+  if (!parent.has_value()) {
+    return TiledVisitDecision::Continue;
+  }
+  context->result->push_back(BigEntry{
+      std::move(*parent),
+      add_mod(add_mod((*context->first)[first_id].residue,
+                      (*context->second)[second_id].residue,
+                      (*context->third)[third_id].digits.n),
+              (*context->third)[third_id].residue,
+              (*context->third)[third_id].digits.n)});
+  if (context->provenance != nullptr) {
+    context->provenance->push_back(ProvenanceRecord{context->result->back().digits,
+                                                    first_id,
+                                                    second_id,
+                                                    third_id});
+  }
+  return TiledVisitDecision::Continue;
+}
+
+[[nodiscard]] bool tiled_l2_to_l1_supported(const FullTerParameters& parameters) noexcept {
+  return parameters.r2 > 0U && parameters.r2 < parameters.r1 && parameters.r1 < 64U &&
+         parameters.r1 - parameters.r2 <= 32U;
+}
+
+[[nodiscard]] std::vector<BigEntry> ternary_tiled_l2_to_l1_native(
+    const std::vector<BigEntry>& first,
+    const std::vector<BigEntry>& second,
+    const std::vector<BigEntry>& third,
+    const BigInt& first_target_r2,
+    const BigInt& second_target_r2,
+    const BigInt& third_target_r2,
+    const BigInt& parent_target_r1,
+    const FullTerParameters& parameters,
+    const DigitCounts& expected,
+    const std::uint64_t memory_limit_bytes,
+    FullTerStageTelemetry& telemetry,
+    std::vector<ProvenanceRecord>* provenance,
+    Status& status,
+    std::string& message) {
+  if (first.empty() || second.empty() || third.empty()) {
+    status = Status::Completed;
+    return {};
+  }
+  if (!tiled_l2_to_l1_supported(parameters)) {
+    status = Status::InvalidConfiguration;
+    message = "native tiled L2-to-L1 called outside its supported quotient width";
+    return {};
+  }
+  if (first.size() > std::numeric_limits<EntryId>::max() ||
+      second.size() > std::numeric_limits<EntryId>::max() ||
+      third.size() > std::numeric_limits<EntryId>::max()) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 list index exceeds EntryId range";
+    return {};
+  }
+
+  const auto arithmetic = build_arithmetic(
+      parameters.n,
+      static_cast<std::uint8_t>(parameters.r2),
+      static_cast<std::uint8_t>(parameters.r1),
+      first_target_r2.to_uint64(),
+      second_target_r2.to_uint64(),
+      parent_target_r1.to_uint64());
+  if (arithmetic.status != Status::Completed) {
+    status = arithmetic.status;
+    message = "native tiled L2-to-L1 arithmetic construction failed: " + arithmetic.message;
+    return {};
+  }
+  if (arithmetic.value.target_c2 != third_target_r2.to_uint64()) {
+    status = Status::InvariantViolation;
+    message = "derived third L2 target disagrees with the stored Full TER target";
+    return {};
+  }
+
+  std::uint64_t pair_candidates = 0;
+  if (!checked_multiply(first.size(), second.size(), pair_candidates) ||
+      !checked_add(telemetry.pair_candidates, pair_candidates, telemetry.pair_candidates)) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 pair count overflow";
+    return {};
+  }
+
+  std::uint64_t count_auxiliary = 0;
+  std::uint64_t report_auxiliary = 0;
+  if (!tiled_q3report_auxiliary_bytes(first.size(), second.size(), third.size(),
+                                      arithmetic.value.q, 15U, true,
+                                      &count_auxiliary, &report_auxiliary)) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 auxiliary accounting overflow";
+    return {};
+  }
+  std::uint64_t quotient_count = 0;
+  std::uint64_t quotient_bytes = 0;
+  if (!checked_add(first.size(), second.size(), quotient_count) ||
+      !checked_add(quotient_count, third.size(), quotient_count) ||
+      !checked_multiply(quotient_count, sizeof(TiledQEntry), quotient_bytes)) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 quotient-array accounting overflow";
+    return {};
+  }
+  std::uint64_t fixed_bytes = report_auxiliary;
+  if (!checked_add(fixed_bytes, quotient_bytes, fixed_bytes) || fixed_bytes > memory_limit_bytes) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 fixed workspace exceeds the declared limit";
+    return {};
+  }
+
+  std::uint64_t per_output = estimated_entry_bytes(parameters.n);
+  const std::uint64_t packed_word_bytes =
+      2U * ((static_cast<std::uint64_t>(parameters.n) + 63U) / 64U) * sizeof(std::uint64_t);
+  if (provenance != nullptr &&
+      (!checked_add(per_output, sizeof(ProvenanceRecord), per_output) ||
+       !checked_add(per_output, packed_word_bytes, per_output))) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 provenance accounting overflow";
+    return {};
+  }
+  const std::uint64_t remaining = memory_limit_bytes - fixed_bytes;
+  const std::uint64_t maximum_outputs = per_output == 0U ? 0U : remaining / per_output;
+  std::uint64_t output_budget = 0;
+  if (!checked_multiply(maximum_outputs, per_output, output_budget) ||
+      !checked_add(fixed_bytes, output_budget, output_budget) ||
+      maximum_outputs > std::numeric_limits<std::size_t>::max()) {
+    status = Status::ResourceLimit;
+    message = "native tiled L2-to-L1 output budget overflow";
+    return {};
+  }
+
+  std::vector<TiledQEntry> first_q;
+  std::vector<TiledQEntry> second_q;
+  std::vector<TiledQEntry> third_q;
+  first_q.reserve(first.size());
+  second_q.reserve(second.size());
+  third_q.reserve(third.size());
+  for (std::size_t index = 0; index < first.size(); ++index) {
+    first_q.push_back(TiledQEntry{quotient_residue(
+                                      first[index].residue.to_uint64() & arithmetic.value.mask_m1,
+                                      arithmetic.value.target_a2,
+                                      arithmetic.value),
+                                  static_cast<EntryId>(index)});
+  }
+  for (std::size_t index = 0; index < second.size(); ++index) {
+    second_q.push_back(TiledQEntry{quotient_residue(
+                                       second[index].residue.to_uint64() & arithmetic.value.mask_m1,
+                                       arithmetic.value.target_b2,
+                                       arithmetic.value),
+                                   static_cast<EntryId>(index)});
+  }
+  for (std::size_t index = 0; index < third.size(); ++index) {
+    third_q.push_back(TiledQEntry{quotient_residue(
+                                      third[index].residue.to_uint64() & arithmetic.value.mask_m1,
+                                      arithmetic.value.target_c2,
+                                      arithmetic.value),
+                                  static_cast<EntryId>(index)});
+  }
+
+  std::vector<BigEntry> result;
+  result.reserve(static_cast<std::size_t>(maximum_outputs));
+  if (provenance != nullptr) {
+    provenance->reserve(static_cast<std::size_t>(maximum_outputs));
+  }
+  FullTerTiledContext context;
+  context.first = &first;
+  context.second = &second;
+  context.third = &third;
+  context.expected = &expected;
+  context.result = &result;
+  context.provenance = provenance;
+  context.telemetry = &telemetry;
+  context.maximum_outputs = maximum_outputs;
+
+  TiledQ3ReportConfig tiled_config;
+  tiled_config.preferred_tile_bits = 15U;
+  tiled_config.memory_limit_bytes = memory_limit_bytes;
+  const std::uint64_t modular_before = telemetry.modular_candidates;
+  const auto reported = tiled_q3report_report(first_q, second_q, third_q,
+                                              arithmetic.value.tau, arithmetic.value.q,
+                                              tiled_config, full_ter_tiled_visitor, &context);
+  telemetry.tiled_used = true;
+  telemetry.pair_records = 0U;
+  telemetry.tile_bits = reported.telemetry.tile_bits;
+  telemetry.tiled_pair_probes += reported.telemetry.executed_pairs;
+  telemetry.tiled_nonempty_windows += reported.telemetry.nonempty_windows;
+  telemetry.tiled_auxiliary_bytes = std::max(telemetry.tiled_auxiliary_bytes, fixed_bytes);
+  telemetry.tiled_setup_ns += reported.telemetry.setup_ns;
+  telemetry.tiled_scan_ns += reported.telemetry.scan_ns;
+  telemetry.allocated_bytes = std::max(telemetry.allocated_bytes, fixed_bytes);
+  if (reported.status != TiledQ3ReportStatus::Completed) {
+    status = reported.status == TiledQ3ReportStatus::ResourceLimit
+                 ? Status::ResourceLimit
+                 : reported.status == TiledQ3ReportStatus::Cancelled ? Status::Cancelled
+                                                                       : Status::InvariantViolation;
+    message = reported.message;
+    return {};
+  }
+  if (telemetry.modular_candidates - modular_before != reported.telemetry.raw_triples) {
+    status = Status::InvariantViolation;
+    message = "native tiled L2-to-L1 modular witness count disagrees with the reporter";
+    return {};
+  }
+  telemetry.survivors_before_dedup += result.size();
+  if (provenance != nullptr) {
+    canonicalize_provenance(*provenance);
+  }
+  canonicalize(result);
+  telemetry.survivors_after_dedup += result.size();
   status = Status::Completed;
   return result;
 }
@@ -2210,17 +2452,35 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
           oracle_work <= 1'000'000U;
       std::vector<ProvenanceRecord> optimized_provenance;
       Status stage_status = Status::InvariantViolation;
-      level1[group] = ternary_mitm(level2[group * 3U],
-                                   level2[group * 3U + 1U],
-                                   level2[group * 3U + 2U],
-                                   targets.level1[group],
-                                   parameters.value.r1,
-                                   parameters.value.level1,
-                                   config.memory_limit_bytes - level1_resident,
-                                   attempt_telemetry.level2_to_level1,
-                                   audit_stage ? &optimized_provenance : nullptr,
-                                   stage_status,
-                                   result.message);
+      if (tiled_l2_to_l1_supported(parameters.value)) {
+        level1[group] = ternary_tiled_l2_to_l1_native(
+            level2[group * 3U],
+            level2[group * 3U + 1U],
+            level2[group * 3U + 2U],
+            targets.level2[group * 3U],
+            targets.level2[group * 3U + 1U],
+            targets.level2[group * 3U + 2U],
+            targets.level1[group],
+            parameters.value,
+            parameters.value.level1,
+            config.memory_limit_bytes - level1_resident,
+            attempt_telemetry.level2_to_level1,
+            audit_stage ? &optimized_provenance : nullptr,
+            stage_status,
+            result.message);
+      } else {
+        level1[group] = ternary_mitm(level2[group * 3U],
+                                     level2[group * 3U + 1U],
+                                     level2[group * 3U + 2U],
+                                     targets.level1[group],
+                                     parameters.value.r1,
+                                     parameters.value.level1,
+                                     config.memory_limit_bytes - level1_resident,
+                                     attempt_telemetry.level2_to_level1,
+                                     audit_stage ? &optimized_provenance : nullptr,
+                                     stage_status,
+                                     result.message);
+      }
       if (stage_status != Status::Completed) {
         result.status = stage_status;
         return result;

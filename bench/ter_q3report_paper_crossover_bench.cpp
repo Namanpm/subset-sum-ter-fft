@@ -65,7 +65,14 @@ void emit_header() {
          "direct_full_total_min_ns,direct_full_total_max_ns,direct_production_total_min_ns,"
          "direct_production_total_max_ns,ntt_warm_total_min_ns,ntt_warm_total_max_ns,"
          "poisson_support_estimate,occupied_pair_residues,half_domain,half_pool_a,half_pool_b,"
-         "half_pool_c,compatible_pairs_a,compatible_pairs_b,compatible_pairs_c\n";
+         "half_pool_c,compatible_pairs_a,compatible_pairs_b,compatible_pairs_c,"
+         // Appended for DIRECT_PRODUCTION_TILED.  Every column above this line is
+         // historical and is never renamed, reordered or overwritten.
+         "direct_tiled_total_median_ns,direct_tiled_setup_median_ns,"
+         "direct_tiled_scan_median_ns,direct_tiled_peak_bytes,direct_tiled_tile_bits,"
+         "direct_tiled_nonempty_windows,direct_tiled_executed_pairs,ntt_over_direct_tiled,"
+         "direct_tiled_total_min_ns,direct_tiled_total_max_ns,direct_tiled_window_count,"
+         "direct_tiled_auxiliary_bytes\n";
 }
 
 [[nodiscard]] double rate(const std::uint64_t part, const std::uint64_t whole) noexcept {
@@ -122,7 +129,20 @@ void emit_row(const ter::PaperCrossoverSnapshot& snapshot,
             << ',' << snapshot.generation.half_pool_size[2] << ','
             << snapshot.generation.compatible_pairs[0] << ','
             << snapshot.generation.compatible_pairs[1] << ','
-            << snapshot.generation.compatible_pairs[2] << '\n';
+            << snapshot.generation.compatible_pairs[2] << ','
+            // Appended DIRECT_PRODUCTION_TILED fields.
+            << telemetry.direct_tiled.total.median_ns << ','
+            << telemetry.components.direct_tiled_setup.median_ns << ','
+            << telemetry.components.direct_tiled_scan.median_ns << ','
+            << telemetry.direct_tiled.peak_bytes << ','
+            << telemetry.direct_tiled_tiling.tile_bits << ','
+            << telemetry.direct_tiled_tiling.nonempty_windows << ','
+            << telemetry.direct_tiled_tiling.executed_pairs << ','
+            << ratio(amortized, telemetry.direct_tiled.total.median_ns) << ','
+            << telemetry.direct_tiled.total.minimum_ns << ','
+            << telemetry.direct_tiled.total.maximum_ns << ','
+            << telemetry.direct_tiled_tiling.window_count << ','
+            << telemetry.direct_tiled_tiling.auxiliary_peak_bytes << '\n';
   std::cout.flush();
 }
 
@@ -286,6 +306,7 @@ int main(int argc, char** argv) {
       std::cerr << "L=" << list_size << " seed=" << seeds[index] << " -> "
                 << ter::paper_crossover_status_name(result.status)
                 << " direct_prod=" << result.telemetry.direct_production.total.median_ns << "ns"
+                << " direct_tiled=" << result.telemetry.direct_tiled.total.median_ns << "ns"
                 << " direct_full=" << result.telemetry.direct_full.total.median_ns << "ns"
                 << " ntt_amort=" << result.telemetry.ntt_three_merge_amortized_ns << "ns"
                 << " exact=" << (result.telemetry.exactness_passed ? 1 : 0) << ' '

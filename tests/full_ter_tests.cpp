@@ -1,4 +1,5 @@
 #include "ter/full_ter.hpp"
+#include "ter/merge.hpp"
 
 #include <algorithm>
 #include <array>
@@ -265,6 +266,10 @@ void test_guided_pipeline_and_replay() {
               first.telemetry.attempts[0].level2_to_level1.output_fingerprint != 0U &&
               first.telemetry.attempts[0].level1_to_level0.output_fingerprint != 0U,
           "full TER telemetry must expose attempt seeds and per-level allocation");
+  require(first.telemetry.attempts[0].level2_to_level1.tiled_used,
+          "finite-sanity native L2-to-L1 must select the exact tiled reporter");
+  require(first.telemetry.attempts[0].level2_to_level1.pair_records == 0U,
+          "the tiled L2-to-L1 path must not materialize native pair records");
   require(first.telemetry.terminal_status == ter::Status::Found &&
               first.telemetry.witness_found &&
               first.telemetry.total_solver_ns > 0U &&
@@ -309,6 +314,38 @@ void test_guided_pipeline_and_replay() {
           "right-weight binary witnesses with the wrong full target must fail closed");
 }
 
+void test_authentic_l2_capture_tiled_merge_matches_exact_authorities() {
+  const auto instance = balanced_instance(36U, 0x54494C4544434150ULL);
+  ter::FullTerConfig config;
+  config.family = ter::ShapeFamily::FiniteSanity;
+  config.execution_mode = ter::TerExecutionMode::FullTer;
+  config.target_mode = ter::TerTargetMode::GuidedPlanted;
+  config.seed = 0x4C324C31ULL;
+  config.attempt_limit = 1U;
+  config.memory_limit_bytes = 64U * 1024U * 1024U;
+  config.audit = true;
+  const auto captured = ter::capture_full_ter_l2_merge_snapshot(instance, config, 0U);
+  require(captured.status == ter::Status::Completed,
+          "the bounded complete FullTer L2 capture must succeed");
+  if (captured.status != ter::Status::Completed) {
+    return;
+  }
+  const auto cubic = ter::run_cubic_oracle(captured.snapshot, ter::OutputPolicy::Correctness);
+  const auto baseline = ter::run_pair_baseline(captured.snapshot, ter::OutputPolicy::Correctness);
+  const auto tiled = ter::run_pair_tiled(captured.snapshot, ter::OutputPolicy::Correctness);
+  require(cubic.status == ter::Status::Completed && baseline.status == ter::Status::Completed &&
+              tiled.status == ter::Status::Completed,
+          "every exact L2-to-L1 authority must complete on the authentic bounded capture");
+  require(tiled.parents == baseline.parents && tiled.parents == cubic.parents,
+          "tiled authentic L2-to-L1 parents must equal baseline and cubic parents");
+  require(tiled.valid_provenance == baseline.valid_provenance &&
+              tiled.valid_provenance == cubic.valid_provenance,
+          "tiled authentic L2-to-L1 provenance must remain canonical and exact");
+  require(tiled.telemetry.candidate_triples == baseline.telemetry.candidate_triples &&
+              tiled.telemetry.raw_valid_triples == baseline.telemetry.raw_valid_triples,
+          "tiled authentic L2-to-L1 candidate and survivor counts must match the baseline");
+}
+
 void test_paper_rounded_multiword_fixture() {
   const auto instance = balanced_instance(360U, 0x4d554c5449574f52ULL);
   ter::FullTerConfig config;
@@ -330,6 +367,9 @@ void test_paper_rounded_multiword_fixture() {
               result.telemetry.modulus_bits == 360U &&
               result.telemetry.packed_vector_bytes == 96U,
           "paper-rounded fixture must exercise multiword packed and arithmetic paths");
+  require(!result.telemetry.attempts.empty() &&
+              !result.telemetry.attempts[0].level2_to_level1.tiled_used,
+          "unsupported multiword L2-to-L1 arithmetic must use the pre-output exact fallback");
   require(ter::verify_full_ter_witness(instance, result.witness).status ==
               ter::Status::Completed,
           "multiword fixture witness must pass independent full-modulus validation");
@@ -410,6 +450,7 @@ int main() {
   test_parameters();
   test_level3_generation();
   test_guided_pipeline_and_replay();
+  test_authentic_l2_capture_tiled_merge_matches_exact_authorities();
   test_paper_rounded_multiword_fixture();
   test_failure_semantics();
   std::cout << "full TER tests passed\n";

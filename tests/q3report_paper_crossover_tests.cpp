@@ -771,6 +771,105 @@ void tiny_memory_budgets_reject_every_method_independently() {
           "a default snapshot must never report completion");
 }
 
+// --- DIRECT_PRODUCTION_TILED: additional comparator, historical one intact ---
+
+void tiled_comparator_agrees_with_every_direct_authority() {
+  for (const std::uint64_t list_size : {64U, 256U}) {
+    const auto snapshot = must_build(small_config(list_size, 0x1001U));
+    ter::PaperCrossoverConfig config;
+    config.warmup_repetitions = 1U;
+    config.timed_repetitions = 2U;
+    const auto measured = ter::run_paper_crossover_experiment(snapshot, config);
+    require(measured.status == ter::PaperCrossoverStatus::Completed,
+            "the tiled comparator must not break the experiment: " + measured.message);
+    const auto& telemetry = measured.telemetry;
+    require(telemetry.direct_tiled.status == ter::PaperCrossoverStatus::Completed,
+            "DIRECT_PRODUCTION_TILED must complete");
+    require(telemetry.triple_conservation_passed,
+            "four-way triple conservation must include the tiled comparator");
+
+    // The tiled path must locate exactly the same arithmetic witnesses.
+    const auto a_quotients = role_quotients(snapshot, 0U);
+    const auto b_quotients = role_quotients(snapshot, 1U);
+    const auto c_quotients = role_quotients(snapshot, 2U);
+    const auto& arithmetic = snapshot.input.spec.arithmetic;
+    std::vector<ter::TiledQEntry> a;
+    std::vector<ter::TiledQEntry> b;
+    std::vector<ter::TiledQEntry> c;
+    for (std::size_t index = 0; index < a_quotients.size(); ++index) {
+      a.push_back(ter::TiledQEntry{a_quotients[index], static_cast<ter::EntryId>(index)});
+    }
+    for (std::size_t index = 0; index < b_quotients.size(); ++index) {
+      b.push_back(ter::TiledQEntry{b_quotients[index], static_cast<ter::EntryId>(index)});
+    }
+    for (std::size_t index = 0; index < c_quotients.size(); ++index) {
+      c.push_back(ter::TiledQEntry{c_quotients[index], static_cast<ter::EntryId>(index)});
+    }
+    ter::TiledQ3ReportConfig tiled_config;
+    const auto counted =
+        ter::tiled_q3report_count(a, b, c, arithmetic.tau, arithmetic.q, tiled_config);
+    require(counted.status == ter::TiledQ3ReportStatus::Completed,
+            "the shared primitive must complete on real snapshot quotients");
+    require(counted.telemetry.raw_triples == telemetry.raw_arithmetic_triples,
+            "tiled raw triples must equal the recorded raw arithmetic triples");
+    require(counted.telemetry.logical_pairs == telemetry.pair_universe,
+            "tiled logical pairs must equal |A||B|");
+
+    // Independent memory accounting, never summed with another method.
+    require(telemetry.direct_tiled.peak_bytes > 0U, "tiled peak memory must be reported");
+    require(telemetry.direct_tiled_tiling.tile_bits ==
+                ter::tiled_q3report_tile_bits(arithmetic.q, 15U),
+            "the deterministic tile policy must be recorded");
+    // When q_bits <= 15 the tile degenerates to a single 2Q-wide window, so the
+    // tiled path is legitimately not smaller than the Q-wide index there.  The
+    // memory advantage is asserted below at a point where tiling actually bites.
+    if (telemetry.q_bits <= 15U) {
+      require(telemetry.direct_tiled_tiling.bucket_count == 1U,
+              "q_bits at or below the tile preference must degenerate to one bucket");
+      require(telemetry.direct_tiled_tiling.window_width == 2U * arithmetic.q,
+              "the degenerate case uses a single 2Q-wide window");
+    }
+
+    // The historical comparator is untouched and still completes.
+    require(telemetry.direct_production.status == ter::PaperCrossoverStatus::Completed,
+            "DIRECT_PRODUCTION remains a first-class comparator");
+    require(telemetry.direct_full.status == ter::PaperCrossoverStatus::Completed,
+            "DIRECT_FULL_COUNT remains a first-class comparator");
+  }
+
+  // Where Q genuinely exceeds the window, the whole point of tiling is that the
+  // Q-wide table disappears.
+  {
+    const auto snapshot = must_build(small_config(1'024U, 0x1001U));
+    ter::PaperCrossoverConfig config;
+    config.warmup_repetitions = 1U;
+    config.timed_repetitions = 1U;
+    const auto measured = ter::run_paper_crossover_experiment(snapshot, config);
+    require(measured.status == ter::PaperCrossoverStatus::Completed,
+            "the L=1024 point must complete: " + measured.message);
+    const auto& telemetry = measured.telemetry;
+    require(telemetry.q_bits > 15U, "L=1024 must exceed the tile preference");
+    require(telemetry.direct_tiled_tiling.bucket_count > 1U,
+            "a real tiling must use more than one bucket");
+    require(telemetry.direct_tiled.peak_bytes < telemetry.direct_production.peak_bytes,
+            "tiling must declare strictly less memory than the Q-wide index");
+    require(telemetry.direct_tiled_tiling.window_width * sizeof(std::uint32_t) <= 262'144U,
+            "the live window must stay within a cache-sized slice");
+    require(telemetry.triple_conservation_passed, "four-way conservation holds at L=1024");
+  }
+}
+
+void tiled_comparator_is_rejected_independently_on_a_tiny_budget() {
+  const auto snapshot = must_build(small_config(64U, 0x2003U));
+  ter::PaperCrossoverConfig config;
+  config.memory_limit_bytes = 1U;
+  const auto limited = ter::run_paper_crossover_experiment(snapshot, config);
+  require(limited.status == ter::PaperCrossoverStatus::ResourceLimit,
+          "a one-byte ceiling must stop the experiment");
+  require(limited.telemetry.direct_tiled.status == ter::PaperCrossoverStatus::ResourceLimit,
+          "DIRECT_PRODUCTION_TILED must be rejected independently");
+}
+
 // --- Section 21. Authentic Full TER anchor continuity ------------------------
 
 [[nodiscard]] ter::Instance balanced_full_instance() {
@@ -847,6 +946,8 @@ int main() {
   unsupported_lengths_and_unsafe_coefficients_fail_closed();
   experiment_conserves_triples_and_never_mutates_its_snapshot();
   tiny_memory_budgets_reject_every_method_independently();
+  tiled_comparator_agrees_with_every_direct_authority();
+  tiled_comparator_is_rejected_independently_on_a_tiny_budget();
   authentic_full_ter_anchors_run_on_the_same_kernels();
   std::cout << "q3report paper crossover tests passed (" << g_checks << " assertions)\n";
   return 0;

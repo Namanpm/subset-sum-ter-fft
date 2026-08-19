@@ -122,7 +122,11 @@ int main() {
                "root_distribution_rejects,root_survivors,root_deduplicated,"
                "l3_list_bytes,arithmetic_bytes,l2_list_bytes,l1_list_bytes,l0_list_bytes,"
                "l2_active_bytes,l1_active_bytes,root_active_bytes,"
-               "peak_working_bytes,hot_entry_bytes,packed_vector_bytes,fingerprint\n";
+               "peak_working_bytes,hot_entry_bytes,packed_vector_bytes,fingerprint,"
+               "l2_to_l1_tiled_used,l2_to_l1_pair_records,l2_to_l1_tile_bits,"
+               "l2_to_l1_tiled_pair_probes,l2_to_l1_tiled_nonempty_windows,"
+               "l2_to_l1_tiled_auxiliary_bytes,l2_to_l1_tiled_setup_ns,"
+               "l2_to_l1_tiled_scan_ns\n";
   const auto& attempt = warmup.telemetry.attempts[0];
   std::cout << (warmup.status == ter::Status::Found ? "Found"
                                                     : "AttemptLimitReached")
@@ -170,6 +174,14 @@ int main() {
             << warmup.telemetry.peak_working_bytes << ','
             << warmup.telemetry.hot_entry_bytes << ','
             << warmup.telemetry.packed_vector_bytes << ','
-            << warmup.telemetry.fingerprint << '\n';
+            << warmup.telemetry.fingerprint << ','
+            << (attempt.level2_to_level1.tiled_used ? 1 : 0) << ','
+            << attempt.level2_to_level1.pair_records << ','
+            << attempt.level2_to_level1.tile_bits << ','
+            << attempt.level2_to_level1.tiled_pair_probes << ','
+            << attempt.level2_to_level1.tiled_nonempty_windows << ','
+            << attempt.level2_to_level1.tiled_auxiliary_bytes << ','
+            << attempt.level2_to_level1.tiled_setup_ns << ','
+            << attempt.level2_to_level1.tiled_scan_ns << '\n';
   return EXIT_SUCCESS;
 }

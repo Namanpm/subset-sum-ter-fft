@@ -3,6 +3,7 @@
 #include "ter/arithmetic.hpp"
 #include "ter/packed.hpp"
 #include "ter/reference_vector.hpp"
+#include "ter/tiled_q3report.hpp"
 #include "ter/validator.hpp"
 
 #include <algorithm>
@@ -35,6 +36,8 @@ struct PackedCandidateRecord {
 
 struct PackedCandidateBuffer {
   std::uint32_t words_per_parent = 0;
+  std::uint64_t max_records = std::numeric_limits<std::uint64_t>::max();
+  bool capacity_exhausted = false;
   std::vector<std::uint64_t> masks;
   std::vector<PackedCandidateRecord> records;
 };
@@ -236,6 +239,13 @@ bool validate_packed_and_collect(const PackedSnapshot& snapshot,
   if (negative_count != snapshot.spec.shape.parent.negative ||
       positive_count != snapshot.spec.shape.parent.positive) {
     ++output.telemetry.distribution_rejects;
+    if (detailed_timing) {
+      output.telemetry.validation_ns += elapsed_ns(validation_start, Clock::now());
+    }
+    return false;
+  }
+  if (static_cast<std::uint64_t>(accepted.records.size()) >= accepted.max_records) {
+    accepted.capacity_exhausted = true;
     if (detailed_timing) {
       output.telemetry.validation_ns += elapsed_ns(validation_start, Clock::now());
     }
@@ -596,6 +606,450 @@ MergeOutput run_pair_baseline_impl(const InputSnapshot& snapshot, OutputPolicy p
   return output;
 }
 
+// Exact tiled reference merge.  It changes only how arithmetic candidates are
+// located: no Q-wide offset table and no |X||Y| pair-record array.  Structural
+// validation, parent construction, deduplication and output canonicalization
+// remain the responsibility of the existing validators and finalizers.
+struct TiledReferenceContext {
+  const InputSnapshot* snapshot = nullptr;
+  MergeOutput* output = nullptr;
+  std::vector<AcceptedCandidate>* accepted = nullptr;
+  std::uint8_t x_role = 0;
+  std::uint8_t y_role = 1;
+  std::uint8_t z_role = 2;
+  OutputPolicy policy = OutputPolicy::Benchmark;
+  bool detailed_timing = false;
+  // Conservative ceiling on accepted candidates derived from the remaining
+  // budget before the scan starts.  The scan stops before the append that would
+  // cross it; it never partially claims Completed.
+  std::uint64_t accepted_capacity = 0;
+};
+
+TiledVisitDecision tiled_reference_visitor(void* const context,
+                                           const EntryId x,
+                                           const EntryId y,
+                                           const EntryId z) {
+  auto* const state = static_cast<TiledReferenceContext*>(context);
+  std::array<EntryId, 3> ids{};
+  ids[state->x_role] = x;
+  ids[state->y_role] = y;
+  ids[state->z_role] = z;
+  ++state->output->telemetry.candidate_triples;
+  if (state->accepted->size() >= state->accepted_capacity) {
+    return TiledVisitDecision::ResourceLimit;
+  }
+  validate_and_collect(*state->snapshot,
+                       state->snapshot->lists[0].entries[ids[0]],
+                       state->snapshot->lists[1].entries[ids[1]],
+                       state->snapshot->lists[2].entries[ids[2]],
+                       Provenance{ids[0], ids[1], ids[2]},
+                       state->detailed_timing,
+                       *state->output,
+                       *state->accepted);
+  return TiledVisitDecision::Continue;
+}
+
+MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy policy) {
+  MergeOutput output;
+  const auto input_audit = audit_snapshot_children(snapshot);
+  if (input_audit.status != Status::Completed) {
+    output.status = input_audit.status;
+    output.message = input_audit.message;
+    return output;
+  }
+  const auto total_start = Clock::now();
+  const auto orientation_start = Clock::now();
+  output.telemetry.orientation = choose_pair_orientation(snapshot);
+  output.telemetry.orientation_ns = elapsed_ns(orientation_start, Clock::now());
+
+  const std::uint8_t x_role = output.telemetry.orientation.pair_roles[0];
+  const std::uint8_t y_role = output.telemetry.orientation.pair_roles[1];
+  const std::uint8_t z_role = output.telemetry.orientation.lookup_role;
+  const auto& x_list = snapshot.lists[x_role].entries;
+  const auto& y_list = snapshot.lists[y_role].entries;
+  const auto& z_list = snapshot.lists[z_role].entries;
+
+  std::uint64_t pair_count = 0;
+  if (!checked_multiply(static_cast<std::uint64_t>(x_list.size()),
+                        static_cast<std::uint64_t>(y_list.size()),
+                        pair_count)) {
+    output.status = Status::ResourceLimit;
+    output.message = "pair count overflow";
+    return output;
+  }
+  output.telemetry.pair_combinations = pair_count;
+  output.telemetry.pair_records = 0U;  // the tiled path materializes no pairs
+
+  std::uint64_t auxiliary_count = 0;
+  std::uint64_t auxiliary_report = 0;
+  if (!tiled_q3report_auxiliary_bytes(static_cast<std::uint64_t>(x_list.size()),
+                                      static_cast<std::uint64_t>(y_list.size()),
+                                      static_cast<std::uint64_t>(z_list.size()),
+                                      snapshot.spec.arithmetic.q, 15U, true, &auxiliary_count,
+                                      &auxiliary_report)) {
+    output.status = Status::ResourceLimit;
+    output.message = "tiled auxiliary accounting overflow";
+    return output;
+  }
+  std::uint64_t quotient_entry_count = 0;
+  std::uint64_t quotient_entry_bytes = 0;
+  if (!checked_add(x_list.size(), y_list.size(), quotient_entry_count) ||
+      !checked_add(quotient_entry_count, z_list.size(), quotient_entry_count) ||
+      !checked_multiply(quotient_entry_count, sizeof(TiledQEntry), quotient_entry_bytes)) {
+    output.status = Status::ResourceLimit;
+    output.message = "tiled quotient-entry accounting overflow";
+    return output;
+  }
+  std::uint64_t fixed_bytes = auxiliary_report;
+  if (!checked_accumulate(fixed_bytes, quotient_entry_bytes) ||
+      fixed_bytes > snapshot.spec.memory_limit_bytes) {
+    output.status = Status::ResourceLimit;
+    output.message = "tiled auxiliary structures exceed the declared memory limit";
+    return output;
+  }
+  // Preserve the existing meaning of pair_index_bytes: the arithmetic index
+  // itself, excluding caller-owned quotient entry arrays.  The full peak is
+  // recorded separately in working_set_budget_bytes.
+  output.telemetry.pair_index_bytes = auxiliary_report;
+  output.telemetry.working_set_budget_bytes = fixed_bytes;
+
+  // One-pass incremental budget: derive the accepted-candidate ceiling from what
+  // remains after the fixed auxiliary structures, rather than re-scanning to
+  // pre-count modular candidates.
+  std::uint64_t per_candidate = sizeof(AcceptedCandidate);
+  if (!checked_accumulate(per_candidate, snapshot.spec.shape.n) ||
+      !checked_accumulate(per_candidate, sizeof(ParentRecord)) ||
+      // Accepted candidates and final parent records each own their digit
+      // vectors at the peak before finalization releases the former.
+      !checked_accumulate(per_candidate, snapshot.spec.shape.n) ||
+      (policy == OutputPolicy::Correctness &&
+       !checked_accumulate(per_candidate, sizeof(Provenance)))) {
+    output.status = Status::ResourceLimit;
+    output.message = "tiled candidate accounting overflow";
+    return output;
+  }
+  const std::uint64_t remaining = snapshot.spec.memory_limit_bytes - fixed_bytes;
+  const std::uint64_t accepted_capacity =
+      per_candidate == 0U ? 0U : remaining / per_candidate;
+  std::uint64_t candidate_bytes = 0;
+  if (accepted_capacity > std::numeric_limits<std::size_t>::max() ||
+      !checked_multiply(accepted_capacity, per_candidate, candidate_bytes)) {
+    output.status = Status::ResourceLimit;
+    output.message = "candidate budget overflow";
+    return output;
+  }
+  output.telemetry.candidate_buffer_bytes = candidate_bytes;
+  output.telemetry.working_set_budget_bytes = fixed_bytes + candidate_bytes;
+
+  std::vector<TiledQEntry> x_entries;
+  std::vector<TiledQEntry> y_entries;
+  std::vector<TiledQEntry> z_entries;
+  x_entries.reserve(x_list.size());
+  y_entries.reserve(y_list.size());
+  z_entries.reserve(z_list.size());
+  for (const auto& entry : x_list) {
+    x_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+  for (const auto& entry : y_list) {
+    y_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+  for (const auto& entry : z_list) {
+    z_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+
+  std::vector<AcceptedCandidate> accepted;
+  accepted.reserve(static_cast<std::size_t>(accepted_capacity));
+  output.parents.reserve(static_cast<std::size_t>(accepted_capacity));
+  TiledReferenceContext context;
+  context.snapshot = &snapshot;
+  context.output = &output;
+  context.accepted = &accepted;
+  context.x_role = x_role;
+  context.y_role = y_role;
+  context.z_role = z_role;
+  context.policy = policy;
+  context.detailed_timing = policy == OutputPolicy::Correctness;
+  context.accepted_capacity = accepted_capacity;
+
+  TiledQ3ReportConfig tiled_config;
+  tiled_config.preferred_tile_bits = 15U;
+  tiled_config.memory_limit_bytes = snapshot.spec.memory_limit_bytes;
+
+  const auto scan_start = Clock::now();
+  const auto reported = tiled_q3report_report(x_entries, y_entries, z_entries,
+                                              snapshot.spec.arithmetic.tau,
+                                              snapshot.spec.arithmetic.q, tiled_config,
+                                              tiled_reference_visitor, &context);
+  const std::uint64_t scan_ns = elapsed_ns(scan_start, Clock::now());
+  switch (reported.status) {
+    case TiledQ3ReportStatus::Completed:
+      break;
+    case TiledQ3ReportStatus::NotApplicable:
+      output.status = Status::InvalidConfiguration;
+      output.message = "tiled merge is not applicable to this quotient universe: " +
+                       reported.message;
+      return output;
+    case TiledQ3ReportStatus::ResourceLimit:
+      output.status = Status::ResourceLimit;
+      output.message = reported.message.empty()
+                           ? "tiled merge exceeded its declared memory budget"
+                           : reported.message;
+      return output;
+    case TiledQ3ReportStatus::Cancelled:
+      output.status = Status::Cancelled;
+      output.message = reported.message;
+      return output;
+    case TiledQ3ReportStatus::InvalidConfiguration:
+    case TiledQ3ReportStatus::ArithmeticSafetyFailure:
+    case TiledQ3ReportStatus::InvariantViolation:
+      output.status = Status::InvariantViolation;
+      output.message = reported.message;
+      return output;
+  }
+  if (reported.telemetry.raw_triples != output.telemetry.candidate_triples) {
+    output.status = Status::InvariantViolation;
+    output.message = "tiled reporting did not conserve modular candidates";
+    return output;
+  }
+  output.telemetry.pair_build_ns = reported.telemetry.setup_ns;
+  output.telemetry.candidate_loop_ns = scan_ns;
+  if (policy == OutputPolicy::Correctness) {
+    output.telemetry.recovery_ns =
+        scan_ns > output.telemetry.validation_ns ? scan_ns - output.telemetry.validation_ns : 0U;
+  }
+  finalize_output(std::move(accepted), policy, output);
+  output.status = Status::Completed;
+  output.telemetry.total_ns = elapsed_ns(total_start, Clock::now());
+  return output;
+}
+
+// Packed counterpart of run_pair_tiled_impl.  The tiled primitive owns only
+// arithmetic candidate location; this context maps its oriented IDs back into
+// canonical A/B/C order and deliberately reuses the packed validator and
+// finalizer below.
+struct TiledPackedContext {
+  const PackedSnapshot* snapshot = nullptr;
+  MergeOutput* output = nullptr;
+  PackedCandidateBuffer* accepted = nullptr;
+  std::vector<std::uint64_t>* scratch_positive = nullptr;
+  std::vector<std::uint64_t>* scratch_negative = nullptr;
+  std::uint8_t x_role = 0;
+  std::uint8_t y_role = 1;
+  std::uint8_t z_role = 2;
+  bool detailed_timing = false;
+};
+
+TiledVisitDecision tiled_packed_visitor(void* const context,
+                                        const EntryId x,
+                                        const EntryId y,
+                                        const EntryId z) {
+  auto* const state = static_cast<TiledPackedContext*>(context);
+  std::array<EntryId, 3> ids{};
+  ids[state->x_role] = x;
+  ids[state->y_role] = y;
+  ids[state->z_role] = z;
+  ++state->output->telemetry.candidate_triples;
+  static_cast<void>(validate_packed_and_collect(
+      *state->snapshot,
+      state->snapshot->lists[0].entries[ids[0]],
+      state->snapshot->lists[1].entries[ids[1]],
+      state->snapshot->lists[2].entries[ids[2]],
+      Provenance{ids[0], ids[1], ids[2]},
+      state->detailed_timing,
+      *state->scratch_positive,
+      *state->scratch_negative,
+      *state->output,
+      *state->accepted));
+  // A capacity-exhausted valid candidate must stop the operation.  Returning
+  // Completed after silently dropping it would turn a resource limit into a
+  // different exact parent set.
+  return state->accepted->capacity_exhausted ? TiledVisitDecision::ResourceLimit
+                                             : TiledVisitDecision::Continue;
+}
+
+MergeOutput run_pair_tiled_packed_impl(const PackedSnapshot& snapshot, OutputPolicy policy) {
+  MergeOutput output;
+  const auto input_audit = audit_packed_snapshot(snapshot);
+  if (input_audit.status != Status::Completed) {
+    output.status = input_audit.status;
+    output.message = input_audit.message;
+    return output;
+  }
+
+  const auto total_start = Clock::now();
+  const auto orientation_start = Clock::now();
+  constexpr std::array<PairOrientation, 3> choices{
+      PairOrientation{{0, 1}, 2},
+      PairOrientation{{0, 2}, 1},
+      PairOrientation{{1, 2}, 0},
+  };
+  std::uint64_t best_cost = std::numeric_limits<std::uint64_t>::max();
+  for (const auto& choice : choices) {
+    std::uint64_t cost = 0;
+    if (!checked_multiply(snapshot.lists[choice.pair_roles[0]].entries.size(),
+                          snapshot.lists[choice.pair_roles[1]].entries.size(), cost)) {
+      output.status = Status::ResourceLimit;
+      output.message = "packed tiled pair count overflow";
+      return output;
+    }
+    if (cost < best_cost ||
+        (cost == best_cost && choice.pair_roles < output.telemetry.orientation.pair_roles)) {
+      output.telemetry.orientation = choice;
+      best_cost = cost;
+    }
+  }
+  output.telemetry.orientation_ns = elapsed_ns(orientation_start, Clock::now());
+
+  const std::uint8_t x_role = output.telemetry.orientation.pair_roles[0];
+  const std::uint8_t y_role = output.telemetry.orientation.pair_roles[1];
+  const std::uint8_t z_role = output.telemetry.orientation.lookup_role;
+  const auto& x_list = snapshot.lists[x_role].entries;
+  const auto& y_list = snapshot.lists[y_role].entries;
+  const auto& z_list = snapshot.lists[z_role].entries;
+  output.telemetry.pair_combinations = best_cost;
+  output.telemetry.pair_records = 0U;
+
+  std::uint64_t count_auxiliary = 0;
+  std::uint64_t report_auxiliary = 0;
+  if (!tiled_q3report_auxiliary_bytes(x_list.size(), y_list.size(), z_list.size(),
+                                      snapshot.spec.arithmetic.q, 15U, true,
+                                      &count_auxiliary, &report_auxiliary)) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled auxiliary accounting overflow";
+    return output;
+  }
+
+  const std::uint64_t words = snapshot.lists[0].words_per_entry;
+  std::uint64_t words_per_candidate = 0;
+  std::uint64_t packed_mask_bytes = 0;
+  std::uint64_t scratch_bytes = 0;
+  std::uint64_t quotient_entry_count = 0;
+  std::uint64_t quotient_entry_bytes = 0;
+  if (!checked_multiply(words, 2U, words_per_candidate) ||
+      !checked_multiply(words_per_candidate, sizeof(std::uint64_t), packed_mask_bytes) ||
+      !checked_multiply(words_per_candidate, sizeof(std::uint64_t), scratch_bytes) ||
+      !checked_add(x_list.size(), y_list.size(), quotient_entry_count) ||
+      !checked_add(quotient_entry_count, z_list.size(), quotient_entry_count) ||
+      !checked_multiply(quotient_entry_count, sizeof(TiledQEntry), quotient_entry_bytes)) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled fixed-memory dimensions overflow";
+    return output;
+  }
+  std::uint64_t fixed_bytes = report_auxiliary;
+  if (!checked_accumulate(fixed_bytes, quotient_entry_bytes) ||
+      !checked_accumulate(fixed_bytes, scratch_bytes) ||
+      fixed_bytes > snapshot.spec.memory_limit_bytes) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled fixed auxiliary structures exceed the declared memory limit";
+    return output;
+  }
+
+  std::uint64_t per_candidate = sizeof(PackedCandidateRecord);
+  if (!checked_accumulate(per_candidate, packed_mask_bytes) ||
+      !checked_accumulate(per_candidate, sizeof(ParentRecord)) ||
+      !checked_accumulate(per_candidate, snapshot.spec.shape.n) ||
+      (policy == OutputPolicy::Correctness &&
+       !checked_accumulate(per_candidate, sizeof(Provenance)))) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled candidate accounting overflow";
+    return output;
+  }
+  const std::uint64_t remaining = snapshot.spec.memory_limit_bytes - fixed_bytes;
+  const std::uint64_t accepted_capacity = per_candidate == 0U ? 0U : remaining / per_candidate;
+  std::uint64_t candidate_bytes = 0;
+  if (!checked_multiply(accepted_capacity, per_candidate, candidate_bytes)) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled candidate budget overflow";
+    return output;
+  }
+  output.telemetry.pair_index_bytes = report_auxiliary;
+  output.telemetry.candidate_buffer_bytes = candidate_bytes;
+  output.telemetry.working_set_budget_bytes = fixed_bytes + candidate_bytes;
+
+  std::vector<TiledQEntry> x_entries;
+  std::vector<TiledQEntry> y_entries;
+  std::vector<TiledQEntry> z_entries;
+  x_entries.reserve(x_list.size());
+  y_entries.reserve(y_list.size());
+  z_entries.reserve(z_list.size());
+  for (const auto& entry : x_list) {
+    x_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+  for (const auto& entry : y_list) {
+    y_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+  for (const auto& entry : z_list) {
+    z_entries.push_back(TiledQEntry{entry.q, entry.id});
+  }
+
+  PackedCandidateBuffer accepted;
+  accepted.words_per_parent = static_cast<std::uint32_t>(words);
+  accepted.max_records = accepted_capacity;
+  accepted.records.reserve(static_cast<std::size_t>(accepted_capacity));
+  std::uint64_t mask_words = 0;
+  if (!checked_multiply(accepted_capacity, words_per_candidate, mask_words) ||
+      mask_words > std::numeric_limits<std::size_t>::max()) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled mask reserve dimensions overflow";
+    return output;
+  }
+  accepted.masks.reserve(static_cast<std::size_t>(mask_words));
+  output.parents.reserve(static_cast<std::size_t>(accepted_capacity));
+  std::vector<std::uint64_t> scratch_positive(static_cast<std::size_t>(words));
+  std::vector<std::uint64_t> scratch_negative(static_cast<std::size_t>(words));
+
+  TiledPackedContext context;
+  context.snapshot = &snapshot;
+  context.output = &output;
+  context.accepted = &accepted;
+  context.scratch_positive = &scratch_positive;
+  context.scratch_negative = &scratch_negative;
+  context.x_role = x_role;
+  context.y_role = y_role;
+  context.z_role = z_role;
+  context.detailed_timing = policy == OutputPolicy::Correctness;
+
+  TiledQ3ReportConfig tiled_config;
+  tiled_config.preferred_tile_bits = 15U;
+  // The primitive's internal allocation is included in fixed_bytes above; it
+  // still receives the public ceiling so it fails closed on its own preflight.
+  tiled_config.memory_limit_bytes = snapshot.spec.memory_limit_bytes;
+  const auto scan_start = Clock::now();
+  const auto reported = tiled_q3report_report(x_entries, y_entries, z_entries,
+                                              snapshot.spec.arithmetic.tau,
+                                              snapshot.spec.arithmetic.q, tiled_config,
+                                              tiled_packed_visitor, &context);
+  const std::uint64_t scan_ns = elapsed_ns(scan_start, Clock::now());
+  if (reported.status != TiledQ3ReportStatus::Completed) {
+    output.status = reported.status == TiledQ3ReportStatus::ResourceLimit
+                        ? Status::ResourceLimit
+                        : reported.status == TiledQ3ReportStatus::Cancelled ? Status::Cancelled
+                                                                              : Status::InvariantViolation;
+    output.message = reported.message;
+    return output;
+  }
+  if (reported.telemetry.raw_triples != output.telemetry.candidate_triples) {
+    output.status = Status::InvariantViolation;
+    output.message = "packed tiled reporting did not conserve modular candidates";
+    return output;
+  }
+  output.telemetry.pair_build_ns = reported.telemetry.setup_ns;
+  output.telemetry.candidate_loop_ns = scan_ns;
+  if (policy == OutputPolicy::Correctness) {
+    output.telemetry.recovery_ns =
+        scan_ns > output.telemetry.validation_ns ? scan_ns - output.telemetry.validation_ns : 0U;
+  }
+  if (!finalize_packed_output(std::move(accepted), snapshot, policy, output)) {
+    output.parents.clear();
+    output.valid_provenance.clear();
+    output.status = Status::InvariantViolation;
+    return output;
+  }
+  output.status = Status::Completed;
+  output.telemetry.total_ns = elapsed_ns(total_start, Clock::now());
+  return output;
+}
+
 MergeOutput run_pair_baseline_packed_impl(const PackedSnapshot& snapshot,
                                           OutputPolicy policy) {
   MergeOutput output;
@@ -748,6 +1202,7 @@ MergeOutput run_pair_baseline_packed_impl(const PackedSnapshot& snapshot,
       std::max(output.telemetry.working_set_budget_bytes, recovery_peak);
   PackedCandidateBuffer accepted;
   accepted.words_per_parent = words;
+  accepted.max_records = modular_candidate_count;
   accepted.records.reserve(static_cast<std::size_t>(modular_candidate_count));
   accepted.masks.reserve(
       static_cast<std::size_t>(modular_candidate_count * words_per_candidate));
@@ -837,6 +1292,22 @@ MergeOutput run_pair_baseline(const InputSnapshot& snapshot, OutputPolicy policy
   }
 }
 
+MergeOutput run_pair_tiled(const InputSnapshot& snapshot, OutputPolicy policy) {
+  try {
+    return run_pair_tiled_impl(snapshot, policy);
+  } catch (const std::bad_alloc&) {
+    MergeOutput output;
+    output.status = Status::ResourceLimit;
+    output.message = "tiled merge allocation failed";
+    return output;
+  } catch (const std::length_error&) {
+    MergeOutput output;
+    output.status = Status::ResourceLimit;
+    output.message = "tiled merge allocation size is unsupported";
+    return output;
+  }
+}
+
 MergeOutput run_pair_baseline_packed(const PackedSnapshot& snapshot,
                                      OutputPolicy policy) {
   try {
@@ -850,6 +1321,23 @@ MergeOutput run_pair_baseline_packed(const PackedSnapshot& snapshot,
     MergeOutput output;
     output.status = Status::ResourceLimit;
     output.message = "packed pair baseline allocation size is unsupported";
+    return output;
+  }
+}
+
+MergeOutput run_pair_tiled_packed(const PackedSnapshot& snapshot,
+                                  OutputPolicy policy) {
+  try {
+    return run_pair_tiled_packed_impl(snapshot, policy);
+  } catch (const std::bad_alloc&) {
+    MergeOutput output;
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled merge allocation failed";
+    return output;
+  } catch (const std::length_error&) {
+    MergeOutput output;
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled merge allocation size is unsupported";
     return output;
   }
 }

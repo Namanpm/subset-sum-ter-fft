@@ -71,6 +71,8 @@ struct FullTerConfig {
 
 struct FullTerStageTelemetry {
   std::uint64_t pair_candidates = 0;
+  // Materialized pair records.  The tiled L2-to-L1 path keeps this at zero.
+  std::uint64_t pair_records = 0;
   std::uint64_t modular_candidates = 0;
   std::uint64_t structural_rejects = 0;
   std::uint64_t distribution_rejects = 0;
@@ -79,6 +81,13 @@ struct FullTerStageTelemetry {
   std::uint64_t elapsed_ns = 0;
   std::uint64_t allocated_bytes = 0;
   std::uint64_t output_fingerprint = 0;
+  bool tiled_used = false;
+  std::uint32_t tile_bits = 0;
+  std::uint64_t tiled_pair_probes = 0;
+  std::uint64_t tiled_nonempty_windows = 0;
+  std::uint64_t tiled_auxiliary_bytes = 0;
+  std::uint64_t tiled_setup_ns = 0;
+  std::uint64_t tiled_scan_ns = 0;
 };
 
 struct FullTerAttemptTelemetry {

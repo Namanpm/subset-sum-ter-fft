@@ -48,7 +48,19 @@ struct MergeOutput {
 [[nodiscard]] MergeOutput run_pair_baseline(const InputSnapshot& snapshot,
                                             OutputPolicy policy);
 
+// Exact cache-tiled reference merge.  Locates the same arithmetic candidates as
+// run_pair_baseline without a Q-wide offset table or an |X||Y| pair-record
+// array, then reuses the same validators and finalizer, so its parents,
+// multiplicities and provenance are identical.
+[[nodiscard]] MergeOutput run_pair_tiled(const InputSnapshot& snapshot,
+                                         OutputPolicy policy);
+
 [[nodiscard]] MergeOutput run_pair_baseline_packed(const PackedSnapshot& snapshot,
                                                    OutputPolicy policy);
+
+// Packed counterpart of run_pair_tiled.  It preserves the existing packed
+// validator, canonicalizer, provenance and independent parent-residue audit.
+[[nodiscard]] MergeOutput run_pair_tiled_packed(const PackedSnapshot& snapshot,
+                                                OutputPolicy policy);
 
 }  // namespace ter
