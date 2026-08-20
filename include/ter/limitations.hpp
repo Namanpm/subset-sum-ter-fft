@@ -23,8 +23,133 @@
 
 namespace ter::limits {
 
+// =============================================================================
+// CENTRAL CONTROL PANEL -- EDIT POLICY VALUES HERE ONLY.
+// =============================================================================
+// Every configurable TER policy value has exactly one numeric definition in
+// this block. The named constants below are compatibility aliases consumed by
+// the solver, generators, experiments, and benchmarks. Changing a value here
+// therefore changes every existing caller after recompilation.
+//
+// Values labelled "compatibility" or "representation" are not performance
+// knobs: change them only with a matching algorithm/proof update. Config
+// fields supplied at runtime still deliberately override their default values.
+namespace control_panel {
+
+inline constexpr std::uint64_t kBytesPerMiB = 1024ULL * 1024ULL;
+
+namespace arithmetic {
+inline constexpr std::uint32_t kMachineWordBits = 64U;  // representation
+inline constexpr std::uint32_t kMaximumQuotientBits = 32U;  // representation
+}  // namespace arithmetic
+
+namespace full_ter {
+inline constexpr std::uint32_t kFiniteDimensionDivisor = 36U;  // finite shape
+inline constexpr std::uint32_t kDefaultAttemptLimit = 1U;
+inline constexpr std::uint64_t kDefaultMemoryBytes = 512ULL * kBytesPerMiB;
+inline constexpr std::uint64_t kDefaultFixtureLevel3Limit = 64ULL;
+}  // namespace full_ter
+
+namespace generator {
+inline constexpr std::uint32_t kDefaultN = 36U;
+inline constexpr std::uint8_t kDefaultB2 = 6U;
+inline constexpr std::uint8_t kDefaultB1 = 10U;
+inline constexpr std::uint64_t kDefaultSeed = 1U;
+inline constexpr std::uint32_t kDefaultRequestedListSize = 1U;
+inline constexpr std::uint32_t kDefaultHalfPoolSize = 64U;
+inline constexpr std::uint32_t kDefaultMaxHalfPoolSize = 1'024U;
+inline constexpr std::uint64_t kDefaultAttemptLimit = 1'000'000ULL;
+inline constexpr std::uint64_t kDefaultMemoryBytes = 256ULL * kBytesPerMiB;
+inline constexpr std::uint32_t kExhaustiveReferenceMaximumN = 36U;
+}  // namespace generator
+
+namespace paper_generator {
+inline constexpr std::uint32_t kDefaultN = 360U;
+inline constexpr std::uint64_t kDefaultMemoryBytes = 512ULL * kBytesPerMiB;
+inline constexpr std::uint32_t kDefaultHalfPoolSize = 4'096U;
+inline constexpr std::uint64_t kDefaultAttemptLimit = 5'000'000ULL;
+}  // namespace paper_generator
+
+namespace oracle {
+inline constexpr std::uint64_t kCubicCandidateTripleCap = 1'000'000ULL;
+}  // namespace oracle
+
+namespace tiled {
+inline constexpr std::uint32_t kDefaultPreferredTileBits = 15U;
+}  // namespace tiled
+
+namespace ntt {
+inline constexpr std::uint32_t kQ3ReportMaximumPower = 23U;  // compatibility
+inline constexpr std::uint64_t kQ3ReportPrime = 998'244'353ULL;  // compatibility
+inline constexpr std::uint64_t kQ3ReportPrimitiveRoot = 3ULL;  // compatibility
+inline constexpr std::uint64_t kPaperPrime1 = 998'244'353ULL;  // compatibility
+inline constexpr std::uint64_t kPaperPrimitiveRoot1 = 3ULL;  // compatibility
+inline constexpr std::uint32_t kPaperMaximumPower1 = 23U;  // compatibility
+inline constexpr std::uint64_t kPaperPrime2 = 2'013'265'921ULL;  // compatibility
+inline constexpr std::uint64_t kPaperPrimitiveRoot2 = 31ULL;  // compatibility
+inline constexpr std::uint32_t kPaperMaximumPower2 = 27U;  // compatibility
+}  // namespace ntt
+
+namespace q3report {
+inline constexpr std::uint64_t kDefaultMemoryBytes = 64ULL * kBytesPerMiB;
+inline constexpr std::uint64_t kDefaultMaximumStructuralChecks = 200'000ULL;
+inline constexpr std::uint64_t kDefaultMaximumStoredParents = 20'000ULL;
+inline constexpr std::uint32_t kMaximumSignedNativeModulusBits = 62U;  // signed representation
+}  // namespace q3report
+
+namespace crossover {
+inline constexpr std::uint32_t kDefaultN = 36U;
+inline constexpr std::uint32_t kDefaultListSize = 64U;
+inline constexpr std::uint8_t kDefaultR2 = 6U;
+inline constexpr std::uint8_t kDefaultR1 = 12U;
+inline constexpr std::uint64_t kDefaultSeed = 1U;
+inline constexpr std::uint32_t kDefaultHalfPoolSize = 512U;
+inline constexpr std::uint32_t kDefaultMaxHalfPoolSize = 8'192U;
+inline constexpr std::uint64_t kDefaultAttemptLimit = 4'000'000ULL;
+inline constexpr std::uint64_t kDefaultMemoryBytes = 256ULL * kBytesPerMiB;
+}  // namespace crossover
+
+namespace paper_crossover {
+inline constexpr std::uint64_t kDefaultRequestedListSize = 64U;
+inline constexpr std::uint64_t kDefaultSeed = 0x1001ULL;
+inline constexpr std::uint32_t kDefaultInitialHalfPool = 256U;
+inline constexpr std::uint32_t kDefaultMaximumHalfPool = 65'536U;
+inline constexpr std::uint64_t kDefaultMemoryBytes = 2ULL * 1024ULL * kBytesPerMiB;
+inline constexpr std::uint32_t kDefaultWarmupRepetitions = 1U;
+inline constexpr std::uint32_t kDefaultTimedRepetitions = 5U;
+inline constexpr std::uint32_t kShapeDomainCapacityBits = 31U;
+inline constexpr std::uint32_t kShapeSearchMaximumSteps = 64U;
+inline constexpr std::uint64_t kPoolSamplingAttemptMultiplier = 64U;
+inline constexpr std::uint64_t kPoolSamplingAttemptSlack = 65'536U;
+}  // namespace paper_crossover
+
+namespace benchmark {
+inline constexpr std::uint64_t kFullTerMemoryBytes = 256ULL * kBytesPerMiB;
+inline constexpr std::uint32_t kQ3ReportInitialHalfPool = 384U;
+inline constexpr std::uint32_t kQ3ReportMaximumHalfPool = 1'024U;
+inline constexpr std::uint64_t kQ3ReportAttemptLimit = 2'000'000ULL;
+inline constexpr std::uint32_t kCrossoverInitialHalfPool = 256U;
+inline constexpr std::uint32_t kCrossoverMaximumHalfPool = 3'072U;
+inline constexpr std::uint64_t kCrossoverAttemptLimit = 8'000'000ULL;
+inline constexpr std::uint64_t kPaperSmallListMaximum = 4'096U;
+inline constexpr std::uint64_t kPaperMediumListSize = 8'192U;
+inline constexpr std::uint64_t kPaperExtendedListSize = 16'384U;
+inline constexpr std::uint32_t kPaperSmallSeeds = 5U;
+inline constexpr std::uint32_t kPaperSmallRepetitions = 5U;
+inline constexpr std::uint32_t kPaperMediumSeeds = 5U;
+inline constexpr std::uint32_t kPaperMediumRepetitions = 3U;
+inline constexpr std::uint32_t kPaperExtendedSeeds = 5U;
+inline constexpr std::uint32_t kPaperExtendedRepetitions = 3U;
+inline constexpr std::uint32_t kPaperDefaultExtendedSeeds = 3U;
+inline constexpr std::uint32_t kPaperDefaultExtendedRepetitions = 2U;
+inline constexpr std::uint32_t kPaperUnsupportedSeeds = 5U;
+inline constexpr std::uint32_t kPaperUnsupportedRepetitions = 1U;
+}  // namespace benchmark
+
+}  // namespace control_panel
+
 // Unit used by all byte-valued runtime defaults below.
-inline constexpr std::uint64_t kMiB = 1024ULL * 1024ULL;
+inline constexpr std::uint64_t kMiB = control_panel::kBytesPerMiB;
 
 namespace checked {
 
@@ -122,9 +247,9 @@ namespace arithmetic {
 // Modular quotient arithmetic is stored in one unsigned machine word. These
 // are representational limits, not TER shape restrictions. Configuration
 // callers keep their existing InvalidConfiguration result when they fail.
-inline constexpr std::uint32_t kMachineWordBits = 64U;
+inline constexpr std::uint32_t kMachineWordBits = control_panel::arithmetic::kMachineWordBits;
 inline constexpr std::uint32_t kMaximumModulusBits = kMachineWordBits - 1U;
-inline constexpr std::uint32_t kMaximumQuotientBits = 32U;
+inline constexpr std::uint32_t kMaximumQuotientBits = control_panel::arithmetic::kMaximumQuotientBits;
 
 [[nodiscard]] constexpr bool modulus_bits_supported(const std::uint32_t n,
                                                      const std::uint32_t b1) noexcept {
@@ -146,17 +271,19 @@ namespace full_ter {
 // Finite TER construction rule, not a claim about every asymptotic TER
 // parameterization. Violations are InvalidShape/InvalidConfiguration at the
 // particular caller.
-inline constexpr std::uint32_t kFiniteDimensionDivisor = 36U;
+inline constexpr std::uint32_t kFiniteDimensionDivisor =
+    control_panel::full_ter::kFiniteDimensionDivisor;
 
 // User-configurable Full TER defaults. Zero limits are invalid configuration.
 // Exhausting attempts is AttemptLimitReached; breaching the memory budget is
 // ResourceLimit. Neither outcome implies UNSAT.
-inline constexpr std::uint32_t kDefaultAttemptLimit = 1U;
-inline constexpr std::uint64_t kDefaultMemoryBytes = 512ULL * kMiB;
+inline constexpr std::uint32_t kDefaultAttemptLimit = control_panel::full_ter::kDefaultAttemptLimit;
+inline constexpr std::uint64_t kDefaultMemoryBytes = control_panel::full_ter::kDefaultMemoryBytes;
 
 // Fixture-only leaf-list cap. This bounds the finite test harness, not the
 // classical Full TER mathematics. A fixture expansion past it is ResourceLimit.
-inline constexpr std::uint64_t kDefaultFixtureLevel3Limit = 64ULL;
+inline constexpr std::uint64_t kDefaultFixtureLevel3Limit =
+    control_panel::full_ter::kDefaultFixtureLevel3Limit;
 
 [[nodiscard]] constexpr bool finite_dimension_supported(const std::uint32_t n) noexcept {
   return n != 0U && n % kFiniteDimensionDivisor == 0U;
@@ -190,18 +317,21 @@ namespace generator {
 
 // Defaults for the small authentic snapshot generator. They are practical
 // generator settings, all user-overridable through SnapshotConfig.
-inline constexpr std::uint32_t kDefaultN = 36U;
-inline constexpr std::uint8_t kDefaultB2 = 6U;
-inline constexpr std::uint8_t kDefaultB1 = 10U;
-inline constexpr std::uint64_t kDefaultSeed = 1U;
-inline constexpr std::uint32_t kDefaultRequestedListSize = 1U;
-inline constexpr std::uint32_t kDefaultHalfPoolSize = 64U;
-inline constexpr std::uint32_t kDefaultMaxHalfPoolSize = 1'024U;
-inline constexpr std::uint64_t kDefaultAttemptLimit = 1'000'000ULL;
-inline constexpr std::uint64_t kDefaultMemoryBytes = 256ULL * kMiB;
+inline constexpr std::uint32_t kDefaultN = control_panel::generator::kDefaultN;
+inline constexpr std::uint8_t kDefaultB2 = control_panel::generator::kDefaultB2;
+inline constexpr std::uint8_t kDefaultB1 = control_panel::generator::kDefaultB1;
+inline constexpr std::uint64_t kDefaultSeed = control_panel::generator::kDefaultSeed;
+inline constexpr std::uint32_t kDefaultRequestedListSize =
+    control_panel::generator::kDefaultRequestedListSize;
+inline constexpr std::uint32_t kDefaultHalfPoolSize = control_panel::generator::kDefaultHalfPoolSize;
+inline constexpr std::uint32_t kDefaultMaxHalfPoolSize =
+    control_panel::generator::kDefaultMaxHalfPoolSize;
+inline constexpr std::uint64_t kDefaultAttemptLimit = control_panel::generator::kDefaultAttemptLimit;
+inline constexpr std::uint64_t kDefaultMemoryBytes = control_panel::generator::kDefaultMemoryBytes;
 // Exhaustive reference generation is a finite correctness tool. Beyond n=36
 // it refuses with ResourceLimit instead of trying to materialize its domain.
-inline constexpr std::uint32_t kExhaustiveReferenceMaximumN = 36U;
+inline constexpr std::uint32_t kExhaustiveReferenceMaximumN =
+    control_panel::generator::kExhaustiveReferenceMaximumN;
 
 [[nodiscard]] constexpr bool nonzero_requested_list_size(const std::uint64_t size) noexcept {
   return size != 0U;
@@ -223,10 +353,13 @@ namespace paper_generator {
 
 // Declared benchmark/practical defaults for paper-rounded generation. These
 // are not universal TER mathematical ceilings and remain config-overridable.
-inline constexpr std::uint32_t kDefaultN = 360U;
-inline constexpr std::uint64_t kDefaultMemoryBytes = 512ULL * kMiB;
-inline constexpr std::uint32_t kDefaultHalfPoolSize = 4'096U;
-inline constexpr std::uint64_t kDefaultAttemptLimit = 5'000'000ULL;
+inline constexpr std::uint32_t kDefaultN = control_panel::paper_generator::kDefaultN;
+inline constexpr std::uint64_t kDefaultMemoryBytes =
+    control_panel::paper_generator::kDefaultMemoryBytes;
+inline constexpr std::uint32_t kDefaultHalfPoolSize =
+    control_panel::paper_generator::kDefaultHalfPoolSize;
+inline constexpr std::uint64_t kDefaultAttemptLimit =
+    control_panel::paper_generator::kDefaultAttemptLimit;
 
 }  // namespace paper_generator
 
@@ -235,7 +368,8 @@ namespace oracle {
 // Correctness-oracle safety cap, not a TER mathematical limit. Exceeding it
 // refuses cubic execution with the caller's existing ResourceLimit behavior;
 // it never implies UNSAT.
-inline constexpr std::uint64_t kCubicCandidateTripleCap = 1'000'000ULL;
+inline constexpr std::uint64_t kCubicCandidateTripleCap =
+    control_panel::oracle::kCubicCandidateTripleCap;
 
 [[nodiscard]] constexpr bool cubic_work_supported(const std::uint64_t triples) noexcept {
   return triples <= kCubicCandidateTripleCap;
@@ -260,7 +394,8 @@ namespace tiled {
 // Tiled Q3REPORT represents bucket offsets and doubled-record chains with
 // 32-bit indices. Violations are NotApplicable for Q, InvalidConfiguration for
 // tau/q values, or ResourceLimit for capacity/memory at the existing caller.
-inline constexpr std::uint32_t kDefaultPreferredTileBits = 15U;
+inline constexpr std::uint32_t kDefaultPreferredTileBits =
+    control_panel::tiled::kDefaultPreferredTileBits;
 inline constexpr std::uint32_t kMaximumQuotientBits = arithmetic::kMaximumQuotientBits;
 inline constexpr std::uint64_t kMaximumQuotientUniverse =
     std::uint64_t{1} << kMaximumQuotientBits;
@@ -335,14 +470,16 @@ namespace ntt {
 
 // The original single-prime count-only Q3REPORT/crossover NTT is exactly
 // supported through 2^23. Larger Q is NotApplicable, not a correctness result.
-inline constexpr std::uint32_t kQ3ReportMaximumPower = 23U;
+inline constexpr std::uint32_t kQ3ReportMaximumPower =
+    control_panel::ntt::kQ3ReportMaximumPower;
 inline constexpr std::uint64_t kQ3ReportMaximumLength =
     std::uint64_t{1} << kQ3ReportMaximumPower;
 inline constexpr bool kQ3ReportIsCountOnly = true;
 // Arithmetic parameters of the existing single-prime count-only core. They
 // are implementation compatibility policy, not a witness-recovery capability.
-inline constexpr std::uint64_t kQ3ReportPrime = 998'244'353ULL;
-inline constexpr std::uint64_t kQ3ReportPrimitiveRoot = 3ULL;
+inline constexpr std::uint64_t kQ3ReportPrime = control_panel::ntt::kQ3ReportPrime;
+inline constexpr std::uint64_t kQ3ReportPrimitiveRoot =
+    control_panel::ntt::kQ3ReportPrimitiveRoot;
 
 [[nodiscard]] constexpr bool q3report_length_supported(const std::uint64_t length) noexcept {
   return is_power_of_two(length) && length <= kQ3ReportMaximumLength;
@@ -350,12 +487,12 @@ inline constexpr std::uint64_t kQ3ReportPrimitiveRoot = 3ULL;
 
 // The paper-scaling comparator has a distinct dual-prime implementation. Its
 // 2^27 second-prime support is deliberately separate from the older 2^23 core.
-inline constexpr std::uint64_t kPaperPrime1 = 998'244'353ULL;
-inline constexpr std::uint64_t kPaperPrimitiveRoot1 = 3ULL;
-inline constexpr std::uint32_t kPaperMaximumPower1 = 23U;
-inline constexpr std::uint64_t kPaperPrime2 = 2'013'265'921ULL;
-inline constexpr std::uint64_t kPaperPrimitiveRoot2 = 31ULL;
-inline constexpr std::uint32_t kPaperMaximumPower2 = 27U;
+inline constexpr std::uint64_t kPaperPrime1 = control_panel::ntt::kPaperPrime1;
+inline constexpr std::uint64_t kPaperPrimitiveRoot1 = control_panel::ntt::kPaperPrimitiveRoot1;
+inline constexpr std::uint32_t kPaperMaximumPower1 = control_panel::ntt::kPaperMaximumPower1;
+inline constexpr std::uint64_t kPaperPrime2 = control_panel::ntt::kPaperPrime2;
+inline constexpr std::uint64_t kPaperPrimitiveRoot2 = control_panel::ntt::kPaperPrimitiveRoot2;
+inline constexpr std::uint32_t kPaperMaximumPower2 = control_panel::ntt::kPaperMaximumPower2;
 
 }  // namespace ntt
 
@@ -364,15 +501,18 @@ namespace q3report {
 // Frozen count-only experiment defaults. These are explicit audit/output
 // ceilings rather than solver mathematics; callers retain configuration
 // overrides and existing status mappings.
-inline constexpr std::uint64_t kDefaultMemoryBytes = 64ULL * kMiB;
-inline constexpr std::uint64_t kDefaultMaximumStructuralChecks = 200'000ULL;
-inline constexpr std::uint64_t kDefaultMaximumStoredParents = 20'000ULL;
+inline constexpr std::uint64_t kDefaultMemoryBytes = control_panel::q3report::kDefaultMemoryBytes;
+inline constexpr std::uint64_t kDefaultMaximumStructuralChecks =
+    control_panel::q3report::kDefaultMaximumStructuralChecks;
+inline constexpr std::uint64_t kDefaultMaximumStoredParents =
+    control_panel::q3report::kDefaultMaximumStoredParents;
 inline constexpr std::uint64_t kDefaultMaximumOracleTriples =
     oracle::kCubicCandidateTripleCap;
 // Q3REPORT derives tau through widened signed 64-bit arithmetic, so r1=63 is
 // deliberately excluded. This is narrower than the generic native Full TER
 // tiled fallback gate and remains InvalidConfiguration at Q3 callers.
-inline constexpr std::uint32_t kMaximumSignedNativeModulusBits = 62U;
+inline constexpr std::uint32_t kMaximumSignedNativeModulusBits =
+    control_panel::q3report::kMaximumSignedNativeModulusBits;
 
 [[nodiscard]] constexpr bool signed_quotient_arithmetic_supported(
     const std::uint32_t r1,
@@ -412,15 +552,18 @@ inline constexpr std::uint32_t kMaximumSignedNativeModulusBits = 62U;
 namespace crossover {
 
 // TER-scaling-emulation defaults, not Full TER solver limits.
-inline constexpr std::uint32_t kDefaultN = 36U;
-inline constexpr std::uint32_t kDefaultListSize = 64U;
-inline constexpr std::uint8_t kDefaultR2 = 6U;
-inline constexpr std::uint8_t kDefaultR1 = 12U;
-inline constexpr std::uint64_t kDefaultSeed = 1U;
-inline constexpr std::uint32_t kDefaultHalfPoolSize = 512U;
-inline constexpr std::uint32_t kDefaultMaxHalfPoolSize = 8'192U;
-inline constexpr std::uint64_t kDefaultAttemptLimit = 4'000'000ULL;
-inline constexpr std::uint64_t kDefaultMemoryBytes = 256ULL * kMiB;
+inline constexpr std::uint32_t kDefaultN = control_panel::crossover::kDefaultN;
+inline constexpr std::uint32_t kDefaultListSize = control_panel::crossover::kDefaultListSize;
+inline constexpr std::uint8_t kDefaultR2 = control_panel::crossover::kDefaultR2;
+inline constexpr std::uint8_t kDefaultR1 = control_panel::crossover::kDefaultR1;
+inline constexpr std::uint64_t kDefaultSeed = control_panel::crossover::kDefaultSeed;
+inline constexpr std::uint32_t kDefaultHalfPoolSize =
+    control_panel::crossover::kDefaultHalfPoolSize;
+inline constexpr std::uint32_t kDefaultMaxHalfPoolSize =
+    control_panel::crossover::kDefaultMaxHalfPoolSize;
+inline constexpr std::uint64_t kDefaultAttemptLimit =
+    control_panel::crossover::kDefaultAttemptLimit;
+inline constexpr std::uint64_t kDefaultMemoryBytes = control_panel::crossover::kDefaultMemoryBytes;
 
 [[nodiscard]] constexpr bool single_prime_snapshot_arithmetic_supported(
     const std::uint32_t n,
@@ -436,21 +579,31 @@ namespace paper_crossover {
 
 // Paper-scaling comparator defaults. These are declared experiment resource
 // budgets, not TER-theorem bounds. Zero remains invalid as in the existing API.
-inline constexpr std::uint64_t kDefaultRequestedListSize = 64U;
-inline constexpr std::uint64_t kDefaultSeed = 0x1001ULL;
-inline constexpr std::uint32_t kDefaultInitialHalfPool = 256U;
-inline constexpr std::uint32_t kDefaultMaximumHalfPool = 65'536U;
-inline constexpr std::uint64_t kDefaultMemoryBytes = 2ULL * 1024ULL * kMiB;
-inline constexpr std::uint32_t kDefaultWarmupRepetitions = 1U;
-inline constexpr std::uint32_t kDefaultTimedRepetitions = 5U;
+inline constexpr std::uint64_t kDefaultRequestedListSize =
+    control_panel::paper_crossover::kDefaultRequestedListSize;
+inline constexpr std::uint64_t kDefaultSeed = control_panel::paper_crossover::kDefaultSeed;
+inline constexpr std::uint32_t kDefaultInitialHalfPool =
+    control_panel::paper_crossover::kDefaultInitialHalfPool;
+inline constexpr std::uint32_t kDefaultMaximumHalfPool =
+    control_panel::paper_crossover::kDefaultMaximumHalfPool;
+inline constexpr std::uint64_t kDefaultMemoryBytes =
+    control_panel::paper_crossover::kDefaultMemoryBytes;
+inline constexpr std::uint32_t kDefaultWarmupRepetitions =
+    control_panel::paper_crossover::kDefaultWarmupRepetitions;
+inline constexpr std::uint32_t kDefaultTimedRepetitions =
+    control_panel::paper_crossover::kDefaultTimedRepetitions;
 // Paper-scaling shape search caps. These are comparator practicality bounds;
 // exhaustion returns GenerationIncomplete and is not a TER theorem.
-inline constexpr std::uint64_t kShapeDomainCapacityCap = std::uint64_t{1} << 31U;
-inline constexpr std::uint32_t kShapeSearchMaximumSteps = 64U;
+inline constexpr std::uint64_t kShapeDomainCapacityCap =
+    std::uint64_t{1} << control_panel::paper_crossover::kShapeDomainCapacityBits;
+inline constexpr std::uint32_t kShapeSearchMaximumSteps =
+    control_panel::paper_crossover::kShapeSearchMaximumSteps;
 // Per-pool sampling budget: a deterministic practical cap used only by the
 // paper comparator's generator; failure remains GenerationIncomplete.
-inline constexpr std::uint64_t kPoolSamplingAttemptMultiplier = 64U;
-inline constexpr std::uint64_t kPoolSamplingAttemptSlack = 65'536U;
+inline constexpr std::uint64_t kPoolSamplingAttemptMultiplier =
+    control_panel::paper_crossover::kPoolSamplingAttemptMultiplier;
+inline constexpr std::uint64_t kPoolSamplingAttemptSlack =
+    control_panel::paper_crossover::kPoolSamplingAttemptSlack;
 
 }  // namespace paper_crossover
 
@@ -459,16 +612,23 @@ namespace benchmark {
 // Full TER smoke benchmark ceiling. It is intentionally lower than the
 // FullTerConfig default so constrained behavior (including n=72 refusal) is
 // observable. There is no global wall-clock timeout policy.
-inline constexpr std::uint64_t kFullTerMemoryBytes = 256ULL * kMiB;
+inline constexpr std::uint64_t kFullTerMemoryBytes =
+    control_panel::benchmark::kFullTerMemoryBytes;
 
 // Fixed resource settings for the two legacy count-only benchmark fixtures.
 // They are benchmark sampling limits, not solver defaults.
-inline constexpr std::uint32_t kQ3ReportBenchmarkInitialHalfPool = 384U;
-inline constexpr std::uint32_t kQ3ReportBenchmarkMaximumHalfPool = 1'024U;
-inline constexpr std::uint64_t kQ3ReportBenchmarkAttemptLimit = 2'000'000ULL;
-inline constexpr std::uint32_t kCrossoverBenchmarkInitialHalfPool = 256U;
-inline constexpr std::uint32_t kCrossoverBenchmarkMaximumHalfPool = 3'072U;
-inline constexpr std::uint64_t kCrossoverBenchmarkAttemptLimit = 8'000'000ULL;
+inline constexpr std::uint32_t kQ3ReportBenchmarkInitialHalfPool =
+    control_panel::benchmark::kQ3ReportInitialHalfPool;
+inline constexpr std::uint32_t kQ3ReportBenchmarkMaximumHalfPool =
+    control_panel::benchmark::kQ3ReportMaximumHalfPool;
+inline constexpr std::uint64_t kQ3ReportBenchmarkAttemptLimit =
+    control_panel::benchmark::kQ3ReportAttemptLimit;
+inline constexpr std::uint32_t kCrossoverBenchmarkInitialHalfPool =
+    control_panel::benchmark::kCrossoverInitialHalfPool;
+inline constexpr std::uint32_t kCrossoverBenchmarkMaximumHalfPool =
+    control_panel::benchmark::kCrossoverMaximumHalfPool;
+inline constexpr std::uint64_t kCrossoverBenchmarkAttemptLimit =
+    control_panel::benchmark::kCrossoverAttemptLimit;
 
 // The paper crossover's declared sampling schedule. The non-executable final
 // point is reported because its required transform exceeds the verified 2^27
@@ -482,17 +642,23 @@ struct PaperCrossoverSchedule {
 [[nodiscard]] constexpr PaperCrossoverSchedule paper_crossover_schedule_for(
     const std::uint64_t list_size,
     const bool extended_16384) noexcept {
-  if (list_size <= 4'096U) {
-    return {5U, 5U, true};
+  if (list_size <= control_panel::benchmark::kPaperSmallListMaximum) {
+    return {control_panel::benchmark::kPaperSmallSeeds,
+            control_panel::benchmark::kPaperSmallRepetitions, true};
   }
-  if (list_size == 8'192U) {
-    return {5U, 3U, true};
+  if (list_size == control_panel::benchmark::kPaperMediumListSize) {
+    return {control_panel::benchmark::kPaperMediumSeeds,
+            control_panel::benchmark::kPaperMediumRepetitions, true};
   }
-  if (list_size == 16'384U) {
-    return extended_16384 ? PaperCrossoverSchedule{5U, 3U, true}
-                          : PaperCrossoverSchedule{3U, 2U, true};
+  if (list_size == control_panel::benchmark::kPaperExtendedListSize) {
+    return extended_16384
+               ? PaperCrossoverSchedule{control_panel::benchmark::kPaperExtendedSeeds,
+                                        control_panel::benchmark::kPaperExtendedRepetitions, true}
+               : PaperCrossoverSchedule{control_panel::benchmark::kPaperDefaultExtendedSeeds,
+                                        control_panel::benchmark::kPaperDefaultExtendedRepetitions, true};
   }
-  return {5U, 1U, false};
+  return {control_panel::benchmark::kPaperUnsupportedSeeds,
+          control_panel::benchmark::kPaperUnsupportedRepetitions, false};
 }
 
 [[nodiscard]] constexpr bool full_ter_warmup_acceptable(const Status status) noexcept {

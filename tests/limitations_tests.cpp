@@ -38,6 +38,28 @@ void test_full_ter_shape_policy() {
           "modulus width above n is invalid");
 }
 
+void test_control_panel_wiring() {
+  namespace panel = ter::limits::control_panel;
+  require(ter::limits::kMiB == panel::kBytesPerMiB &&
+              ter::limits::full_ter::kDefaultMemoryBytes == panel::full_ter::kDefaultMemoryBytes &&
+              ter::limits::generator::kDefaultAttemptLimit ==
+                  panel::generator::kDefaultAttemptLimit &&
+              ter::limits::paper_generator::kDefaultN == panel::paper_generator::kDefaultN &&
+              ter::limits::oracle::kCubicCandidateTripleCap ==
+                  panel::oracle::kCubicCandidateTripleCap &&
+              ter::limits::tiled::kDefaultPreferredTileBits ==
+                  panel::tiled::kDefaultPreferredTileBits,
+          "the control panel drives every core runtime-policy alias");
+  require(ter::limits::ntt::kQ3ReportMaximumPower == panel::ntt::kQ3ReportMaximumPower &&
+              ter::limits::q3report::kDefaultMemoryBytes == panel::q3report::kDefaultMemoryBytes &&
+              ter::limits::crossover::kDefaultMemoryBytes == panel::crossover::kDefaultMemoryBytes &&
+              ter::limits::paper_crossover::kDefaultMemoryBytes ==
+                  panel::paper_crossover::kDefaultMemoryBytes &&
+              ter::limits::benchmark::kFullTerMemoryBytes ==
+                  panel::benchmark::kFullTerMemoryBytes,
+          "the control panel drives NTT, Q3, crossover, and benchmark policies");
+}
+
 void test_checked_arithmetic_policy() {
   std::uint64_t value = 0U;
   require(ter::limits::checked::checked_add(41U, 1U, &value) && value == 42U,
@@ -141,6 +163,7 @@ void test_n72_full_benchmark_ceiling_regression() {
 }  // namespace
 
 int main() {
+  test_control_panel_wiring();
   test_full_ter_shape_policy();
   test_checked_arithmetic_policy();
   test_oracle_and_tiled_policy();
