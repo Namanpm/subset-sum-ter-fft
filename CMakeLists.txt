@@ -86,6 +86,7 @@ add_library(
     src/q3report_paper_crossover.cpp
     src/reference_vector.cpp
     src/shape.cpp
+    src/stress_generator.cpp
     src/tiled_q3report.cpp
     src/validator.cpp
 )
@@ -127,6 +128,15 @@ target_link_libraries(ter_generator_tests PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_generator_tests)
 ter_enable_release_ipo(ter_generator_tests)
 add_test(NAME ter_generator_tests COMMAND ter_generator_tests)
+
+add_executable(
+    ter_stress_generator_tests
+    tests/stress_generator_tests.cpp
+)
+target_link_libraries(ter_stress_generator_tests PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_stress_generator_tests)
+ter_enable_release_ipo(ter_stress_generator_tests)
+add_test(NAME ter_stress_generator_tests COMMAND ter_stress_generator_tests)
 
 add_executable(
     ter_merge_tests
@@ -231,6 +241,14 @@ add_executable(
 target_link_libraries(ter_full_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_full_bench)
 ter_enable_release_ipo(ter_full_bench)
+
+add_executable(
+    ter_stress_bench
+    bench/ter_stress_bench.cpp
+)
+target_link_libraries(ter_stress_bench PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_stress_bench)
+ter_enable_release_ipo(ter_stress_bench)
 
 add_executable(
     ter_q3report_bench

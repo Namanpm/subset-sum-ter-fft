@@ -26,6 +26,16 @@ Run the complete tiny-parameter end-to-end benchmark:
 .\build-full\Release\ter_full_bench.exe
 ```
 
+For explicitly synthetic adversarial L2-to-L1 merge fixtures, use the separate
+stress benchmark. Its rows are never paper-faithful FullTer evidence:
+
+```powershell
+.\build-full\Release\ter_stress_bench.exe
+```
+
+See [TER_STRESS_GENERATOR.md](TER_STRESS_GENERATOR.md) for the stress API,
+invariants, telemetry, and boundary semantics.
+
 The `n=36` benchmark is a complete deterministic random-target performance
 execution. Guided targets are reserved for differential pipeline-connectivity
 tests and are not substituted for the paper's random-target benchmark.
