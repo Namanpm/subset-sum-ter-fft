@@ -1,4 +1,5 @@
 #include "ter/generator.hpp"
+#include "ter/limitations.hpp"
 #include "ter/merge.hpp"
 #include "ter/packed.hpp"
 
@@ -66,7 +67,7 @@ int run_case(std::uint32_t list_size,
              std::uint32_t repetitions) {
   ter::SnapshotConfig config;
   config.family = ter::ShapeFamily::PaperRounded;
-  config.n = 360;
+  config.n = ter::limits::paper_generator::kDefaultN;
   config.b2 = 8;
   config.b1 = 18;
   config.seed = seed;
@@ -75,9 +76,9 @@ int run_case(std::uint32_t list_size,
                         : ter::GeneratorMode::MitmPerformance;
   config.plant_valid_triple = planted;
   config.half_pool_size = std::max<std::uint32_t>(256U, list_size * 2U);
-  config.max_half_pool_size = 4'096;
-  config.attempt_limit = 5'000'000;
-  config.memory_limit_bytes = 512ULL * 1024ULL * 1024ULL;
+  config.max_half_pool_size = ter::limits::paper_generator::kDefaultHalfPoolSize;
+  config.attempt_limit = ter::limits::paper_generator::kDefaultAttemptLimit;
+  config.memory_limit_bytes = ter::limits::paper_generator::kDefaultMemoryBytes;
 
   const auto generated = ter::build_snapshot(config);
   if (generated.status != ter::Status::Completed) {

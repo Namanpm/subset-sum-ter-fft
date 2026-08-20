@@ -18,7 +18,7 @@
 // k_z + Q, so that modular equality becomes ordinary integer equality against a
 // pair sum in [0, 2Q).
 
-#include "ter/types.hpp"
+#include "ter/limitations.hpp"
 
 #include <cstdint>
 #include <string>
@@ -46,7 +46,7 @@ struct TiledQEntry {
 struct TiledQ3ReportConfig {
   // Deterministic policy: tile_bits = min(preferred_tile_bits, q_bits).  V1 does
   // not autotune; tests may pass explicit values to prove invariance.
-  std::uint32_t preferred_tile_bits = 15U;
+  std::uint32_t preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
   // Zero means "no ceiling declared"; any nonzero value is enforced fail-closed
   // against the fixed auxiliary allocation before any scan begins.
   std::uint64_t memory_limit_bytes = 0;

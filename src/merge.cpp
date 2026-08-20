@@ -1,6 +1,7 @@
 #include "ter/merge.hpp"
 
 #include "ter/arithmetic.hpp"
+#include "ter/limitations.hpp"
 #include "ter/packed.hpp"
 #include "ter/reference_vector.hpp"
 #include "ter/tiled_q3report.hpp"
@@ -22,6 +23,9 @@ namespace ter {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_accumulate;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
 
 struct AcceptedCandidate {
   ReferenceTernaryVector parent;
@@ -41,30 +45,6 @@ struct PackedCandidateBuffer {
   std::vector<std::uint64_t> masks;
   std::vector<PackedCandidateRecord> records;
 };
-
-bool checked_add(std::uint64_t left,
-                 std::uint64_t right,
-                 std::uint64_t& result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  result = left + right;
-  return true;
-}
-
-bool checked_multiply(std::uint64_t left,
-                      std::uint64_t right,
-                      std::uint64_t& result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  result = left * right;
-  return true;
-}
-
-bool checked_accumulate(std::uint64_t& total, std::uint64_t value) noexcept {
-  return checked_add(total, value, total);
-}
 
 std::uint64_t elapsed_ns(Clock::time_point start, Clock::time_point end) {
   return static_cast<std::uint64_t>(
@@ -375,10 +355,9 @@ MergeOutput run_cubic_oracle_impl(const InputSnapshot& snapshot, OutputPolicy po
   const std::uint64_t c_size = snapshot.lists[2].entries.size();
   std::uint64_t pair_work = 0;
   std::uint64_t triple_work = 0;
-  constexpr std::uint64_t max_oracle_triples = 1'000'000U;
   if (!checked_multiply(a_size, b_size, pair_work) ||
       !checked_multiply(pair_work, c_size, triple_work) ||
-      triple_work > max_oracle_triples) {
+      !limits::oracle::cubic_work_supported(triple_work)) {
     output.status = Status::ResourceLimit;
     output.message = "cubic oracle is restricted to tiny bounded fixtures";
     return output;
@@ -397,7 +376,8 @@ MergeOutput run_cubic_oracle_impl(const InputSnapshot& snapshot, OutputPolicy po
       !checked_accumulate(working_budget, candidate_digits) ||
       !checked_accumulate(working_budget, output_records) ||
       !checked_accumulate(working_budget, provenance_records) ||
-      working_budget > snapshot.spec.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, working_budget,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "cubic oracle output reserve exceeds the declared memory limit";
     return output;
@@ -482,7 +462,8 @@ MergeOutput run_pair_baseline_impl(const InputSnapshot& snapshot, OutputPolicy p
     output.message = "pair index dimensions overflow";
     return output;
   }
-  if (pair_build_peak > snapshot.spec.memory_limit_bytes) {
+  if (!limits::checked::fits_memory_budget(0U, pair_build_peak,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "pair-index construction exceeds the declared memory limit";
     return output;
@@ -551,7 +532,8 @@ MergeOutput run_pair_baseline_impl(const InputSnapshot& snapshot, OutputPolicy p
       !checked_accumulate(recovery_peak, candidate_bytes) ||
       !checked_accumulate(recovery_peak, output_records) ||
       !checked_accumulate(recovery_peak, provenance_records) ||
-      recovery_peak > snapshot.spec.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, recovery_peak,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "candidate and output reserve exceeds the declared memory limit";
     return output;
@@ -685,7 +667,8 @@ MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy poli
   if (!tiled_q3report_auxiliary_bytes(static_cast<std::uint64_t>(x_list.size()),
                                       static_cast<std::uint64_t>(y_list.size()),
                                       static_cast<std::uint64_t>(z_list.size()),
-                                      snapshot.spec.arithmetic.q, 15U, true, &auxiliary_count,
+                                      snapshot.spec.arithmetic.q,
+                                      limits::tiled::kDefaultPreferredTileBits, true, &auxiliary_count,
                                       &auxiliary_report)) {
     output.status = Status::ResourceLimit;
     output.message = "tiled auxiliary accounting overflow";
@@ -702,7 +685,8 @@ MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy poli
   }
   std::uint64_t fixed_bytes = auxiliary_report;
   if (!checked_accumulate(fixed_bytes, quotient_entry_bytes) ||
-      fixed_bytes > snapshot.spec.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, fixed_bytes,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "tiled auxiliary structures exceed the declared memory limit";
     return output;
@@ -728,7 +712,13 @@ MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy poli
     output.message = "tiled candidate accounting overflow";
     return output;
   }
-  const std::uint64_t remaining = snapshot.spec.memory_limit_bytes - fixed_bytes;
+  std::uint64_t remaining = 0U;
+  if (!limits::checked::remaining_memory(fixed_bytes, snapshot.spec.memory_limit_bytes,
+                                          &remaining)) {
+    output.status = Status::ResourceLimit;
+    output.message = "tiled auxiliary structures exceed the declared memory limit";
+    return output;
+  }
   const std::uint64_t accepted_capacity =
       per_candidate == 0U ? 0U : remaining / per_candidate;
   std::uint64_t candidate_bytes = 0;
@@ -772,7 +762,7 @@ MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy poli
   context.accepted_capacity = accepted_capacity;
 
   TiledQ3ReportConfig tiled_config;
-  tiled_config.preferred_tile_bits = 15U;
+  tiled_config.preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
   tiled_config.memory_limit_bytes = snapshot.spec.memory_limit_bytes;
 
   const auto scan_start = Clock::now();
@@ -912,7 +902,8 @@ MergeOutput run_pair_tiled_packed_impl(const PackedSnapshot& snapshot, OutputPol
   std::uint64_t count_auxiliary = 0;
   std::uint64_t report_auxiliary = 0;
   if (!tiled_q3report_auxiliary_bytes(x_list.size(), y_list.size(), z_list.size(),
-                                      snapshot.spec.arithmetic.q, 15U, true,
+                                      snapshot.spec.arithmetic.q,
+                                      limits::tiled::kDefaultPreferredTileBits, true,
                                       &count_auxiliary, &report_auxiliary)) {
     output.status = Status::ResourceLimit;
     output.message = "packed tiled auxiliary accounting overflow";
@@ -938,7 +929,8 @@ MergeOutput run_pair_tiled_packed_impl(const PackedSnapshot& snapshot, OutputPol
   std::uint64_t fixed_bytes = report_auxiliary;
   if (!checked_accumulate(fixed_bytes, quotient_entry_bytes) ||
       !checked_accumulate(fixed_bytes, scratch_bytes) ||
-      fixed_bytes > snapshot.spec.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, fixed_bytes,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "packed tiled fixed auxiliary structures exceed the declared memory limit";
     return output;
@@ -954,7 +946,13 @@ MergeOutput run_pair_tiled_packed_impl(const PackedSnapshot& snapshot, OutputPol
     output.message = "packed tiled candidate accounting overflow";
     return output;
   }
-  const std::uint64_t remaining = snapshot.spec.memory_limit_bytes - fixed_bytes;
+  std::uint64_t remaining = 0U;
+  if (!limits::checked::remaining_memory(fixed_bytes, snapshot.spec.memory_limit_bytes,
+                                          &remaining)) {
+    output.status = Status::ResourceLimit;
+    output.message = "packed tiled fixed auxiliary structures exceed the declared memory limit";
+    return output;
+  }
   const std::uint64_t accepted_capacity = per_candidate == 0U ? 0U : remaining / per_candidate;
   std::uint64_t candidate_bytes = 0;
   if (!checked_multiply(accepted_capacity, per_candidate, candidate_bytes)) {
@@ -1010,7 +1008,7 @@ MergeOutput run_pair_tiled_packed_impl(const PackedSnapshot& snapshot, OutputPol
   context.detailed_timing = policy == OutputPolicy::Correctness;
 
   TiledQ3ReportConfig tiled_config;
-  tiled_config.preferred_tile_bits = 15U;
+  tiled_config.preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
   // The primitive's internal allocation is included in fixed_bytes above; it
   // still receives the public ceiling so it fails closed on its own preflight.
   tiled_config.memory_limit_bytes = snapshot.spec.memory_limit_bytes;
@@ -1108,7 +1106,8 @@ MergeOutput run_pair_baseline_packed_impl(const PackedSnapshot& snapshot,
     output.message = "packed pair index dimensions overflow";
     return output;
   }
-  if (pair_build_peak > snapshot.spec.memory_limit_bytes) {
+  if (!limits::checked::fits_memory_budget(0U, pair_build_peak,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message = "packed pair-index construction exceeds the declared memory limit";
     return output;
@@ -1191,7 +1190,8 @@ MergeOutput run_pair_baseline_packed_impl(const PackedSnapshot& snapshot,
       !checked_accumulate(recovery_peak, output_digits) ||
       !checked_accumulate(recovery_peak, provenance_records) ||
       !checked_accumulate(recovery_peak, scratch_bytes) ||
-      recovery_peak > snapshot.spec.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, recovery_peak,
+                                            snapshot.spec.memory_limit_bytes)) {
     output.status = Status::ResourceLimit;
     output.message =
         "packed candidate and output reserve exceeds the declared memory limit";

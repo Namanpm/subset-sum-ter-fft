@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ter/limitations.hpp"
 #include "ter/model.hpp"
 
 #include <cstdint>
@@ -16,17 +17,17 @@ enum class GeneratorMode : std::uint8_t {
 
 struct SnapshotConfig {
   ShapeFamily family = ShapeFamily::FiniteSanity;
-  std::uint32_t n = 36;
-  std::uint8_t b2 = 6;
-  std::uint8_t b1 = 10;
-  std::uint64_t seed = 1;
-  std::uint32_t requested_list_size = 1;
+  std::uint32_t n = limits::generator::kDefaultN;
+  std::uint8_t b2 = limits::generator::kDefaultB2;
+  std::uint8_t b1 = limits::generator::kDefaultB1;
+  std::uint64_t seed = limits::generator::kDefaultSeed;
+  std::uint32_t requested_list_size = limits::generator::kDefaultRequestedListSize;
   GeneratorMode mode = GeneratorMode::PlantedMitm;
   bool plant_valid_triple = true;
-  std::uint32_t half_pool_size = 64;
-  std::uint32_t max_half_pool_size = 1'024;
-  std::uint64_t attempt_limit = 1'000'000;
-  std::uint64_t memory_limit_bytes = 256U * 1024U * 1024U;
+  std::uint32_t half_pool_size = limits::generator::kDefaultHalfPoolSize;
+  std::uint32_t max_half_pool_size = limits::generator::kDefaultMaxHalfPoolSize;
+  std::uint64_t attempt_limit = limits::generator::kDefaultAttemptLimit;
+  std::uint64_t memory_limit_bytes = limits::generator::kDefaultMemoryBytes;
 };
 
 struct GenerationTelemetry {

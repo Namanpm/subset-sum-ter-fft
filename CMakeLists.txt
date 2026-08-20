@@ -205,6 +205,18 @@ add_test(
 )
 
 add_executable(
+    ter_limitations_tests
+    tests/limitations_tests.cpp
+)
+target_link_libraries(ter_limitations_tests PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_limitations_tests)
+ter_enable_release_ipo(ter_limitations_tests)
+add_test(
+    NAME ter_limitations_tests
+    COMMAND ter_limitations_tests
+)
+
+add_executable(
     ter_baseline_bench
     bench/ter_baseline_bench.cpp
 )

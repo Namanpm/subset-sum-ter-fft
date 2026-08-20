@@ -1,5 +1,7 @@
 #include "ter/instance.hpp"
 
+#include "ter/limitations.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -58,8 +60,7 @@ void add_value_to_target(Instance& instance, std::uint32_t value_index) noexcept
 
 InstanceResult build_instance(std::uint32_t n, std::uint8_t b1, std::uint64_t seed) {
   InstanceResult result;
-  if (n == 0U || n % 2U != 0U || b1 == 0U || b1 >= 64U ||
-      static_cast<std::uint32_t>(b1) >= n) {
+  if (n % 2U != 0U || !limits::arithmetic::modulus_bits_supported(n, b1)) {
     result.message = "instance requires positive even n and 0 < b1 < min(n,64)";
     return result;
   }

@@ -3,6 +3,7 @@
 #include "ter/arithmetic.hpp"
 #include "ter/generator.hpp"
 #include "ter/instance.hpp"
+#include "ter/limitations.hpp"
 #include "ter/reference_vector.hpp"
 
 #include <algorithm>
@@ -18,45 +19,20 @@ namespace ter {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
+using limits::is_power_of_two;
 
 std::uint64_t elapsed_ns(const Clock::time_point start) {
   return static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - start).count());
 }
 
-[[nodiscard]] bool checked_multiply(const std::uint64_t left,
-                                    const std::uint64_t right,
-                                    std::uint64_t* const out) {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  *out = left * right;
-  return true;
-}
-
-[[nodiscard]] bool checked_add(const std::uint64_t left,
-                               const std::uint64_t right,
-                               std::uint64_t* const out) {
-  if (right > std::numeric_limits<std::uint64_t>::max() - left) {
-    return false;
-  }
-  *out = left + right;
-  return true;
-}
-
-[[nodiscard]] bool is_power_of_two(const std::uint64_t value) noexcept {
-  return value != 0U && (value & (value - 1U)) == 0U;
-}
-
-// Same exact single-prime cyclic NTT modulus already validated by the frozen
-// Q3REPORT experiment (src/q3report_audit.cpp). Reused, not reinvented: its
-// 2-adicity (23) is the hard ceiling on every representable Q in this
-// benchmark. Points that require a larger Q are reported NotApplicable
-// rather than silently CRT-extended, per the crossover experiment's scope
-// (minimal exact machinery only).
-constexpr std::uint64_t kNttPrime = 998'244'353ULL;
-constexpr std::uint64_t kNttPrimitiveRoot = 3ULL;
-constexpr std::uint32_t kNttMaximumPower = 23U;
+// Same exact single-prime cyclic NTT policy as the frozen Q3REPORT experiment.
+// Its 2-adicity is the central 2^23 ceiling; unsupported points are
+// NotApplicable rather than silently CRT-extended.
+constexpr const std::uint64_t& kNttPrime = limits::ntt::kQ3ReportPrime;
+constexpr const std::uint64_t& kNttPrimitiveRoot = limits::ntt::kQ3ReportPrimitiveRoot;
 
 std::uint64_t mod_pow(std::uint64_t base, std::uint64_t exponent, const std::uint64_t modulus) {
   std::uint64_t result = 1U;
@@ -164,9 +140,9 @@ void apply_plan(const NttPlan& plan, std::vector<std::uint64_t>* const data, con
 
 CrossoverSnapshotResult build_scaling_snapshot(const CrossoverSnapshotConfig& config) {
   CrossoverSnapshotResult result;
-  if (config.list_size == 0U || config.r2 == 0U || config.r2 >= config.r1 ||
-      config.r1 >= config.n || config.r1 >= 64U ||
-      static_cast<std::uint32_t>(config.r1 - config.r2) > kNttMaximumPower) {
+  if (config.list_size == 0U ||
+      !limits::crossover::single_prime_snapshot_arithmetic_supported(config.n, config.r2,
+                                                                       config.r1)) {
     result.status = CrossoverStatus::InvalidConfiguration;
     result.message =
         "crossover snapshot configuration is invalid or requires a Q beyond the "
@@ -279,7 +255,7 @@ CrossoverStatus audit_scaling_snapshot(const CrossoverSnapshot& snapshot,
 CrossoverStatus build_ntt_plan(const std::uint64_t length,
                                NttPlan* const plan,
                                std::string* const message) {
-  if (!is_power_of_two(length) || length > (std::uint64_t{1} << kNttMaximumPower)) {
+  if (!limits::ntt::q3report_length_supported(length)) {
     *message = "NTT length is unsupported by the exact single-prime transform";
     return CrossoverStatus::NotApplicable;
   }
@@ -323,7 +299,7 @@ CrossoverRunResult run_crossover_point(const CrossoverSnapshot& snapshot,
   const auto& arithmetic = input.spec.arithmetic;
   const auto q = arithmetic.q;
 
-  if (!is_power_of_two(q) || q > (std::uint64_t{1} << kNttMaximumPower)) {
+  if (!limits::ntt::q3report_length_supported(q)) {
     out.status = CrossoverStatus::NotApplicable;
     out.message = "Q exceeds the supported single-prime transform length (2^23)";
     return out;
@@ -380,7 +356,7 @@ CrossoverRunResult run_crossover_point(const CrossoverSnapshot& snapshot,
   std::uint64_t total_bytes = 0;
   if (!checked_add(direct_bytes, ntt_per_run_bytes, &total_bytes) ||
       !checked_add(total_bytes, ntt_plan_bytes, &total_bytes) ||
-      total_bytes > memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, total_bytes, memory_limit_bytes)) {
     out.status = CrossoverStatus::ResourceLimit;
     out.message = "direct/NTT count-array buffers exceed the declared memory ceiling";
     return out;

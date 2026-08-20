@@ -9,6 +9,7 @@
 #include "ter/arithmetic.hpp"
 #include "ter/full_ter.hpp"
 #include "ter/instance.hpp"
+#include "ter/limitations.hpp"
 #include "ter/q3report_paper_crossover.hpp"
 
 #include <algorithm>
@@ -23,30 +24,14 @@
 
 namespace {
 
-constexpr std::uint64_t kMemoryCeiling = 2ULL * 1024ULL * 1024ULL * 1024ULL;  // declared 2 GiB
 constexpr std::uint64_t kAnchorSeed = 0x51335245504f5254ULL;
 
-struct Schedule {
-  std::uint32_t seeds;
-  std::uint32_t repetitions;
-  bool executable;
-};
+using Schedule = ter::limits::benchmark::PaperCrossoverSchedule;
 
 // Section 23.  Declared before any timing result was seen.
 [[nodiscard]] Schedule schedule_for(const std::uint64_t list_size,
                                     const bool extended_16384) noexcept {
-  if (list_size <= 4'096U) {
-    return {5U, 5U, true};
-  }
-  if (list_size == 8'192U) {
-    return {5U, 3U, true};
-  }
-  if (list_size == 16'384U) {
-    return extended_16384 ? Schedule{5U, 3U, true} : Schedule{3U, 2U, true};
-  }
-  // L = 32768 stays a declared point.  q_bits = 28 exceeds the verified 2^27
-  // transform ceiling, so it is reported, never silently omitted.
-  return {5U, 1U, false};
+  return ter::limits::benchmark::paper_crossover_schedule_for(list_size, extended_16384);
 }
 
 void emit_header() {
@@ -173,7 +158,7 @@ void run_authentic_anchors() {
   config.execution_mode = ter::TerExecutionMode::FullTer;
   config.target_mode = ter::TerTargetMode::GuidedPlanted;
   config.seed = kAnchorSeed;
-  config.memory_limit_bytes = 64U * 1024U * 1024U;
+  config.memory_limit_bytes = ter::limits::q3report::kDefaultMemoryBytes;
   for (std::uint32_t group = 0; group < 3U; ++group) {
     const auto capture =
         ter::capture_full_ter_l2_merge_snapshot(balanced_full_instance(), config, group);
@@ -188,9 +173,9 @@ void run_authentic_anchors() {
       continue;
     }
     ter::PaperCrossoverConfig run_config;
-    run_config.memory_limit_bytes = kMemoryCeiling;
-    run_config.warmup_repetitions = 1U;
-    run_config.timed_repetitions = 5U;
+    run_config.memory_limit_bytes = ter::limits::paper_crossover::kDefaultMemoryBytes;
+    run_config.warmup_repetitions = ter::limits::paper_crossover::kDefaultWarmupRepetitions;
+    run_config.timed_repetitions = ter::limits::paper_crossover::kDefaultTimedRepetitions;
     const auto result = ter::run_paper_crossover_experiment(adopted.value, run_config);
     const Schedule schedule{1U, run_config.timed_repetitions, true};
     emit_row(adopted.value, result, schedule);
@@ -268,7 +253,7 @@ int main(int argc, char** argv) {
       ter::PaperCrossoverSnapshotConfig snapshot_config;
       snapshot_config.requested_list_size = list_size;
       snapshot_config.seed = seeds[index];
-      snapshot_config.memory_limit_bytes = kMemoryCeiling;
+      snapshot_config.memory_limit_bytes = ter::limits::paper_crossover::kDefaultMemoryBytes;
       const auto built = ter::build_paper_scaling_snapshot(snapshot_config);
       if (built.status != ter::PaperCrossoverStatus::Completed) {
         std::cerr << "L=" << list_size << " seed=" << seeds[index]
@@ -283,7 +268,7 @@ int main(int argc, char** argv) {
         continue;
       }
       ter::PaperCrossoverConfig run_config;
-      run_config.memory_limit_bytes = kMemoryCeiling;
+      run_config.memory_limit_bytes = ter::limits::paper_crossover::kDefaultMemoryBytes;
       run_config.warmup_repetitions = 1U;
       run_config.timed_repetitions = schedule.repetitions;
       // A non-executable declared point returns NotApplicable from the prime

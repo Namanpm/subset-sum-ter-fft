@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ter/limitations.hpp"
 #include "ter/model.hpp"
 
 #include <cstdint>
@@ -38,11 +39,11 @@ struct FrozenL2MergeSnapshotResult {
 };
 
 struct Q3ReportConfig {
-  std::uint64_t memory_limit_bytes = 64U * 1024U * 1024U;
+  std::uint64_t memory_limit_bytes = limits::q3report::kDefaultMemoryBytes;
   // These are explicit exact-work/output ceilings, not heuristic cutoffs.
-  std::uint64_t max_structural_checks = 200'000U;
-  std::uint64_t max_stored_parents = 20'000U;
-  std::uint64_t max_oracle_triples = 1'000'000U;
+  std::uint64_t max_structural_checks = limits::q3report::kDefaultMaximumStructuralChecks;
+  std::uint64_t max_stored_parents = limits::q3report::kDefaultMaximumStoredParents;
+  std::uint64_t max_oracle_triples = limits::q3report::kDefaultMaximumOracleTriples;
   bool full_residue_audit = true;
   bool run_scalar_reference = true;
   bool run_ntt = true;

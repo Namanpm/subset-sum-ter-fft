@@ -1,5 +1,7 @@
 #include "ter/shape.hpp"
 
+#include "ter/limitations.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -214,7 +216,7 @@ ShapeResult build_shape(ShapeFamily family, std::uint32_t n) {
   result.shape.family = family;
   result.shape.n = n;
 
-  if (n == 0U || n % 36U != 0U) {
+  if (!limits::full_ter::finite_dimension_supported(n)) {
     result.status = Status::InvalidShape;
     result.message = "TER finite shapes require positive n divisible by 36";
     return result;

@@ -1,6 +1,7 @@
 #include "ter/generator.hpp"
 
 #include "ter/arithmetic.hpp"
+#include "ter/limitations.hpp"
 #include "ter/reference_vector.hpp"
 #include "ter/validator.hpp"
 
@@ -21,6 +22,10 @@
 
 namespace ter {
 namespace {
+
+using limits::checked::checked_accumulate;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
 
 class SplitMix64 {
  public:
@@ -66,30 +71,6 @@ struct ListGenerationResult {
   TerList list{};
   std::string message;
 };
-
-bool checked_add(std::uint64_t left,
-                 std::uint64_t right,
-                 std::uint64_t& result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  result = left + right;
-  return true;
-}
-
-bool checked_multiply(std::uint64_t left,
-                      std::uint64_t right,
-                      std::uint64_t& result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  result = left * right;
-  return true;
-}
-
-bool checked_accumulate(std::uint64_t& total, std::uint64_t value) noexcept {
-  return checked_add(total, value, total);
-}
 
 bool snapshot_resident_budget(std::uint32_t n,
                               std::uint32_t requested_list_size,
@@ -382,7 +363,7 @@ std::optional<std::vector<HalfVector>> make_sampled_half_pool(
   SplitMix64 random(seed);
   const std::uint32_t half_size = snapshot.spec.shape.n / 2U;
   while (unique.size() < requested) {
-    if (telemetry.attempts >= config.attempt_limit) {
+    if (!limits::attempts::within_budget(telemetry.attempts, config.attempt_limit)) {
       return std::nullopt;
     }
     ++telemetry.attempts;
@@ -411,7 +392,7 @@ std::optional<HalfResidueIndex> build_half_index(const std::vector<HalfVector>& 
                         offset_bytes) ||
       !checked_multiply(entries.size(), sizeof(std::uint32_t), id_bytes) ||
       !checked_add(offset_bytes, id_bytes, peak_bytes) ||
-      peak_bytes > memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, peak_bytes, memory_limit_bytes)) {
     return std::nullopt;
   }
   HalfResidueIndex index;
@@ -449,7 +430,7 @@ ListGenerationResult finalize_list(ListRole role,
   const std::uint64_t estimated_bytes = vectors.size() *
       (static_cast<std::uint64_t>(snapshot.spec.shape.n) + sizeof(ReferenceEntry) +
        sizeof(std::uint64_t));
-  if (estimated_bytes > config.memory_limit_bytes ||
+  if (!limits::checked::fits_memory_budget(0U, estimated_bytes, config.memory_limit_bytes) ||
       vectors.size() > std::numeric_limits<EntryId>::max()) {
     return {Status::ResourceLimit, {}, "child list exceeds the declared memory or ID limit"};
   }
@@ -634,7 +615,8 @@ ListGenerationResult generate_exhaustive(ListRole role,
       !checked_add(resident_bytes, one_pool_bytes * 2U, pre_output_peak) ||
       !checked_accumulate(pre_output_peak, index_bytes) ||
       !checked_accumulate(pre_output_peak, prefix_bytes) ||
-      std::max(second_pool_peak, pre_output_peak) > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(
+          0U, std::max(second_pool_peak, pre_output_peak), config.memory_limit_bytes)) {
     return {Status::ResourceLimit,
             {},
             "exhaustive half pools and residue index exceed the memory limit"};
@@ -664,7 +646,7 @@ ListGenerationResult generate_exhaustive(ListRole role,
       population > std::numeric_limits<EntryId>::max() ||
       !checked_multiply(population, output_entry_bytes, output_bytes) ||
       !checked_accumulate(exact_peak, output_bytes) ||
-      exact_peak > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, exact_peak, config.memory_limit_bytes)) {
     return {Status::ResourceLimit,
             {},
             "complete exhaustive child slice exceeds the memory or ID limit"};
@@ -700,7 +682,7 @@ ListGenerationResult generate_rejection(ListRole role,
                         temporary_bytes) ||
       !materialized_snapshot_bytes(snapshot, resident_bytes) ||
       !checked_add(resident_bytes, temporary_bytes, peak_bytes) ||
-      peak_bytes > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, peak_bytes, config.memory_limit_bytes)) {
     return {Status::ResourceLimit,
             {},
             "rejection set, copy, and resident lists exceed the memory limit"};
@@ -709,7 +691,7 @@ ListGenerationResult generate_rejection(ListRole role,
   SplitMix64 random(role_seed(config.seed, role_index, 0x72656a656374ULL));
   const std::uint32_t half_size = snapshot.spec.shape.n / 2U;
   while (accepted.size() < config.requested_list_size) {
-    if (telemetry.attempts >= config.attempt_limit) {
+    if (!limits::attempts::within_budget(telemetry.attempts, config.attempt_limit)) {
       return {Status::GenerationIncomplete, {}, "rejection generator exhausted its attempt budget"};
     }
     ++telemetry.attempts;
@@ -838,17 +820,18 @@ std::array<ListRole, 3> list_roles() {
 
 SnapshotResult build_snapshot_impl(const SnapshotConfig& config) {
   SnapshotResult result;
-  if (config.requested_list_size == 0U || config.memory_limit_bytes == 0U ||
-      config.half_pool_size == 0U || config.max_half_pool_size < config.half_pool_size ||
-      config.b2 == 0U || config.b2 >= config.b1 || config.b1 >= 64U ||
-      config.b1 >= config.n ||
-      static_cast<std::uint32_t>(config.b1 - config.b2) > 32U ||
+  if (!limits::generator::nonzero_requested_list_size(config.requested_list_size) ||
+      !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
+      !limits::generator::half_pool_range_supported(config.half_pool_size,
+                                                     config.max_half_pool_size) ||
+      !limits::arithmetic::quotient_arithmetic_supported(config.n, config.b2, config.b1) ||
       (config.mode == GeneratorMode::PlantedMitm && !config.plant_valid_triple)) {
     result.status = Status::InvalidConfiguration;
     result.message = "snapshot generator configuration is invalid";
     return result;
   }
-  if (config.mode == GeneratorMode::ExhaustiveReference && config.n > 36U) {
+  if (config.mode == GeneratorMode::ExhaustiveReference &&
+      !limits::generator::exhaustive_reference_dimension_supported(config.n)) {
     result.status = Status::ResourceLimit;
     result.message = "exhaustive reference generation is restricted to n <= 36";
     return result;
@@ -857,7 +840,8 @@ SnapshotResult build_snapshot_impl(const SnapshotConfig& config) {
   if (!snapshot_resident_budget(config.n,
                                 config.requested_list_size,
                                 resident_snapshot_bytes) ||
-      resident_snapshot_bytes > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, resident_snapshot_bytes,
+                                            config.memory_limit_bytes)) {
     result.status = Status::ResourceLimit;
     result.message =
         "density-one instance and three resident child lists exceed the memory limit";
@@ -870,7 +854,8 @@ SnapshotResult build_snapshot_impl(const SnapshotConfig& config) {
       !checked_multiply(config.requested_list_size,
                         requested_entry_bytes,
                         requested_entry_bytes) ||
-      requested_entry_bytes > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, requested_entry_bytes,
+                                            config.memory_limit_bytes)) {
     result.status = Status::ResourceLimit;
     result.message = "requested child-list materialization exceeds the memory limit";
     return result;

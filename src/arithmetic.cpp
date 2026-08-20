@@ -1,5 +1,7 @@
 #include "ter/arithmetic.hpp"
 
+#include "ter/limitations.hpp"
+
 #include <cstdint>
 
 namespace ter {
@@ -11,14 +13,13 @@ ArithmeticResult build_arithmetic(std::uint32_t n,
                                   std::uint64_t target_b2,
                                   std::uint64_t target_1) {
   ArithmeticResult result;
-  const auto quotient_bits = static_cast<std::uint32_t>(b1) -
-                             static_cast<std::uint32_t>(b2);
-  if (b2 == 0U || b2 >= b1 || static_cast<std::uint32_t>(b1) >= n || b1 >= 64U ||
-      quotient_bits > 32U) {
+  if (!limits::arithmetic::quotient_arithmetic_supported(n, b2, b1)) {
     result.message =
         "require 0 < b2 < b1 < min(n,64) and a quotient universe of at most 32 bits";
     return result;
   }
+  const auto quotient_bits = static_cast<std::uint32_t>(b1) -
+                             static_cast<std::uint32_t>(b2);
 
   auto& value = result.value;
   value.n = n;

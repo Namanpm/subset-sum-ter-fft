@@ -12,6 +12,7 @@
 // never AUTHENTIC_FULLTER.
 
 #include "ter/q3report_crossover.hpp"
+#include "ter/limitations.hpp"
 
 #include <algorithm>
 #include <array>
@@ -30,9 +31,8 @@
 
 namespace {
 
-constexpr std::uint64_t kMemoryLimit = 256U * 1024U * 1024U;
+constexpr std::uint64_t kMemoryLimit = ter::limits::crossover::kDefaultMemoryBytes;
 constexpr std::uint8_t kR2 = 6U;             // fixed child-target width for every point
-constexpr std::uint32_t kMaxNttLength = 1U << 23U;
 constexpr std::uint32_t kShapeN = 36U;
 
 // Required nominal list-size ladder (TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md
@@ -76,7 +76,7 @@ struct QChoice {
   exponent = std::clamp(exponent, 1, 40);
   const std::uint64_t q = std::uint64_t{1} << exponent;
 
-  if (q > kMaxNttLength) {
+  if (!ter::limits::ntt::q3report_length_supported(q)) {
     choice.skip_reason = "Q=2^" + std::to_string(exponent) +
                           " exceeds the supported single-prime transform length 2^23";
     return choice;
@@ -128,9 +128,9 @@ void print_skip(const std::uint32_t list_size, const long double lambda, const s
     config.r2 = kR2;
     config.r1 = choice.r1;
     config.seed = seed;
-    config.half_pool_size = 256U;
-    config.max_half_pool_size = 3072U;
-    config.attempt_limit = 8'000'000U;
+    config.half_pool_size = ter::limits::benchmark::kCrossoverBenchmarkInitialHalfPool;
+    config.max_half_pool_size = ter::limits::benchmark::kCrossoverBenchmarkMaximumHalfPool;
+    config.attempt_limit = ter::limits::benchmark::kCrossoverBenchmarkAttemptLimit;
     config.memory_limit_bytes = kMemoryLimit;
 
     const auto snapshot = ter::build_scaling_snapshot(config);

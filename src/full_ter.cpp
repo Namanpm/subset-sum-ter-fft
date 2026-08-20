@@ -1,6 +1,7 @@
 #include "ter/full_ter.hpp"
 
 #include "ter/arithmetic.hpp"
+#include "ter/limitations.hpp"
 #include "ter/packed.hpp"
 #include "ter/reference_vector.hpp"
 #include "ter/tiled_q3report.hpp"
@@ -27,6 +28,8 @@ namespace ter {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
 
 class BigInt {
  public:
@@ -328,26 +331,6 @@ struct GuidedTree {
   return static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - start)
           .count());
-}
-
-[[nodiscard]] bool checked_add(std::uint64_t left,
-                               std::uint64_t right,
-                               std::uint64_t& result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  result = left + right;
-  return true;
-}
-
-[[nodiscard]] bool checked_multiply(std::uint64_t left,
-                                    std::uint64_t right,
-                                    std::uint64_t& result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  result = left * right;
-  return true;
 }
 
 [[nodiscard]] std::vector<std::uint32_t> primes_through(std::uint32_t limit) {
@@ -785,7 +768,7 @@ void canonicalize(std::vector<BigEntry>& entries) {
   const std::uint64_t index_record_bytes =
       64U + ((static_cast<std::uint64_t>(modulus_bits) + 31U) / 32U) * 4U;
   if (!checked_multiply(right.size(), index_record_bytes, index_bytes) ||
-      index_bytes > memory_limit_bytes ||
+      !limits::checked::fits_memory_budget(0U, index_bytes, memory_limit_bytes) ||
       left.size() > std::numeric_limits<std::uint32_t>::max() ||
       right.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
@@ -793,11 +776,14 @@ void canonicalize(std::vector<BigEntry>& entries) {
     return {};
   }
   right_index.reserve(right.size());
+  std::uint64_t index_remaining = 0U;
+  if (!limits::checked::remaining_memory(index_bytes, memory_limit_bytes, &index_remaining)) {
+    status = Status::ResourceLimit;
+    message = "L3-to-L2 residue index exceeds the declared resource limit";
+    return {};
+  }
   const std::uint64_t entry_bytes = estimated_entry_bytes(left.front().digits.n);
-  const std::uint64_t maximum_outputs =
-      entry_bytes == 0U || index_bytes >= memory_limit_bytes
-          ? 0U
-          : (memory_limit_bytes - index_bytes) / entry_bytes;
+  const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : index_remaining / entry_bytes;
   for (std::uint32_t id = 0; id < right.size(); ++id) {
     right_index.emplace_back(masked(right[id].residue, modulus_bits), id);
   }
@@ -856,7 +842,7 @@ void canonicalize(std::vector<BigEntry>& entries) {
 }
 
 [[nodiscard]] std::uint64_t native_mask(std::uint32_t bits) noexcept {
-  return bits == 64U ? std::numeric_limits<std::uint64_t>::max()
+  return bits == limits::arithmetic::kMachineWordBits ? std::numeric_limits<std::uint64_t>::max()
                      : (std::uint64_t{1} << bits) - 1U;
 }
 
@@ -877,7 +863,7 @@ void canonicalize(std::vector<BigEntry>& entries) {
   if (!checked_multiply(first.size(), second.size(), pair_count) ||
       pair_count > std::numeric_limits<std::size_t>::max() ||
       !checked_multiply(pair_count, sizeof(PairRecord64), pair_bytes) ||
-      pair_bytes > memory_limit_bytes ||
+      !limits::checked::fits_memory_budget(0U, pair_bytes, memory_limit_bytes) ||
       first.size() > std::numeric_limits<std::uint32_t>::max() ||
       second.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
@@ -907,11 +893,14 @@ void canonicalize(std::vector<BigEntry>& entries) {
   });
 
   std::vector<BigEntry> result;
+  std::uint64_t pair_remaining = 0U;
+  if (!limits::checked::remaining_memory(pair_bytes, memory_limit_bytes, &pair_remaining)) {
+    status = Status::ResourceLimit;
+    message = "native ternary pair index exceeds the declared resource limit";
+    return {};
+  }
   const std::uint64_t entry_bytes = estimated_entry_bytes(third.front().digits.n);
-  const std::uint64_t maximum_outputs =
-      entry_bytes == 0U || pair_bytes >= memory_limit_bytes
-          ? 0U
-          : (memory_limit_bytes - pair_bytes) / entry_bytes;
+  const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : pair_remaining / entry_bytes;
   if (third.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
     message = "native ternary third-list index exceeds the supported range";
@@ -1017,11 +1006,6 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   return TiledVisitDecision::Continue;
 }
 
-[[nodiscard]] bool tiled_l2_to_l1_supported(const FullTerParameters& parameters) noexcept {
-  return parameters.r2 > 0U && parameters.r2 < parameters.r1 && parameters.r1 < 64U &&
-         parameters.r1 - parameters.r2 <= 32U;
-}
-
 [[nodiscard]] std::vector<BigEntry> ternary_tiled_l2_to_l1_native(
     const std::vector<BigEntry>& first,
     const std::vector<BigEntry>& second,
@@ -1041,7 +1025,7 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     status = Status::Completed;
     return {};
   }
-  if (!tiled_l2_to_l1_supported(parameters)) {
+  if (!limits::tiled::native_full_ter_l2_l1_supported(parameters.r1, parameters.r2)) {
     status = Status::InvalidConfiguration;
     message = "native tiled L2-to-L1 called outside its supported quotient width";
     return {};
@@ -1083,7 +1067,8 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   std::uint64_t count_auxiliary = 0;
   std::uint64_t report_auxiliary = 0;
   if (!tiled_q3report_auxiliary_bytes(first.size(), second.size(), third.size(),
-                                      arithmetic.value.q, 15U, true,
+                                      arithmetic.value.q,
+                                      limits::tiled::kDefaultPreferredTileBits, true,
                                       &count_auxiliary, &report_auxiliary)) {
     status = Status::ResourceLimit;
     message = "native tiled L2-to-L1 auxiliary accounting overflow";
@@ -1099,7 +1084,10 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     return {};
   }
   std::uint64_t fixed_bytes = report_auxiliary;
-  if (!checked_add(fixed_bytes, quotient_bytes, fixed_bytes) || fixed_bytes > memory_limit_bytes) {
+  std::uint64_t remaining = 0U;
+  if (!checked_add(fixed_bytes, quotient_bytes, fixed_bytes) ||
+      !limits::checked::fits_memory_budget(0U, fixed_bytes, memory_limit_bytes) ||
+      !limits::checked::remaining_memory(fixed_bytes, memory_limit_bytes, &remaining)) {
     status = Status::ResourceLimit;
     message = "native tiled L2-to-L1 fixed workspace exceeds the declared limit";
     return {};
@@ -1115,7 +1103,6 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     message = "native tiled L2-to-L1 provenance accounting overflow";
     return {};
   }
-  const std::uint64_t remaining = memory_limit_bytes - fixed_bytes;
   const std::uint64_t maximum_outputs = per_output == 0U ? 0U : remaining / per_output;
   std::uint64_t output_budget = 0;
   if (!checked_multiply(maximum_outputs, per_output, output_budget) ||
@@ -1170,7 +1157,7 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   context.maximum_outputs = maximum_outputs;
 
   TiledQ3ReportConfig tiled_config;
-  tiled_config.preferred_tile_bits = 15U;
+  tiled_config.preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
   tiled_config.memory_limit_bytes = memory_limit_bytes;
   const std::uint64_t modular_before = telemetry.modular_candidates;
   const auto reported = tiled_q3report_report(first_q, second_q, third_q,
@@ -1224,7 +1211,7 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     status = Status::Completed;
     return {};
   }
-  if (modulus_bits <= 64U) {
+  if (modulus_bits <= limits::arithmetic::kMachineWordBits) {
     return ternary_mitm_native(first,
                                second,
                                third,
@@ -1246,7 +1233,7 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
                                32U) *
                                   4U,
                         pair_bytes) ||
-      pair_bytes > memory_limit_bytes ||
+      !limits::checked::fits_memory_budget(0U, pair_bytes, memory_limit_bytes) ||
       first.size() > std::numeric_limits<std::uint32_t>::max() ||
       second.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
@@ -1272,12 +1259,15 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     return left.residue < right.residue;
   });
 
+  std::uint64_t pair_remaining = 0U;
+  if (!limits::checked::remaining_memory(pair_bytes, memory_limit_bytes, &pair_remaining)) {
+    status = Status::ResourceLimit;
+    message = "ternary pair index exceeds the declared resource limit";
+    return {};
+  }
   std::vector<BigEntry> result;
   const std::uint64_t entry_bytes = estimated_entry_bytes(third.front().digits.n);
-  const std::uint64_t maximum_outputs =
-      entry_bytes == 0U || pair_bytes >= memory_limit_bytes
-          ? 0U
-          : (memory_limit_bytes - pair_bytes) / entry_bytes;
+  const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : pair_remaining / entry_bytes;
   if (third.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
     message = "ternary third-list index exceeds the supported range";
@@ -1795,7 +1785,8 @@ FullTerParameterResult derive_full_ter_parameters_impl(ShapeFamily family,
   FullTerParameterResult result;
   if ((family != ShapeFamily::FiniteSanity &&
        family != ShapeFamily::PaperRounded) ||
-      n == 0U || n % 36U != 0U || modulus_bits == 0U || modulus_bits > n) {
+      !limits::full_ter::finite_dimension_supported(n) ||
+      !limits::full_ter::modulus_width_supported(n, modulus_bits)) {
     result.message = "full TER requires n divisible by 36 and 0 < modulus_bits <= n";
     return result;
   }
@@ -2004,7 +1995,7 @@ Level3GenerationResult generate_level3_lists_impl(
        mode != TerExecutionMode::FixtureTer) ||
       parameters.n == 0U || parameters.n % 2U != 0U ||
       parameters.level3_active_half.total() != parameters.n / 2U ||
-      memory_limit_bytes == 0U ||
+      !limits::full_ter::runtime_limit_supported(memory_limit_bytes) ||
       (mode == TerExecutionMode::FixtureTer && fixture_limit == 0U)) {
     result.message = "level-3 generation configuration is invalid";
     return result;
@@ -2015,7 +2006,8 @@ Level3GenerationResult generate_level3_lists_impl(
                                    parameters.level3_active_half.positive});
   const BigInt maximum = std::numeric_limits<std::uint64_t>::max();
   const bool cardinality_overflow = cardinality_big > maximum;
-  if (cardinality_overflow && mode == TerExecutionMode::FullTer) {
+  if (!limits::full_ter::complete_level3_cardinality_representable(cardinality_overflow) &&
+      mode == TerExecutionMode::FullTer) {
     result.status = Status::ResourceLimit;
     result.message = "complete level-3 cardinality exceeds the implementation index range";
     return result;
@@ -2033,7 +2025,8 @@ Level3GenerationResult generate_level3_lists_impl(
   if (!checked_add(parameters.n, sizeof(ReferenceTernaryVector), vector_bytes) ||
       !checked_multiply(generated, vector_bytes, total_bytes) ||
       !checked_multiply(total_bytes, 2U, total_bytes) ||
-      total_bytes > memory_limit_bytes || generated > std::numeric_limits<std::size_t>::max()) {
+      !limits::checked::fits_memory_budget(0U, total_bytes, memory_limit_bytes) ||
+      generated > std::numeric_limits<std::size_t>::max()) {
     result.status = Status::ResourceLimit;
     result.message = "level-3 materialization exceeds the declared memory limit";
     return result;
@@ -2154,10 +2147,9 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
        config.execution_mode != TerExecutionMode::FixtureTer) ||
       (config.target_mode != TerTargetMode::Random &&
        config.target_mode != TerTargetMode::GuidedPlanted) ||
-      config.attempt_limit == 0U || config.memory_limit_bytes == 0U ||
-      instance.n == 0U ||
-      instance.words_per_value !=
-          (static_cast<std::uint64_t>(instance.n) + 63U) / 64U ||
+      !limits::full_ter::runtime_limit_supported(config.attempt_limit) ||
+      !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
+      !limits::full_ter::instance_word_layout_supported(instance.n, instance.words_per_value) ||
       instance.values_le.size() !=
           static_cast<std::size_t>(instance.n) * instance.words_per_value ||
       instance.root_target_le.size() != instance.words_per_value) {
@@ -2206,7 +2198,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
                      12U * scalar_bytes,
                      guided_bytes) ||
         !checked_add(generated_bytes, guided_bytes, generated_bytes) ||
-        generated_bytes > config.memory_limit_bytes) {
+        !limits::checked::fits_memory_budget(0U, generated_bytes,
+                                              config.memory_limit_bytes)) {
       result.status = Status::ResourceLimit;
       result.message = "guided level-3 preparation exceeds the memory limit";
       return result;
@@ -2263,7 +2256,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
   std::uint64_t preparation_peak = scalar_level3_bytes;
   if (!checked_add(preparation_peak, coefficient_estimate, preparation_peak) ||
       !checked_add(preparation_peak, entry_estimate, preparation_peak) ||
-      preparation_peak > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, preparation_peak,
+                                            config.memory_limit_bytes)) {
     result.status = Status::ResourceLimit;
     result.message = "level-3 preparation exceeds the declared memory limit";
     return result;
@@ -2275,7 +2269,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
       !checked_add(guided_preparation_peak,
                    guided_estimate,
                    guided_preparation_peak) ||
-      guided_preparation_peak > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, guided_preparation_peak,
+                                            config.memory_limit_bytes)) {
     result.status = Status::ResourceLimit;
     result.message = "guided arithmetic preparation exceeds the memory limit";
     return result;
@@ -2305,7 +2300,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
        !checked_add(base_resident,
                     estimated_targets_bytes(*fixed_guided_targets),
                     base_resident)) ||
-      base_resident > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, base_resident,
+                                            config.memory_limit_bytes)) {
     result.status = Status::ResourceLimit;
     result.message = "materialized level-3 entries exceed the declared memory limit";
     return result;
@@ -2315,7 +2311,9 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
   result.telemetry.arithmetic_allocated_bytes = arithmetic_bytes;
   result.telemetry.level3_generation_ns = elapsed_ns(generation_start);
 
-  for (std::uint32_t attempt = 0; attempt < config.attempt_limit; ++attempt) {
+  for (std::uint32_t attempt = 0;
+       limits::attempts::within_budget(attempt, config.attempt_limit);
+       ++attempt) {
     if (config.cancellation != nullptr &&
         config.cancellation->load(std::memory_order_relaxed)) {
       result.status = Status::Cancelled;
@@ -2345,7 +2343,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         (!checked_add(attempt_base_resident,
                       estimated_targets_bytes(targets),
                       attempt_base_resident) ||
-         attempt_base_resident > config.memory_limit_bytes)) {
+         !limits::checked::fits_memory_budget(0U, attempt_base_resident,
+                                               config.memory_limit_bytes))) {
       result.status = Status::ResourceLimit;
       result.message = "sampled target storage exceeds the memory limit";
       return result;
@@ -2366,11 +2365,18 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         result.message = "resident level-3/level-2 lists leave no merge workspace";
         return result;
       }
+      std::uint64_t level2_merge_budget = 0U;
+      if (!limits::checked::remaining_memory(level2_resident, config.memory_limit_bytes,
+                                              &level2_merge_budget)) {
+        result.status = Status::ResourceLimit;
+        result.message = "resident level-3/level-2 lists leave no merge workspace";
+        return result;
+      }
       std::uint64_t oracle_work = 0;
       const bool audit_stage =
           config.audit &&
           checked_multiply(left_base.size(), right_base.size(), oracle_work) &&
-          oracle_work <= 1'000'000U;
+          limits::oracle::cubic_work_supported(oracle_work);
       std::vector<ProvenanceRecord> optimized_provenance;
       Status stage_status = Status::InvariantViolation;
       level2[index] = binary_mitm(left_base,
@@ -2378,7 +2384,7 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
                                   targets.level2[index],
                                   parameters.value.r2,
                                   parameters.value.level2,
-                                  config.memory_limit_bytes - level2_resident,
+                                  level2_merge_budget,
                                   attempt_telemetry.level3_to_level2,
                                   audit_stage ? &optimized_provenance : nullptr,
                                   stage_status,
@@ -2407,7 +2413,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
       if (!checked_add(level2_resident,
                        estimated_entries_bytes(level2[index]),
                        level2_resident) ||
-          level2_resident > config.memory_limit_bytes) {
+          !limits::checked::fits_memory_budget(0U, level2_resident,
+                                                config.memory_limit_bytes)) {
         result.status = Status::ResourceLimit;
         result.message = "level-2 resident memory accounting overflow";
         return result;
@@ -2422,7 +2429,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     if (!checked_add(level2_resident,
                      attempt_telemetry.level3_to_level2.allocated_bytes,
                      level2_peak) ||
-        level2_peak > config.memory_limit_bytes) {
+        !limits::checked::fits_memory_budget(0U, level2_peak,
+                                              config.memory_limit_bytes)) {
       result.status = Status::ResourceLimit;
       result.message = "level-2 construction peak exceeds the declared memory limit";
       return result;
@@ -2439,6 +2447,13 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         result.message = "resident level-2/level-1 lists leave no merge workspace";
         return result;
       }
+      std::uint64_t level1_merge_budget = 0U;
+      if (!limits::checked::remaining_memory(level1_resident, config.memory_limit_bytes,
+                                              &level1_merge_budget)) {
+        result.status = Status::ResourceLimit;
+        result.message = "resident level-2/level-1 lists leave no merge workspace";
+        return result;
+      }
       std::uint64_t oracle_pairs = 0;
       std::uint64_t oracle_work = 0;
       const bool audit_stage =
@@ -2449,10 +2464,11 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
           checked_multiply(oracle_pairs,
                            level2[group * 3U + 2U].size(),
                            oracle_work) &&
-          oracle_work <= 1'000'000U;
+          limits::oracle::cubic_work_supported(oracle_work);
       std::vector<ProvenanceRecord> optimized_provenance;
       Status stage_status = Status::InvariantViolation;
-      if (tiled_l2_to_l1_supported(parameters.value)) {
+      if (limits::tiled::native_full_ter_l2_l1_supported(parameters.value.r1,
+                                                          parameters.value.r2)) {
         level1[group] = ternary_tiled_l2_to_l1_native(
             level2[group * 3U],
             level2[group * 3U + 1U],
@@ -2463,7 +2479,7 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
             targets.level1[group],
             parameters.value,
             parameters.value.level1,
-            config.memory_limit_bytes - level1_resident,
+            level1_merge_budget,
             attempt_telemetry.level2_to_level1,
             audit_stage ? &optimized_provenance : nullptr,
             stage_status,
@@ -2475,7 +2491,7 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
                                      targets.level1[group],
                                      parameters.value.r1,
                                      parameters.value.level1,
-                                     config.memory_limit_bytes - level1_resident,
+                                     level1_merge_budget,
                                      attempt_telemetry.level2_to_level1,
                                      audit_stage ? &optimized_provenance : nullptr,
                                      stage_status,
@@ -2506,7 +2522,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
       if (!checked_add(level1_resident,
                        estimated_entries_bytes(level1[group]),
                        level1_resident) ||
-          level1_resident > config.memory_limit_bytes) {
+          !limits::checked::fits_memory_budget(0U, level1_resident,
+                                                config.memory_limit_bytes)) {
         result.status = Status::ResourceLimit;
         result.message = "level-1 resident memory accounting overflow";
         return result;
@@ -2520,7 +2537,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     if (!checked_add(level1_resident,
                      attempt_telemetry.level2_to_level1.allocated_bytes,
                      level1_peak) ||
-        level1_peak > config.memory_limit_bytes) {
+        !limits::checked::fits_memory_budget(0U, level1_peak,
+                                              config.memory_limit_bytes)) {
       result.status = Status::ResourceLimit;
       result.message = "level-1 construction peak exceeds the declared memory limit";
       return result;
@@ -2537,15 +2555,22 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         config.audit &&
         checked_multiply(level1[0].size(), level1[1].size(), root_pairs) &&
         checked_multiply(root_pairs, level1[2].size(), root_work) &&
-        root_work <= 1'000'000U;
+          limits::oracle::cubic_work_supported(root_work);
     std::vector<ProvenanceRecord> optimized_root_provenance;
+    std::uint64_t root_merge_budget = 0U;
+    if (!limits::checked::remaining_memory(level1_resident, config.memory_limit_bytes,
+                                            &root_merge_budget)) {
+      result.status = Status::ResourceLimit;
+      result.message = "level-1 resident memory accounting exceeds the declared limit";
+      return result;
+    }
     auto level0 = ternary_mitm(level1[0],
                                level1[1],
                                level1[2],
                                instance_target(instance),
                                instance.n,
                                root_counts,
-                               config.memory_limit_bytes - level1_resident,
+                               root_merge_budget,
                                attempt_telemetry.level1_to_level0,
                                audit_root ? &optimized_root_provenance : nullptr,
                                root_status,
@@ -2587,7 +2612,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     if (!checked_add(root_peak,
                      attempt_telemetry.level1_to_level0.allocated_bytes,
                      root_peak) ||
-        root_peak > config.memory_limit_bytes) {
+        !limits::checked::fits_memory_budget(0U, root_peak,
+                                              config.memory_limit_bytes)) {
       result.status = Status::ResourceLimit;
       result.message = "root memory accounting overflow";
       return result;
@@ -2634,9 +2660,8 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
     FullTerL2CaptureResult result;
     result.group = group;
     if (group >= 3U || config.execution_mode != TerExecutionMode::FullTer ||
-        config.memory_limit_bytes == 0U || instance.n == 0U ||
-        instance.words_per_value !=
-            (static_cast<std::uint64_t>(instance.n) + 63U) / 64U ||
+        !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
+        !limits::full_ter::instance_word_layout_supported(instance.n, instance.words_per_value) ||
         instance.values_le.size() !=
             static_cast<std::size_t>(instance.n) * instance.words_per_value ||
         instance.root_target_le.size() != instance.words_per_value) {
@@ -2652,9 +2677,8 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
     }
     result.parameters = parameters.value;
     // Q3REPORT has a deliberately native, signed 64-bit quotient contract.
-    if (parameters.value.r1 > 62U || parameters.value.r2 == 0U ||
-        parameters.value.r2 >= parameters.value.r1 ||
-        parameters.value.r1 - parameters.value.r2 > 32U) {
+    if (!limits::q3report::native_capture_quotient_supported(parameters.value.r1,
+                                                              parameters.value.r2)) {
       result.message =
           "this genuine Full TER instance is outside Q3REPORT's native quotient range";
       return result;
@@ -2703,7 +2727,8 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
     std::uint64_t resident = 0;
     if (!checked_add(estimated_entries_bytes(left_base),
                      estimated_entries_bytes(right_base), resident) ||
-        resident > config.memory_limit_bytes) {
+        !limits::checked::fits_memory_budget(0U, resident,
+                                              config.memory_limit_bytes)) {
       result.status = Status::ResourceLimit;
       result.message = "native capture level-3 buffers exceed the memory ceiling";
       return result;
@@ -2711,6 +2736,13 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
     std::array<std::vector<BigEntry>, 3> children;
     for (std::size_t child = 0; child < children.size(); ++child) {
       if (resident >= config.memory_limit_bytes) {
+        result.status = Status::ResourceLimit;
+        result.message = "native capture has no remaining level-2 workspace";
+        return result;
+      }
+      std::uint64_t child_merge_budget = 0U;
+      if (!limits::checked::remaining_memory(resident, config.memory_limit_bytes,
+                                              &child_merge_budget)) {
         result.status = Status::ResourceLimit;
         result.message = "native capture has no remaining level-2 workspace";
         return result;
@@ -2723,7 +2755,7 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
           targets.level2[group * 3U + child],
           parameters.value.r2,
           parameters.value.level2,
-          config.memory_limit_bytes - resident,
+          child_merge_budget,
           telemetry,
           nullptr,
           stage_status,
@@ -2733,7 +2765,8 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
         return result;
       }
       if (!checked_add(resident, estimated_entries_bytes(children[child]), resident) ||
-          resident > config.memory_limit_bytes) {
+          !limits::checked::fits_memory_budget(0U, resident,
+                                                config.memory_limit_bytes)) {
         result.status = Status::ResourceLimit;
         result.message = "native capture level-2 residents exceed the memory ceiling";
         return result;
@@ -2822,7 +2855,10 @@ FullTerResult solve_full_ter(const Instance& instance, const FullTerConfig& conf
   const auto call_start = Clock::now();
   const auto finish = [&](FullTerResult result) {
     if (result.telemetry.total_solver_ns == 0U) {
-      result.telemetry.total_solver_ns = elapsed_ns(call_start);
+      // An immediate validation refusal can fall within the platform clock's
+      // observable resolution. Preserve the established nonzero run-telemetry
+      // contract without changing the terminal status or solver behavior.
+      result.telemetry.total_solver_ns = std::max<std::uint64_t>(1U, elapsed_ns(call_start));
     }
     result.telemetry.terminal_status = result.status;
     result.telemetry.witness_found = result.status == Status::Found;

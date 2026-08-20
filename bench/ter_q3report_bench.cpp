@@ -1,5 +1,6 @@
 #include "ter/full_ter.hpp"
 #include "ter/generator.hpp"
+#include "ter/limitations.hpp"
 #include "ter/q3report_audit.hpp"
 
 #include <algorithm>
@@ -13,7 +14,7 @@
 
 namespace {
 
-constexpr std::uint64_t kMemoryLimit = 64U * 1024U * 1024U;
+constexpr std::uint64_t kMemoryLimit = ter::limits::q3report::kDefaultMemoryBytes;
 constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
 
 [[nodiscard]] const char* family_name(const ter::Q3SnapshotFamily family) {
@@ -93,9 +94,9 @@ constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
   config.requested_list_size = 64U;
   config.mode = ter::GeneratorMode::PlantedMitm;
   config.plant_valid_triple = true;
-  config.half_pool_size = 384U;
-  config.max_half_pool_size = 1'024U;
-  config.attempt_limit = 2'000'000U;
+  config.half_pool_size = ter::limits::benchmark::kQ3ReportBenchmarkInitialHalfPool;
+  config.max_half_pool_size = ter::limits::benchmark::kQ3ReportBenchmarkMaximumHalfPool;
+  config.attempt_limit = ter::limits::benchmark::kQ3ReportBenchmarkAttemptLimit;
   config.memory_limit_bytes = kMemoryLimit;
   const auto generated = ter::build_snapshot(config);
   if (generated.status != ter::Status::Completed) {

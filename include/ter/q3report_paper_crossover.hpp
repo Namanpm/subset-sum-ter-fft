@@ -11,6 +11,7 @@
 // follow the classical TER paper scaling relationship?
 
 #include "ter/full_ter.hpp"
+#include "ter/limitations.hpp"
 #include "ter/model.hpp"
 #include "ter/tiled_q3report.hpp"
 #include "ter/types.hpp"
@@ -69,12 +70,13 @@ struct PaperScalingPoint {
 // Section 11: verified NTT moduli.  No CRT, no dynamic prime search.
 // ---------------------------------------------------------------------------
 
-inline constexpr std::uint64_t kPaperNttPrime1 = 998'244'353ULL;
-inline constexpr std::uint64_t kPaperNttRoot1 = 3ULL;
-inline constexpr std::uint32_t kPaperNttMaxPower1 = 23U;
-inline constexpr std::uint64_t kPaperNttPrime2 = 2'013'265'921ULL;
-inline constexpr std::uint64_t kPaperNttRoot2 = 31ULL;
-inline constexpr std::uint32_t kPaperNttMaxPower2 = 27U;
+// Public compatibility names. The values are owned by ter::limits::ntt.
+inline constexpr std::uint64_t kPaperNttPrime1 = limits::ntt::kPaperPrime1;
+inline constexpr std::uint64_t kPaperNttRoot1 = limits::ntt::kPaperPrimitiveRoot1;
+inline constexpr std::uint32_t kPaperNttMaxPower1 = limits::ntt::kPaperMaximumPower1;
+inline constexpr std::uint64_t kPaperNttPrime2 = limits::ntt::kPaperPrime2;
+inline constexpr std::uint64_t kPaperNttRoot2 = limits::ntt::kPaperPrimitiveRoot2;
+inline constexpr std::uint32_t kPaperNttMaxPower2 = limits::ntt::kPaperMaximumPower2;
 
 struct NttPrimeSelection {
   PaperCrossoverStatus status = PaperCrossoverStatus::NotApplicable;
@@ -170,12 +172,12 @@ struct PairCountResult {
 // ---------------------------------------------------------------------------
 
 struct PaperCrossoverSnapshotConfig {
-  std::uint64_t requested_list_size = 64U;
-  std::uint64_t seed = 0x1001ULL;
-  std::uint32_t initial_half_pool = 256U;
+  std::uint64_t requested_list_size = limits::paper_crossover::kDefaultRequestedListSize;
+  std::uint64_t seed = limits::paper_crossover::kDefaultSeed;
+  std::uint32_t initial_half_pool = limits::paper_crossover::kDefaultInitialHalfPool;
   // Declared before any timing result was seen and never silently raised.
-  std::uint32_t max_half_pool = 65'536U;
-  std::uint64_t memory_limit_bytes = 2ULL * 1024ULL * 1024ULL * 1024ULL;
+  std::uint32_t max_half_pool = limits::paper_crossover::kDefaultMaximumHalfPool;
+  std::uint64_t memory_limit_bytes = limits::paper_crossover::kDefaultMemoryBytes;
   // Deterministic test-only overrides.  Zero means "derive from the paper
   // ladder".  The benchmark never sets these.
   std::uint32_t override_shape_n = 0U;
@@ -252,9 +254,9 @@ struct PaperAuditResult {
 // ---------------------------------------------------------------------------
 
 struct PaperCrossoverConfig {
-  std::uint64_t memory_limit_bytes = 2ULL * 1024ULL * 1024ULL * 1024ULL;
-  std::uint32_t warmup_repetitions = 1U;
-  std::uint32_t timed_repetitions = 5U;
+  std::uint64_t memory_limit_bytes = limits::paper_crossover::kDefaultMemoryBytes;
+  std::uint32_t warmup_repetitions = limits::paper_crossover::kDefaultWarmupRepetitions;
+  std::uint32_t timed_repetitions = limits::paper_crossover::kDefaultTimedRepetitions;
   bool run_correctness_phase = true;
 };
 

@@ -2,6 +2,7 @@
 
 #include "ter/arithmetic.hpp"
 #include "ter/instance.hpp"
+#include "ter/limitations.hpp"
 #include "ter/reference_vector.hpp"
 
 #include <algorithm>
@@ -24,49 +25,15 @@ namespace ter {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_add_bytes;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
+using limits::is_power_of_two;
+using limits::power_of_two_exponent;
 
 [[nodiscard]] std::uint64_t elapsed_ns(const Clock::time_point start) noexcept {
   return static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - start).count());
-}
-
-[[nodiscard]] bool checked_add(const std::uint64_t left,
-                               const std::uint64_t right,
-                               std::uint64_t* const result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  *result = left + right;
-  return true;
-}
-
-[[nodiscard]] bool checked_multiply(const std::uint64_t left,
-                                    const std::uint64_t right,
-                                    std::uint64_t* const result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  *result = left * right;
-  return true;
-}
-
-[[nodiscard]] bool add_bytes(std::uint64_t* const total,
-                             const std::uint64_t count,
-                             const std::uint64_t element_size) noexcept {
-  std::uint64_t bytes = 0;
-  return checked_multiply(count, element_size, &bytes) && checked_add(*total, bytes, total);
-}
-
-[[nodiscard]] bool is_power_of_two(const std::uint64_t value) noexcept {
-  return value != 0U && (value & (value - 1U)) == 0U;
-}
-
-[[nodiscard]] std::uint32_t exact_log2(const std::uint64_t value) noexcept {
-  std::uint32_t bits = 0;
-  while ((std::uint64_t{1} << bits) < value) {
-    ++bits;
-  }
-  return bits;
 }
 
 class SplitMix64 {
@@ -283,8 +250,10 @@ struct HalfPool {
     ReferenceTernaryVector digits;
     std::uint64_t attempts = 0;
     std::uint64_t attempt_ceiling = 0;
-    if (!checked_multiply(target, 64U, &attempt_ceiling) ||
-        !checked_add(attempt_ceiling, 65'536U, &attempt_ceiling)) {
+    if (!checked_multiply(target, limits::paper_crossover::kPoolSamplingAttemptMultiplier,
+                          &attempt_ceiling) ||
+        !checked_add(attempt_ceiling, limits::paper_crossover::kPoolSamplingAttemptSlack,
+                     &attempt_ceiling)) {
       return false;
     }
     while (pool->vectors.size() < target && attempts < attempt_ceiling) {
@@ -647,14 +616,16 @@ struct DirectTiledComponents {
   if (!checked_add(left.size(), right.size(), &input_entries) ||
       !checked_add(input_entries, lookup.size(), &input_entries) ||
       !checked_multiply(input_entries, sizeof(TiledQEntry), &input_bytes) ||
-      !tiled_q3report_auxiliary_bytes(left.size(), right.size(), lookup.size(), q, 15U, false,
+      !tiled_q3report_auxiliary_bytes(left.size(), right.size(), lookup.size(), q,
+                                      limits::tiled::kDefaultPreferredTileBits, false,
                                       &count_auxiliary, &report_auxiliary) ||
       !checked_add(input_bytes, count_auxiliary, &input_bytes)) {
     *status = PaperCrossoverStatus::ResourceLimit;
     *message = "tiled comparator memory accounting overflows";
     return 0U;
   }
-  if (memory_limit_bytes != 0U && input_bytes > memory_limit_bytes) {
+  if (memory_limit_bytes != 0U &&
+      !limits::checked::fits_memory_budget(0U, input_bytes, memory_limit_bytes)) {
     *status = PaperCrossoverStatus::ResourceLimit;
     *message = "tiled comparator inputs and auxiliary memory exceed the declared ceiling";
     return 0U;
@@ -671,7 +642,7 @@ struct DirectTiledComponents {
   const auto b = to_entries(right);
   const auto c = to_entries(lookup);
   TiledQ3ReportConfig config;
-  config.preferred_tile_bits = 15U;
+  config.preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
   config.memory_limit_bytes = memory_limit_bytes;
   const auto reported = tiled_q3report_count(a, b, c, tau, q, config);
   components->setup_ns = reported.telemetry.setup_ns;
@@ -918,7 +889,9 @@ PaperScalingPoint derive_paper_scaling_point(const std::uint64_t list_size) noex
   point.r2 = static_cast<std::uint32_t>(
       std::llround(level2_representation_exponent * point.effective_n));
   point.r1 = point.r2 + point.q_bits;
-  point.q = point.q_bits < 64U ? (std::uint64_t{1} << point.q_bits) : 0U;
+  point.q = point.q_bits < limits::arithmetic::kMachineWordBits
+                ? (std::uint64_t{1} << point.q_bits)
+                : 0U;
   return point;
 }
 
@@ -1098,7 +1071,7 @@ PaperNttPlanResult build_paper_ntt_plan(const std::uint64_t q,
     plan.q = q;
     plan.prime = prime;
     plan.primitive_root = primitive_root;
-    plan.log_q = exact_log2(q);
+    plan.log_q = power_of_two_exponent(q);
     plan.reversal_bits = (plan.log_q + 1U) / 2U;
     const std::uint32_t table_size = std::uint32_t{1} << plan.reversal_bits;
     plan.reversal_table.resize(table_size);
@@ -1253,8 +1226,6 @@ PairCountResult direct_full_pair_counts(const std::vector<std::uint32_t>& left,
 
 PaperShapeSelection select_paper_shape(const PaperScalingPoint& point) {
   PaperShapeSelection selection;
-  constexpr std::uint64_t kCapacityCap = std::uint64_t{1} << 31U;
-  constexpr std::uint32_t kMaximumSearchSteps = 64U;
   if (point.list_size < 2U || point.r2 == 0U || point.r2 >= point.r1 || point.q_bits == 0U) {
     selection.message = "paper scaling point is not a usable finite arithmetic configuration";
     return selection;
@@ -1265,8 +1236,12 @@ PaperShapeSelection select_paper_shape(const PaperScalingPoint& point) {
     selection.message = "requested list size overflows the capacity heuristic";
     return selection;
   }
-  std::uint32_t shape_n = ((point.r1 / 36U) + 1U) * 36U;
-  for (std::uint32_t step = 0; step < kMaximumSearchSteps; ++step) {
+  std::uint32_t shape_n =
+      ((point.r1 / limits::full_ter::kFiniteDimensionDivisor) + 1U) *
+      limits::full_ter::kFiniteDimensionDivisor;
+  for (std::uint32_t step = 0;
+       step < limits::paper_crossover::kShapeSearchMaximumSteps;
+       ++step) {
     selection.search_steps = step + 1U;
     if (shape_n <= point.r1) {
       selection.message = "shape dimension search failed to exceed r1";
@@ -1277,8 +1252,9 @@ PaperShapeSelection select_paper_shape(const PaperScalingPoint& point) {
     if (parameters.status == Status::Completed &&
         parameters.value.level3_active_half.total() == shape_n / 2U) {
       const std::uint64_t domain =
-          saturating_half_domain(shape_n / 2U, parameters.value.level3_active_half, kCapacityCap);
-      const bool saturated = domain >= kCapacityCap;
+          saturating_half_domain(shape_n / 2U, parameters.value.level3_active_half,
+                                 limits::paper_crossover::kShapeDomainCapacityCap);
+      const bool saturated = domain >= limits::paper_crossover::kShapeDomainCapacityCap;
       std::uint64_t pair_domain = 0;
       const bool representable = checked_multiply(domain, domain, &pair_domain);
       const std::uint64_t expected = representable ? (pair_domain >> point.r2)
@@ -1292,7 +1268,7 @@ PaperShapeSelection select_paper_shape(const PaperScalingPoint& point) {
         return selection;
       }
     }
-    shape_n += 36U;
+    shape_n += limits::full_ter::kFiniteDimensionDivisor;
   }
   selection.status = PaperCrossoverStatus::GenerationIncomplete;
   selection.message = "no Full TER shape within the declared search bound supplies the requested capacity";
@@ -1388,8 +1364,9 @@ namespace {
     point.q_bits = config.override_r1 - config.override_r2;
     point.q = std::uint64_t{1} << point.q_bits;
     half_domain = saturating_half_domain(shape_n / 2U, parameters.level3_active_half,
-                                         std::uint64_t{1} << 31U);
-    half_domain_saturated = half_domain >= (std::uint64_t{1} << 31U);
+                                         limits::paper_crossover::kShapeDomainCapacityCap);
+    half_domain_saturated =
+        half_domain >= limits::paper_crossover::kShapeDomainCapacityCap;
     search_steps = 0U;
   } else {
     const auto selection = select_paper_shape(point);
@@ -1681,12 +1658,14 @@ struct MethodBudget {
   std::uint64_t plan = sizeof(PaperNttPlan);
   std::uint64_t run = 0;
   const std::uint64_t reversal_entries = std::uint64_t{1} << ((log_q + 1U) / 2U);
-  if (!add_bytes(&direct_full, q, element) || !add_bytes(&direct_full, c_size, element) ||
-      !add_bytes(&direct_production, q + 1U, element) ||
-      !add_bytes(&direct_production, c_size, element) ||
-      !add_bytes(&plan, q - 1U, element) || !add_bytes(&plan, reversal_entries, element) ||
-      !add_bytes(&run, q, element) || !add_bytes(&run, q, element) ||
-      !add_bytes(&run, c_size, element)) {
+  if (!checked_add_bytes(&direct_full, q, element) ||
+      !checked_add_bytes(&direct_full, c_size, element) ||
+      !checked_add_bytes(&direct_production, q + 1U, element) ||
+      !checked_add_bytes(&direct_production, c_size, element) ||
+      !checked_add_bytes(&plan, q - 1U, element) ||
+      !checked_add_bytes(&plan, reversal_entries, element) ||
+      !checked_add_bytes(&run, q, element) || !checked_add_bytes(&run, q, element) ||
+      !checked_add_bytes(&run, c_size, element)) {
     return budget;
   }
   std::uint64_t peak = 0;
@@ -1699,11 +1678,13 @@ struct MethodBudget {
   std::uint64_t tiled_count_bytes = 0;
   std::uint64_t tiled_report_bytes = 0;
   std::uint64_t tiled_input_entries = 0;
-  if (!tiled_q3report_auxiliary_bytes(a_size, b_size, c_size, q, 15U, false, &tiled_count_bytes,
+  if (!tiled_q3report_auxiliary_bytes(a_size, b_size, c_size, q,
+                                      limits::tiled::kDefaultPreferredTileBits, false,
+                                      &tiled_count_bytes,
                                       &tiled_report_bytes) ||
       !checked_add(a_size, b_size, &tiled_input_entries) ||
       !checked_add(tiled_input_entries, c_size, &tiled_input_entries) ||
-      !add_bytes(&tiled_count_bytes, tiled_input_entries, sizeof(TiledQEntry))) {
+      !checked_add_bytes(&tiled_count_bytes, tiled_input_entries, sizeof(TiledQEntry))) {
     return budget;
   }
   budget.direct_full = direct_full;
@@ -1805,7 +1786,7 @@ struct MethodBudget {
   bool any_rejected = false;
   const auto evaluate = [&config, &any_rejected](PaperMethodOutcome* const outcome,
                                                  const std::uint64_t bytes) {
-    if (bytes > config.memory_limit_bytes) {
+    if (!limits::checked::fits_memory_budget(0U, bytes, config.memory_limit_bytes)) {
       outcome->status = PaperCrossoverStatus::ResourceLimit;
       outcome->message = "method peak exceeds the declared memory ceiling";
       any_rejected = true;
@@ -2079,7 +2060,8 @@ struct MethodBudget {
   }
   telemetry.ntt_warm.peak_bytes = telemetry.ntt_peak_bytes;
   telemetry.ntt_cold.peak_bytes = telemetry.ntt_peak_bytes;
-  if (telemetry.ntt_peak_bytes > config.memory_limit_bytes) {
+  if (!limits::checked::fits_memory_budget(0U, telemetry.ntt_peak_bytes,
+                                            config.memory_limit_bytes)) {
     telemetry.ntt_warm.status = PaperCrossoverStatus::ResourceLimit;
     telemetry.ntt_cold.status = PaperCrossoverStatus::ResourceLimit;
     result.status = PaperCrossoverStatus::ResourceLimit;

@@ -15,6 +15,7 @@
 // FullTer capture and must never be reported as AUTHENTIC_FULLTER.
 
 #include "ter/model.hpp"
+#include "ter/limitations.hpp"
 
 #include <cstdint>
 #include <string>
@@ -39,15 +40,15 @@ struct CrossoverSnapshot {
 };
 
 struct CrossoverSnapshotConfig {
-  std::uint32_t n = 36;
-  std::uint32_t list_size = 64;
-  std::uint8_t r2 = 6;
-  std::uint8_t r1 = 12;  // Q = 2^(r1-r2)
-  std::uint64_t seed = 1;
-  std::uint32_t half_pool_size = 512;
-  std::uint32_t max_half_pool_size = 8192;
-  std::uint64_t attempt_limit = 4'000'000;
-  std::uint64_t memory_limit_bytes = 256U * 1024U * 1024U;
+  std::uint32_t n = limits::crossover::kDefaultN;
+  std::uint32_t list_size = limits::crossover::kDefaultListSize;
+  std::uint8_t r2 = limits::crossover::kDefaultR2;
+  std::uint8_t r1 = limits::crossover::kDefaultR1;  // Q = 2^(r1-r2)
+  std::uint64_t seed = limits::crossover::kDefaultSeed;
+  std::uint32_t half_pool_size = limits::crossover::kDefaultHalfPoolSize;
+  std::uint32_t max_half_pool_size = limits::crossover::kDefaultMaxHalfPoolSize;
+  std::uint64_t attempt_limit = limits::crossover::kDefaultAttemptLimit;
+  std::uint64_t memory_limit_bytes = limits::crossover::kDefaultMemoryBytes;
 };
 
 struct CrossoverSnapshotResult {

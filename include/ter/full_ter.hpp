@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ter/limitations.hpp"
 #include "ter/model.hpp"
 #include "ter/reference_vector.hpp"
 #include "ter/shape.hpp"
@@ -62,9 +63,9 @@ struct FullTerConfig {
   TerExecutionMode execution_mode = TerExecutionMode::FixtureTer;
   TerTargetMode target_mode = TerTargetMode::Random;
   std::uint64_t seed = 1;
-  std::uint32_t attempt_limit = 1;
-  std::uint64_t memory_limit_bytes = 512ULL * 1024ULL * 1024ULL;
-  std::uint64_t fixture_level3_limit = 64;
+  std::uint32_t attempt_limit = limits::full_ter::kDefaultAttemptLimit;
+  std::uint64_t memory_limit_bytes = limits::full_ter::kDefaultMemoryBytes;
+  std::uint64_t fixture_level3_limit = limits::full_ter::kDefaultFixtureLevel3Limit;
   bool audit = true;
   const std::atomic_bool* cancellation = nullptr;
 };

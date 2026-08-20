@@ -1,6 +1,7 @@
 #include "ter/q3report_audit.hpp"
 
 #include "ter/packed.hpp"
+#include "ter/limitations.hpp"
 #include "ter/reference_vector.hpp"
 
 #include <algorithm>
@@ -20,46 +21,18 @@
 namespace ter {
 namespace {
 
-constexpr std::uint64_t kNttPrime = 998'244'353ULL;
-constexpr std::uint64_t kNttPrimitiveRoot = 3ULL;
-constexpr std::uint32_t kNttMaximumPower = 23U;
+constexpr const std::uint64_t& kNttPrime = limits::ntt::kQ3ReportPrime;
+constexpr const std::uint64_t& kNttPrimitiveRoot = limits::ntt::kQ3ReportPrimitiveRoot;
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_add_bytes;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
+using limits::is_power_of_two;
 
 [[nodiscard]] std::uint64_t elapsed_ns(const Clock::time_point start) {
   return static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - start).count());
-}
-
-[[nodiscard]] bool checked_add(const std::uint64_t left,
-                               const std::uint64_t right,
-                               std::uint64_t* const result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  *result = left + right;
-  return true;
-}
-
-[[nodiscard]] bool checked_multiply(const std::uint64_t left,
-                                    const std::uint64_t right,
-                                    std::uint64_t* const result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  *result = left * right;
-  return true;
-}
-
-[[nodiscard]] bool add_bytes(std::uint64_t* const total,
-                             const std::uint64_t count,
-                             const std::uint64_t element_size) noexcept {
-  std::uint64_t bytes = 0;
-  return checked_multiply(count, element_size, &bytes) && checked_add(*total, bytes, total);
-}
-
-[[nodiscard]] bool is_power_of_two(const std::uint64_t value) noexcept {
-  return value != 0U && (value & (value - 1U)) == 0U;
 }
 
 [[nodiscard]] std::uint64_t positive_mod(const std::int64_t value,
@@ -91,16 +64,12 @@ struct Q3Arithmetic {
   const auto& source = input.spec.arithmetic;
   const auto r1 = source.b1;
   const auto r2 = source.b2;
-  if (r2 == 0U || r2 >= r1 || r1 > 62U || r1 >= input.spec.shape.n ||
-      input.instance.b1 != r1) {
+  if (!limits::q3report::frozen_snapshot_arithmetic_supported(input.spec.shape.n, r1, r2,
+                                                               input.instance.b1)) {
     *message = "Q3 requires 0 < r2 < r1 <= 62, r1 < n, and matching instance arithmetic";
     return Q3ReportStatus::InvalidConfiguration;
   }
   const std::uint32_t quotient_bits = static_cast<std::uint32_t>(r1) - r2;
-  if (quotient_bits >= 63U) {
-    *message = "Q3 quotient width is not representable";
-    return Q3ReportStatus::InvalidConfiguration;
-  }
   value->r1 = r1;
   value->r2 = r2;
   value->m2 = std::uint64_t{1} << r2;
@@ -204,27 +173,27 @@ struct Q3Arithmetic {
   constexpr std::array<ListRole, 3> kRoles{ListRole::A, ListRole::B, ListRole::C};
   std::uint64_t quotient_storage = 0;
   std::uint64_t packed_storage = 0;
-  if (!add_bytes(&packed_storage, input.instance.values_le.size(), sizeof(std::uint64_t)) ||
-      !add_bytes(&packed_storage, input.instance.residues_m1.size(), sizeof(std::uint64_t)) ||
-      !add_bytes(&packed_storage, input.instance.planted_root.size(), sizeof(std::uint8_t)) ||
-      !add_bytes(&packed_storage, input.instance.root_target_le.size(), sizeof(std::uint64_t))) {
+  if (!checked_add_bytes(&packed_storage, input.instance.values_le.size(), sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&packed_storage, input.instance.residues_m1.size(), sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&packed_storage, input.instance.planted_root.size(), sizeof(std::uint8_t)) ||
+      !checked_add_bytes(&packed_storage, input.instance.root_target_le.size(), sizeof(std::uint64_t))) {
     *message = "packed audit instance-copy accounting overflows";
     return Q3ReportStatus::ResourceLimit;
   }
   const std::uint64_t packed_words_per_entry =
       (static_cast<std::uint64_t>(shape.n) + 63U) / 64U;
   for (const auto& list : input.lists) {
-    if (!add_bytes(&quotient_storage, list.entries.size(), sizeof(std::uint64_t)) ||
-        !add_bytes(&packed_storage, list.entries.size(), sizeof(TerEntry)) ||
-        !add_bytes(&packed_storage, list.entries.size(), sizeof(std::uint64_t)) ||
-        !add_bytes(&packed_storage, list.entries.size(),
+    if (!checked_add_bytes(&quotient_storage, list.entries.size(), sizeof(std::uint64_t)) ||
+        !checked_add_bytes(&packed_storage, list.entries.size(), sizeof(TerEntry)) ||
+        !checked_add_bytes(&packed_storage, list.entries.size(), sizeof(std::uint64_t)) ||
+        !checked_add_bytes(&packed_storage, list.entries.size(),
                    2U * packed_words_per_entry * sizeof(std::uint64_t))) {
       *message = "snapshot audit memory accounting overflows";
       return Q3ReportStatus::ResourceLimit;
     }
   }
-  if (quotient_storage > config.memory_limit_bytes ||
-      packed_storage > config.memory_limit_bytes - quotient_storage) {
+  if (!limits::checked::fits_memory_budget(quotient_storage, packed_storage,
+                                            config.memory_limit_bytes)) {
     *message = "snapshot audit's quotient and packed-mask views exceed the memory ceiling";
     return Q3ReportStatus::ResourceLimit;
   }
@@ -418,19 +387,19 @@ enum class ParentCheck : std::uint8_t {
   std::uint64_t offsets_count = 0;
   std::uint64_t direct_bytes = 0;
   if (!checked_add(q, 1U, &offsets_count) ||
-      !add_bytes(&direct_bytes, offsets_count, sizeof(std::uint64_t)) ||
-      !add_bytes(&direct_bytes, offsets_count, sizeof(std::uint64_t)) ||
-      !add_bytes(&direct_bytes, quotients[2].size(), sizeof(std::uint64_t)) ||
-      !add_bytes(&direct_bytes, quotients[0].size(), sizeof(std::uint64_t)) ||
-      !add_bytes(&direct_bytes, quotients[1].size(), sizeof(std::uint64_t)) ||
-      !add_bytes(&direct_bytes, quotients[2].size(), sizeof(std::uint64_t))) {
+      !checked_add_bytes(&direct_bytes, offsets_count, sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&direct_bytes, offsets_count, sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&direct_bytes, quotients[2].size(), sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&direct_bytes, quotients[0].size(), sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&direct_bytes, quotients[1].size(), sizeof(std::uint64_t)) ||
+      !checked_add_bytes(&direct_bytes, quotients[2].size(), sizeof(std::uint64_t))) {
     *message = "direct baseline memory accounting overflows";
     return Q3ReportStatus::ResourceLimit;
   }
   std::uint64_t bounded_parent_bytes = 0;
   if (!checked_add(snapshot.input.spec.shape.n, 128U, &bounded_parent_bytes) ||
-      !add_bytes(&direct_bytes, config.max_stored_parents, bounded_parent_bytes) ||
-      direct_bytes > config.memory_limit_bytes) {
+      !checked_add_bytes(&direct_bytes, config.max_stored_parents, bounded_parent_bytes) ||
+      !limits::checked::fits_memory_budget(0U, direct_bytes, config.memory_limit_bytes)) {
     *message = "direct baseline cannot fit its declared exact parent-record ceiling";
     return Q3ReportStatus::ResourceLimit;
   }
@@ -583,7 +552,7 @@ void ntt_in_place(std::vector<std::uint64_t>* const values, const bool inverse) 
     Q3ReportTelemetry* const telemetry,
     std::string* const message) {
   const auto q = arithmetic.q;
-  if (!is_power_of_two(q) || q > (std::uint64_t{1} << kNttMaximumPower) ||
+  if (!limits::ntt::q3report_length_supported(q) ||
       q > std::numeric_limits<std::size_t>::max()) {
     *message = "NTT length is unsupported by the exact 998244353 transform";
     return Q3ReportStatus::NotApplicable;
@@ -600,14 +569,14 @@ void ntt_in_place(std::vector<std::uint64_t>* const values, const bool inverse) 
     return Q3ReportStatus::ArithmeticSafetyFailure;
   }
   std::uint64_t ntt_bytes = 0;
-  if (!add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // scalar result
-      !add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // NTT result
-      !add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // frequency/transform A
-      !add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // frequency/transform B
-      !add_bytes(&ntt_bytes, config.max_stored_parents,
+  if (!checked_add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // scalar result
+      !checked_add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // NTT result
+      !checked_add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // frequency/transform A
+      !checked_add_bytes(&ntt_bytes, q, sizeof(std::uint64_t)) ||  // frequency/transform B
+      !checked_add_bytes(&ntt_bytes, config.max_stored_parents,
                  static_cast<std::uint64_t>(
                      snapshot.input.spec.shape.n) + 128U) ||
-      ntt_bytes > config.memory_limit_bytes) {
+      !limits::checked::fits_memory_budget(0U, ntt_bytes, config.memory_limit_bytes)) {
     *message = "NTT output and transform buffers exceed the declared memory ceiling";
     return Q3ReportStatus::ResourceLimit;
   }
@@ -702,9 +671,10 @@ Q3ReportResult run_q3report_count_only_experiment(const FrozenL2MergeSnapshot& s
                                                    const Q3ReportConfig& config) {
   try {
     Q3ReportResult result;
-    if (!config.full_residue_audit || config.memory_limit_bytes == 0U ||
-        config.max_structural_checks == 0U || config.max_stored_parents == 0U ||
-        config.max_oracle_triples == 0U) {
+    if (!config.full_residue_audit ||
+        !limits::q3report::nonzero_resource_ceilings_supported(
+            config.memory_limit_bytes, config.max_structural_checks, config.max_stored_parents,
+            config.max_oracle_triples)) {
       result.status = Q3ReportStatus::InvalidConfiguration;
       result.message = "Q3 requires a full residue audit and nonzero explicit resource ceilings";
       return result;

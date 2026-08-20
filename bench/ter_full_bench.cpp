@@ -1,4 +1,5 @@
 #include "ter/full_ter.hpp"
+#include "ter/limitations.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -63,13 +64,12 @@ int main() {
   config.execution_mode = ter::TerExecutionMode::FullTer;
   config.target_mode = ter::TerTargetMode::Random;
   config.seed = seed;
-  config.attempt_limit = 1U;
-  config.memory_limit_bytes = 256ULL * 1024ULL * 1024ULL;
+  config.attempt_limit = ter::limits::full_ter::kDefaultAttemptLimit;
+  config.memory_limit_bytes = ter::limits::benchmark::kFullTerMemoryBytes;
   config.audit = false;
 
   const auto warmup = ter::solve_full_ter(instance, config);
-  if (warmup.status != ter::Status::Found &&
-      warmup.status != ter::Status::AttemptLimitReached) {
+  if (!ter::limits::benchmark::full_ter_warmup_acceptable(warmup.status)) {
     std::cerr << "full TER warmup failed: " << warmup.message << '\n';
     return EXIT_FAILURE;
   }

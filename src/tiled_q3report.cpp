@@ -1,5 +1,7 @@
 #include "ter/tiled_q3report.hpp"
 
+#include "ter/limitations.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
@@ -14,51 +16,16 @@ namespace ter {
 namespace {
 
 using Clock = std::chrono::steady_clock;
+using limits::checked::checked_add_bytes;
+using limits::checked::checked_add;
+using limits::checked::checked_multiply;
+using limits::is_power_of_two;
 
 constexpr std::uint32_t kNoRecord = std::numeric_limits<std::uint32_t>::max();
 
 [[nodiscard]] std::uint64_t elapsed_ns(const Clock::time_point start) noexcept {
   return static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - start).count());
-}
-
-[[nodiscard]] bool checked_add(const std::uint64_t left,
-                               const std::uint64_t right,
-                               std::uint64_t* const result) noexcept {
-  if (left > std::numeric_limits<std::uint64_t>::max() - right) {
-    return false;
-  }
-  *result = left + right;
-  return true;
-}
-
-[[nodiscard]] bool checked_multiply(const std::uint64_t left,
-                                    const std::uint64_t right,
-                                    std::uint64_t* const result) noexcept {
-  if (left != 0U && right > std::numeric_limits<std::uint64_t>::max() / left) {
-    return false;
-  }
-  *result = left * right;
-  return true;
-}
-
-[[nodiscard]] bool accumulate_bytes(std::uint64_t* const total,
-                                    const std::uint64_t count,
-                                    const std::uint64_t element_size) noexcept {
-  std::uint64_t bytes = 0;
-  return checked_multiply(count, element_size, &bytes) && checked_add(*total, bytes, total);
-}
-
-[[nodiscard]] bool is_power_of_two(const std::uint64_t value) noexcept {
-  return value != 0U && (value & (value - 1U)) == 0U;
-}
-
-[[nodiscard]] std::uint32_t exact_log2(const std::uint64_t value) noexcept {
-  std::uint32_t bits = 0;
-  while ((std::uint64_t{1} << bits) < value) {
-    ++bits;
-  }
-  return bits;
 }
 
 // One doubled lookup record.  `key` is 64-bit because k_z + Q can reach 2Q - 1.
@@ -112,20 +79,20 @@ struct Prepared {
                                           Prepared* const prepared,
                                           TiledQ3ReportTelemetry* const telemetry,
                                           std::string* const message) {
-  if (!is_power_of_two(q) || q > (std::uint64_t{1} << 32U)) {
+  if (!limits::tiled::quotient_universe_supported(q)) {
     *message = "tiled Q3REPORT requires a power-of-two quotient universe of at most 2^32";
     return TiledQ3ReportStatus::NotApplicable;
   }
-  if (tau >= q) {
+  if (!limits::tiled::tau_supported(tau, q)) {
     *message = "tau must lie inside the quotient universe";
     return TiledQ3ReportStatus::InvalidConfiguration;
   }
-  if (config.preferred_tile_bits == 0U) {
+  if (!limits::tiled::tile_configuration_supported(q, config.preferred_tile_bits)) {
     *message = "preferred tile width must be at least one bit";
     return TiledQ3ReportStatus::InvalidConfiguration;
   }
   for (const auto* list : {&pair_first, &pair_second, &lookup}) {
-    if (list->size() > std::numeric_limits<std::uint32_t>::max()) {
+    if (!limits::tiled::input_entry_count_supported(list->size())) {
       *message = "tiled bucket offsets require each input list to fit the 32-bit entry range";
       return TiledQ3ReportStatus::ResourceLimit;
     }
@@ -138,8 +105,7 @@ struct Prepared {
   }
   // The record chain indexes doubled records with uint32_t sentinels.
   std::uint64_t doubled_count = 0;
-  if (!checked_multiply(lookup.size(), 2U, &doubled_count) ||
-      doubled_count >= static_cast<std::uint64_t>(kNoRecord)) {
+  if (!limits::tiled::doubled_lookup_count_supported(lookup.size(), &doubled_count)) {
     *message = "doubled lookup record count is not addressable by the 32-bit chain";
     return TiledQ3ReportStatus::ResourceLimit;
   }
@@ -158,7 +124,8 @@ struct Prepared {
     return TiledQ3ReportStatus::ResourceLimit;
   }
   const std::uint64_t required = witness_mode ? report_bytes : count_bytes;
-  if (config.memory_limit_bytes != 0U && required > config.memory_limit_bytes) {
+  if (config.memory_limit_bytes != 0U &&
+      !limits::checked::fits_memory_budget(0U, required, config.memory_limit_bytes)) {
     *message = "fixed tiled auxiliary memory exceeds the declared ceiling";
     return TiledQ3ReportStatus::ResourceLimit;
   }
@@ -171,7 +138,8 @@ struct Prepared {
       prepared->bucket_count == 0U ? 0U : 2U * prepared->bucket_count - 1U;
   telemetry->doubled_lookup_records = doubled_count;
   telemetry->auxiliary_peak_bytes = required;
-  if (!checked_multiply(pair_first.size(), pair_second.size(), &telemetry->logical_pairs)) {
+  if (!limits::tiled::logical_pair_count_supported(pair_first.size(), pair_second.size(),
+                                                    &telemetry->logical_pairs)) {
     *message = "logical pair universe overflows";
     return TiledQ3ReportStatus::ResourceLimit;
   }
@@ -220,11 +188,7 @@ const char* tiled_q3report_status_name(const TiledQ3ReportStatus status) noexcep
 
 std::uint32_t tiled_q3report_tile_bits(const std::uint64_t q,
                                         const std::uint32_t preferred_tile_bits) noexcept {
-  if (!is_power_of_two(q)) {
-    return 0U;
-  }
-  const std::uint32_t q_bits = exact_log2(q);
-  return preferred_tile_bits < q_bits ? preferred_tile_bits : q_bits;
+  return limits::tiled::tile_bits(q, preferred_tile_bits);
 }
 
 bool tiled_q3report_auxiliary_bytes(const std::uint64_t pair_first_size,
@@ -236,7 +200,7 @@ bool tiled_q3report_auxiliary_bytes(const std::uint64_t pair_first_size,
                                     std::uint64_t* const count_bytes,
                                     std::uint64_t* const report_bytes) noexcept {
   static_cast<void>(witness_mode);
-  if (!is_power_of_two(q) || preferred_tile_bits == 0U) {
+  if (!limits::tiled::tile_configuration_supported(q, preferred_tile_bits)) {
     return false;
   }
   const std::uint32_t tile_bits = tiled_q3report_tile_bits(q, preferred_tile_bits);
@@ -249,24 +213,24 @@ bool tiled_q3report_auxiliary_bytes(const std::uint64_t pair_first_size,
   }
 
   std::uint64_t shared = 0;
-  if (!accumulate_bytes(&shared, pair_first_size, sizeof(TiledQEntry)) ||
-      !accumulate_bytes(&shared, pair_second_size, sizeof(TiledQEntry)) ||
+  if (!checked_add_bytes(&shared, pair_first_size, sizeof(TiledQEntry)) ||
+      !checked_add_bytes(&shared, pair_second_size, sizeof(TiledQEntry)) ||
       // build_buckets holds a cursor while both completed bucket-offset arrays
       // are live.  Charge that third offsets array to the fixed peak.
-      !accumulate_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
-      !accumulate_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
-      !accumulate_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
-      !accumulate_bytes(&shared, doubled, sizeof(DoubledRecord))) {
+      !checked_add_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
+      !checked_add_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
+      !checked_add_bytes(&shared, bucket_count + 1U, sizeof(std::uint32_t)) ||
+      !checked_add_bytes(&shared, doubled, sizeof(DoubledRecord))) {
     return false;
   }
 
   std::uint64_t counting = shared;
-  if (!accumulate_bytes(&counting, window_width, sizeof(std::uint32_t))) {
+  if (!checked_add_bytes(&counting, window_width, sizeof(std::uint32_t))) {
     return false;
   }
   std::uint64_t reporting = shared;
-  if (!accumulate_bytes(&reporting, window_width, sizeof(std::uint32_t)) ||
-      !accumulate_bytes(&reporting, doubled, sizeof(std::uint32_t))) {
+  if (!checked_add_bytes(&reporting, window_width, sizeof(std::uint32_t)) ||
+      !checked_add_bytes(&reporting, doubled, sizeof(std::uint32_t))) {
     return false;
   }
   *count_bytes = counting;
