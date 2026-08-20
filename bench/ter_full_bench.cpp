@@ -24,7 +24,9 @@ void add_value(ter::Instance& instance, std::uint32_t index) {
 }
 
 ter::Instance benchmark_instance(std::uint64_t seed) {
-  auto built = ter::build_instance(36U, 10U, seed);
+  auto built = ter::build_instance(ter::limits::benchmark::kFullTerFixtureN,
+                                   ter::limits::benchmark::kFullTerFixtureModulusBits,
+                                   seed);
   if (built.status != ter::Status::Completed) {
     return {};
   }
@@ -33,15 +35,20 @@ ter::Instance benchmark_instance(std::uint64_t seed) {
             instance.planted_root.end(),
             std::uint8_t{0});
   std::fill(instance.root_target_le.begin(), instance.root_target_le.end(), 0ULL);
+  const std::uint32_t half_width = instance.n / 2U;
+  const std::uint32_t planted_per_half = instance.n / 4U;
   for (std::uint32_t half = 0; half < 2U; ++half) {
-    const std::uint32_t begin = half * 18U;
-    for (std::uint32_t offset = 0; offset < 9U; ++offset) {
+    const std::uint32_t begin = half * half_width;
+    for (std::uint32_t offset = 0; offset < planted_per_half; ++offset) {
       const std::uint32_t coordinate = begin + offset;
       instance.planted_root[coordinate] = 1U;
       add_value(instance, coordinate);
     }
   }
-  instance.root_target_le.back() &= (std::uint64_t{1} << 36U) - 1U;
+  const std::uint32_t top_word_bits = instance.n % 64U;
+  if (top_word_bits != 0U) {
+    instance.root_target_le.back() &= (std::uint64_t{1} << top_word_bits) - 1U;
+  }
   return instance;
 }
 
@@ -53,7 +60,7 @@ std::uint64_t median(std::vector<std::uint64_t> values) {
 }  // namespace
 
 int main() {
-  constexpr std::uint64_t seed = 0x46554c4c544552ULL;
+  constexpr std::uint64_t seed = ter::limits::benchmark::kFullTerFixtureSeed;
   const auto instance = benchmark_instance(seed);
   if (instance.n == 0U) {
     std::cerr << "failed to build benchmark instance\n";
@@ -79,7 +86,9 @@ int main() {
   std::vector<std::uint64_t> middle;
   std::vector<std::uint64_t> root;
   std::vector<std::uint64_t> verification;
-  for (std::uint32_t repetition = 0; repetition < 5U; ++repetition) {
+  for (std::uint32_t repetition = 0;
+       repetition < ter::limits::benchmark::kFullTerTimedRepetitions;
+       ++repetition) {
     const auto measured = ter::solve_full_ter(instance, config);
     if (measured.status != warmup.status ||
         measured.witness != warmup.witness ||

@@ -48,7 +48,13 @@ void test_control_panel_wiring() {
               ter::limits::oracle::kCubicCandidateTripleCap ==
                   panel::oracle::kCubicCandidateTripleCap &&
               ter::limits::tiled::kDefaultPreferredTileBits ==
-                  panel::tiled::kDefaultPreferredTileBits,
+                  panel::tiled::kDefaultPreferredTileBits &&
+              ter::limits::benchmark::kFullTerFixtureN ==
+                  panel::benchmark::kFullTerFixtureN &&
+              ter::limits::benchmark::kCrossoverListSizeLadder ==
+                  panel::benchmark::kCrossoverListSizeLadder &&
+              ter::limits::benchmark::kPaperListSizeLadder ==
+                  panel::benchmark::kPaperListSizeLadder,
           "the control panel drives every core runtime-policy alias");
   require(ter::limits::ntt::kQ3ReportMaximumPower == panel::ntt::kQ3ReportMaximumPower &&
               ter::limits::q3report::kDefaultMemoryBytes == panel::q3report::kDefaultMemoryBytes &&
@@ -139,6 +145,25 @@ void test_paper_generator_defaults() {
           "paper benchmark generator defaults remain explicit and unchanged");
 }
 
+void test_paper_crossover_admission_policy() {
+  require(ter::limits::paper_crossover::snapshot_configuration_supported(
+              2U, 2U, 2U, 1U),
+          "paper snapshot admission accepts its inclusive minimum boundary");
+  require(!ter::limits::paper_crossover::snapshot_configuration_supported(
+              1U, 2U, 2U, 1U) &&
+              !ter::limits::paper_crossover::snapshot_configuration_supported(
+                  2U, 1U, 2U, 1U) &&
+              !ter::limits::paper_crossover::snapshot_configuration_supported(
+                  2U, 2U, 1U, 1U) &&
+              !ter::limits::paper_crossover::snapshot_configuration_supported(
+                  2U, 2U, 2U, 0U),
+          "paper snapshot admission preserves every current refusal condition");
+  require(ter::limits::paper_crossover::run_configuration_supported(1U, 1U) &&
+              !ter::limits::paper_crossover::run_configuration_supported(0U, 1U) &&
+              !ter::limits::paper_crossover::run_configuration_supported(1U, 0U),
+          "paper comparator run admission preserves zero-budget refusals");
+}
+
 void test_n72_full_benchmark_ceiling_regression() {
   const auto instance = ter::build_instance(72U, 10U, 0x7200ULL);
   require(instance.status == ter::Status::Completed,
@@ -169,6 +194,7 @@ int main() {
   test_oracle_and_tiled_policy();
   test_ntt_and_benchmark_policy();
   test_paper_generator_defaults();
+  test_paper_crossover_admission_policy();
   test_n72_full_benchmark_ceiling_regression();
   std::cout << "limitations policy tests passed\n";
   return 0;

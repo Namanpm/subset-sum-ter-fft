@@ -68,14 +68,16 @@ int run_case(std::uint32_t list_size,
   ter::SnapshotConfig config;
   config.family = ter::ShapeFamily::PaperRounded;
   config.n = ter::limits::paper_generator::kDefaultN;
-  config.b2 = 8;
-  config.b1 = 18;
+  config.b2 = ter::limits::benchmark::kBaselineB2;
+  config.b1 = ter::limits::benchmark::kBaselineB1;
   config.seed = seed;
   config.requested_list_size = list_size;
   config.mode = planted ? ter::GeneratorMode::PlantedMitm
                         : ter::GeneratorMode::MitmPerformance;
   config.plant_valid_triple = planted;
-  config.half_pool_size = std::max<std::uint32_t>(256U, list_size * 2U);
+  config.half_pool_size = std::max<std::uint32_t>(
+      ter::limits::benchmark::kBaselineMinimumHalfPool,
+      list_size * ter::limits::benchmark::kBaselineHalfPoolMultiplier);
   config.max_half_pool_size = ter::limits::paper_generator::kDefaultHalfPoolSize;
   config.attempt_limit = ter::limits::paper_generator::kDefaultAttemptLimit;
   config.memory_limit_bytes = ter::limits::paper_generator::kDefaultMemoryBytes;
@@ -205,15 +207,21 @@ int main(int argc, char** argv) {
                "owned_peak_budget_bytes,"
                "fingerprint\n";
 
-  const std::array<std::uint32_t, 3> full_sizes{128U, 256U, 512U};
-  const std::array<std::uint32_t, 2> quick_sizes{64U, 128U};
-  const std::uint32_t seed_count = quick ? 3U : 10U;
-  const std::uint32_t repetitions = quick ? 2U : 3U;
+  const auto& full_sizes = ter::limits::benchmark::kBaselineFullListSizes;
+  const auto& quick_sizes = ter::limits::benchmark::kBaselineQuickListSizes;
+  const std::uint32_t seed_count = quick
+                                       ? ter::limits::benchmark::kBaselineQuickSeedCount
+                                       : ter::limits::benchmark::kBaselineFullSeedCount;
+  const std::uint32_t repetitions = quick
+                                        ? ter::limits::benchmark::kBaselineQuickTimedRepetitions
+                                        : ter::limits::benchmark::kBaselineFullTimedRepetitions;
   const auto run_sizes = [&](const auto& sizes) {
     for (const std::uint32_t size : sizes) {
       for (std::uint32_t seed_index = 0; seed_index < seed_count; ++seed_index) {
-        const std::uint64_t seed = 0x5445520000000000ULL +
-                                   static_cast<std::uint64_t>(size) * 100U + seed_index;
+        const std::uint64_t seed = ter::limits::benchmark::kBaselineSeedBase +
+                                   static_cast<std::uint64_t>(size) *
+                                       ter::limits::benchmark::kBaselineSeedSizeMultiplier +
+                                   seed_index;
         for (const bool planted : {false, true}) {
           if (run_case(size, seed, planted, repetitions) != 0) {
             return false;

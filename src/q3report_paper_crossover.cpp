@@ -896,15 +896,13 @@ PaperScalingPoint derive_paper_scaling_point(const std::uint64_t list_size) noex
 }
 
 std::span<const std::uint64_t> declared_paper_scaling_ladder() noexcept {
-  static constexpr std::array<std::uint64_t, 10> kLadder{64U,    128U,   256U,   512U,   1'024U,
-                                                         2'048U, 4'096U, 8'192U, 16'384U, 32'768U};
-  return std::span<const std::uint64_t>(kLadder.data(), kLadder.size());
+  return std::span<const std::uint64_t>(limits::benchmark::kPaperListSizeLadder.data(),
+                                        limits::benchmark::kPaperListSizeLadder.size());
 }
 
 std::span<const std::uint64_t> declared_paper_scaling_seeds() noexcept {
-  static constexpr std::array<std::uint64_t, 5> kSeeds{0x1001U, 0x2003U, 0x3007U, 0x4009U,
-                                                       0x500BU};
-  return std::span<const std::uint64_t>(kSeeds.data(), kSeeds.size());
+  return std::span<const std::uint64_t>(limits::benchmark::kPaperSeeds.data(),
+                                        limits::benchmark::kPaperSeeds.size());
 }
 
 // ---------------------------------------------------------------------------
@@ -1333,8 +1331,9 @@ namespace {
 [[nodiscard]] PaperCrossoverSnapshotResult build_paper_scaling_snapshot_impl(
     const PaperCrossoverSnapshotConfig& config) {
   PaperCrossoverSnapshotResult result;
-  if (config.requested_list_size < 2U || config.initial_half_pool < 2U ||
-      config.max_half_pool < config.initial_half_pool || config.memory_limit_bytes == 0U) {
+  if (!limits::paper_crossover::snapshot_configuration_supported(
+          config.requested_list_size, config.initial_half_pool, config.max_half_pool,
+          config.memory_limit_bytes)) {
     result.message = "paper-scaling snapshot configuration is invalid";
     return result;
   }
@@ -1702,7 +1701,8 @@ struct MethodBudget {
     const PaperCrossoverConfig& config) {
   PaperCrossoverResult result;
   auto& telemetry = result.telemetry;
-  if (config.memory_limit_bytes == 0U || config.timed_repetitions == 0U) {
+  if (!limits::paper_crossover::run_configuration_supported(config.memory_limit_bytes,
+                                                             config.timed_repetitions)) {
     result.status = PaperCrossoverStatus::InvalidConfiguration;
     result.message = "the experiment requires a nonzero memory ceiling and repetition count";
     return result;

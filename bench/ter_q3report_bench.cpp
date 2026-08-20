@@ -15,7 +15,21 @@
 namespace {
 
 constexpr std::uint64_t kMemoryLimit = ter::limits::q3report::kDefaultMemoryBytes;
-constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
+constexpr std::uint64_t kSeed = ter::limits::benchmark::kQ3ReportFixtureSeed;
+
+void add_value(ter::Instance& instance, const std::uint32_t index) {
+  std::uint64_t carry = 0U;
+  const std::size_t base = static_cast<std::size_t>(index) * instance.words_per_value;
+  for (std::uint32_t word = 0; word < instance.words_per_value; ++word) {
+    const std::uint64_t original = instance.root_target_le[word];
+    const std::uint64_t first = original + instance.values_le[base + word];
+    const std::uint64_t carry_first = first < original ? 1U : 0U;
+    const std::uint64_t second = first + carry;
+    const std::uint64_t carry_second = second < first ? 1U : 0U;
+    instance.root_target_le[word] = second;
+    carry = carry_first | carry_second;
+  }
+}
 
 [[nodiscard]] const char* family_name(const ter::Q3SnapshotFamily family) {
   switch (family) {
@@ -43,7 +57,9 @@ constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
 }
 
 [[nodiscard]] ter::Instance balanced_full_instance() {
-  const auto built = ter::build_instance(36U, 10U, 0x5143415054555245ULL);
+  const auto built = ter::build_instance(ter::limits::benchmark::kQ3ReportFixtureN,
+                                         ter::limits::benchmark::kQ3ReportFixtureModulusBits,
+                                         ter::limits::benchmark::kQ3ReportFixtureInstanceSeed);
   if (built.status != ter::Status::Completed) {
     std::cerr << "unable to build Full TER benchmark instance\n";
     std::exit(2);
@@ -51,14 +67,19 @@ constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
   auto instance = built.value;
   std::fill(instance.planted_root.begin(), instance.planted_root.end(), std::uint8_t{0});
   instance.root_target_le.assign(instance.words_per_value, 0U);
+  const std::uint32_t half_width = instance.n / 2U;
+  const std::uint32_t planted_per_half = instance.n / 4U;
   for (std::uint32_t half = 0; half < 2U; ++half) {
-    for (std::uint32_t offset = 0; offset < 9U; ++offset) {
-      const auto coordinate = half * 18U + offset;
+    for (std::uint32_t offset = 0; offset < planted_per_half; ++offset) {
+      const auto coordinate = half * half_width + offset;
       instance.planted_root[coordinate] = 1U;
-      instance.root_target_le[0] += instance.values_le[coordinate];
+      add_value(instance, coordinate);
     }
   }
-  instance.root_target_le[0] &= (std::uint64_t{1} << 36U) - 1U;
+  const std::uint32_t top_word_bits = instance.n % 64U;
+  if (top_word_bits != 0U) {
+    instance.root_target_le.back() &= (std::uint64_t{1} << top_word_bits) - 1U;
+  }
   return instance;
 }
 
@@ -87,11 +108,11 @@ constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
 [[nodiscard]] ter::FrozenL2MergeSnapshot distribution_matched_snapshot() {
   ter::SnapshotConfig config;
   config.family = ter::ShapeFamily::FiniteSanity;
-  config.n = 36U;
-  config.b2 = 4U;
-  config.b1 = 10U;
+  config.n = ter::limits::benchmark::kQ3ReportFixtureN;
+  config.b2 = ter::limits::benchmark::kQ3ReportGeneratedB2;
+  config.b1 = ter::limits::benchmark::kQ3ReportGeneratedB1;
   config.seed = kSeed + 1U;
-  config.requested_list_size = 64U;
+  config.requested_list_size = ter::limits::benchmark::kQ3ReportGeneratedListSize;
   config.mode = ter::GeneratorMode::PlantedMitm;
   config.plant_valid_triple = true;
   config.half_pool_size = ter::limits::benchmark::kQ3ReportBenchmarkInitialHalfPool;
@@ -117,7 +138,7 @@ constexpr std::uint64_t kSeed = 0x51335245504f5254ULL;
 [[nodiscard]] ter::FrozenL2MergeSnapshot fixed_q_projection(
     const ter::FrozenL2MergeSnapshot& native) {
   auto input = native.input;
-  constexpr std::uint8_t kR1 = 9U;  // r2=3, Q=64.
+  constexpr std::uint8_t kR1 = ter::limits::benchmark::kQ3ReportFixedProjectionR1;
   const auto arithmetic = ter::build_arithmetic(
       input.instance.n,
       input.spec.arithmetic.b2,
@@ -239,7 +260,7 @@ void emit_family(const ter::FrozenL2MergeSnapshot& snapshot,
 }  // namespace
 
 int main(int argc, char** argv) {
-  std::uint32_t repetitions = 7U;
+  std::uint32_t repetitions = ter::limits::benchmark::kQ3ReportTimedRepetitions;
   if (argc == 2) {
     repetitions = static_cast<std::uint32_t>(std::strtoul(argv[1], nullptr, 10));
   }

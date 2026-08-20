@@ -24,9 +24,23 @@
 
 namespace {
 
-constexpr std::uint64_t kAnchorSeed = 0x51335245504f5254ULL;
+constexpr std::uint64_t kAnchorSeed = ter::limits::benchmark::kPaperAnchorSeed;
 
 using Schedule = ter::limits::benchmark::PaperCrossoverSchedule;
+
+void add_value(ter::Instance& instance, const std::uint32_t index) {
+  std::uint64_t carry = 0U;
+  const std::size_t base = static_cast<std::size_t>(index) * instance.words_per_value;
+  for (std::uint32_t word = 0; word < instance.words_per_value; ++word) {
+    const std::uint64_t original = instance.root_target_le[word];
+    const std::uint64_t first = original + instance.values_le[base + word];
+    const std::uint64_t carry_first = first < original ? 1U : 0U;
+    const std::uint64_t second = first + carry;
+    const std::uint64_t carry_second = second < first ? 1U : 0U;
+    instance.root_target_le[word] = second;
+    carry = carry_first | carry_second;
+  }
+}
 
 // Section 23.  Declared before any timing result was seen.
 [[nodiscard]] Schedule schedule_for(const std::uint64_t list_size,
@@ -132,7 +146,9 @@ void emit_row(const ter::PaperCrossoverSnapshot& snapshot,
 }
 
 [[nodiscard]] ter::Instance balanced_full_instance() {
-  const auto built = ter::build_instance(36U, 10U, 0x5143415054555245ULL);
+  const auto built = ter::build_instance(ter::limits::benchmark::kQ3ReportFixtureN,
+                                         ter::limits::benchmark::kQ3ReportFixtureModulusBits,
+                                         ter::limits::benchmark::kPaperAnchorInstanceSeed);
   if (built.status != ter::Status::Completed) {
     std::cerr << "unable to build the Full TER anchor instance\n";
     std::exit(2);
@@ -140,14 +156,19 @@ void emit_row(const ter::PaperCrossoverSnapshot& snapshot,
   auto instance = built.value;
   std::fill(instance.planted_root.begin(), instance.planted_root.end(), std::uint8_t{0});
   instance.root_target_le.assign(instance.words_per_value, 0U);
+  const std::uint32_t half_width = instance.n / 2U;
+  const std::uint32_t planted_per_half = instance.n / 4U;
   for (std::uint32_t half = 0; half < 2U; ++half) {
-    for (std::uint32_t offset = 0; offset < 9U; ++offset) {
-      const auto coordinate = half * 18U + offset;
+    for (std::uint32_t offset = 0; offset < planted_per_half; ++offset) {
+      const auto coordinate = half * half_width + offset;
       instance.planted_root[coordinate] = 1U;
-      instance.root_target_le[0] += instance.values_le[coordinate];
+      add_value(instance, coordinate);
     }
   }
-  instance.root_target_le[0] &= (std::uint64_t{1} << 36U) - 1U;
+  const std::uint32_t top_word_bits = instance.n % 64U;
+  if (top_word_bits != 0U) {
+    instance.root_target_le.back() &= (std::uint64_t{1} << top_word_bits) - 1U;
+  }
   return instance;
 }
 
@@ -269,7 +290,8 @@ int main(int argc, char** argv) {
       }
       ter::PaperCrossoverConfig run_config;
       run_config.memory_limit_bytes = ter::limits::paper_crossover::kDefaultMemoryBytes;
-      run_config.warmup_repetitions = 1U;
+      run_config.warmup_repetitions =
+        ter::limits::benchmark::kPaperSingleSeedWarmupRepetitions;
       run_config.timed_repetitions = schedule.repetitions;
       // A non-executable declared point returns NotApplicable from the prime
       // selection before any buffer is allocated; its row is still emitted.

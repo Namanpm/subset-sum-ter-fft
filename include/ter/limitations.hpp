@@ -16,6 +16,7 @@
 
 #include "ter/types.hpp"
 
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -110,6 +111,8 @@ inline constexpr std::uint64_t kDefaultMemoryBytes = 256ULL * kBytesPerMiB;
 }  // namespace crossover
 
 namespace paper_crossover {
+inline constexpr std::uint64_t kMinimumRequestedListSize = 2U;
+inline constexpr std::uint32_t kMinimumHalfPoolSize = 2U;
 inline constexpr std::uint64_t kDefaultRequestedListSize = 64U;
 inline constexpr std::uint64_t kDefaultSeed = 0x1001ULL;
 inline constexpr std::uint32_t kDefaultInitialHalfPool = 256U;
@@ -125,12 +128,71 @@ inline constexpr std::uint64_t kPoolSamplingAttemptSlack = 65'536U;
 
 namespace benchmark {
 inline constexpr std::uint64_t kFullTerMemoryBytes = 256ULL * kBytesPerMiB;
+// Fixed finite-sanity smoke-fixture policy.  These values describe the
+// benchmark input, not the FullTer dimension domain.
+inline constexpr std::uint32_t kFullTerFixtureN = 36U;
+inline constexpr std::uint8_t kFullTerFixtureModulusBits = 10U;
+inline constexpr std::uint64_t kFullTerFixtureSeed = 0x46554c4c544552ULL;
+inline constexpr std::uint32_t kFullTerTimedRepetitions = 5U;
+
+// Fixed Q3REPORT benchmark fixtures.  They remain experiment-only and must
+// not be read as FullTer solver defaults.
+inline constexpr std::uint64_t kQ3ReportFixtureSeed = 0x51335245504f5254ULL;
+inline constexpr std::uint64_t kQ3ReportFixtureInstanceSeed = 0x5143415054555245ULL;
+inline constexpr std::uint32_t kQ3ReportFixtureN = 36U;
+inline constexpr std::uint8_t kQ3ReportFixtureModulusBits = 10U;
+inline constexpr std::uint8_t kQ3ReportGeneratedB2 = 4U;
+inline constexpr std::uint8_t kQ3ReportGeneratedB1 = 10U;
+inline constexpr std::uint32_t kQ3ReportGeneratedListSize = 64U;
+inline constexpr std::uint8_t kQ3ReportFixedProjectionR1 = 9U;
+inline constexpr std::uint32_t kQ3ReportTimedRepetitions = 7U;
 inline constexpr std::uint32_t kQ3ReportInitialHalfPool = 384U;
 inline constexpr std::uint32_t kQ3ReportMaximumHalfPool = 1'024U;
 inline constexpr std::uint64_t kQ3ReportAttemptLimit = 2'000'000ULL;
+
+// Legacy single-prime crossover schedule.  These are declared benchmark
+// inputs and sampling rules; exceeding their transform gate is reported by
+// the existing NotApplicable path.
+inline constexpr std::uint8_t kCrossoverR2 = 6U;
+inline constexpr std::uint32_t kCrossoverShapeN = 36U;
+inline constexpr std::array<std::uint32_t, 8> kCrossoverListSizeLadder{
+    64U, 128U, 256U, 512U, 1'024U, 2'048U, 4'096U, 8'192U};
+inline constexpr std::array<long double, 4> kCrossoverLambdaTargets{
+    0.25L, 1.0L, 4.0L, 16.0L};
+inline constexpr std::array<std::uint64_t, 7> kCrossoverSeeds{
+    0x1001ULL, 0x2003ULL, 0x3007ULL, 0x4009ULL, 0x500BULL, 0x600DULL,
+    0x700FULL};
+inline constexpr std::uint32_t kCrossoverTimedRepetitions = 7U;
+inline constexpr std::uint32_t kCrossoverMaximumQuotientExponent = 40U;
 inline constexpr std::uint32_t kCrossoverInitialHalfPool = 256U;
 inline constexpr std::uint32_t kCrossoverMaximumHalfPool = 3'072U;
 inline constexpr std::uint64_t kCrossoverAttemptLimit = 8'000'000ULL;
+
+// Paper-rounded packed-baseline benchmark profile.  This profile is a
+// workload definition, not a claim that these are universal TER parameters.
+inline constexpr std::uint8_t kBaselineB2 = 8U;
+inline constexpr std::uint8_t kBaselineB1 = 18U;
+inline constexpr std::uint32_t kBaselineMinimumHalfPool = 256U;
+inline constexpr std::uint32_t kBaselineHalfPoolMultiplier = 2U;
+inline constexpr std::array<std::uint32_t, 3> kBaselineFullListSizes{
+    128U, 256U, 512U};
+inline constexpr std::array<std::uint32_t, 2> kBaselineQuickListSizes{64U, 128U};
+inline constexpr std::uint32_t kBaselineFullSeedCount = 10U;
+inline constexpr std::uint32_t kBaselineQuickSeedCount = 3U;
+inline constexpr std::uint32_t kBaselineFullTimedRepetitions = 3U;
+inline constexpr std::uint32_t kBaselineQuickTimedRepetitions = 2U;
+inline constexpr std::uint64_t kBaselineSeedBase = 0x5445520000000000ULL;
+inline constexpr std::uint64_t kBaselineSeedSizeMultiplier = 100U;
+
+// Paper comparator anchors and declared input ladder.  The values are fixed
+// experiment provenance, while the schedule below controls repetitions.
+inline constexpr std::uint64_t kPaperAnchorSeed = 0x51335245504f5254ULL;
+inline constexpr std::uint64_t kPaperAnchorInstanceSeed = 0x5143415054555245ULL;
+inline constexpr std::array<std::uint64_t, 10> kPaperListSizeLadder{
+    64U, 128U, 256U, 512U, 1'024U, 2'048U, 4'096U, 8'192U, 16'384U, 32'768U};
+inline constexpr std::array<std::uint64_t, 5> kPaperSeeds{
+    0x1001U, 0x2003U, 0x3007U, 0x4009U, 0x500BU};
+inline constexpr std::uint32_t kPaperSingleSeedWarmupRepetitions = 1U;
 inline constexpr std::uint64_t kPaperSmallListMaximum = 4'096U;
 inline constexpr std::uint64_t kPaperMediumListSize = 8'192U;
 inline constexpr std::uint64_t kPaperExtendedListSize = 16'384U;
@@ -579,6 +641,10 @@ namespace paper_crossover {
 
 // Paper-scaling comparator defaults. These are declared experiment resource
 // budgets, not TER-theorem bounds. Zero remains invalid as in the existing API.
+inline constexpr std::uint64_t kMinimumRequestedListSize =
+    control_panel::paper_crossover::kMinimumRequestedListSize;
+inline constexpr std::uint32_t kMinimumHalfPoolSize =
+    control_panel::paper_crossover::kMinimumHalfPoolSize;
 inline constexpr std::uint64_t kDefaultRequestedListSize =
     control_panel::paper_crossover::kDefaultRequestedListSize;
 inline constexpr std::uint64_t kDefaultSeed = control_panel::paper_crossover::kDefaultSeed;
@@ -605,6 +671,22 @@ inline constexpr std::uint64_t kPoolSamplingAttemptMultiplier =
 inline constexpr std::uint64_t kPoolSamplingAttemptSlack =
     control_panel::paper_crossover::kPoolSamplingAttemptSlack;
 
+[[nodiscard]] constexpr bool snapshot_configuration_supported(
+    const std::uint64_t requested_list_size,
+    const std::uint32_t initial_half_pool,
+    const std::uint32_t maximum_half_pool,
+    const std::uint64_t memory_limit_bytes) noexcept {
+  return requested_list_size >= kMinimumRequestedListSize &&
+         initial_half_pool >= kMinimumHalfPoolSize && maximum_half_pool >= initial_half_pool &&
+         memory_limit_bytes != 0U;
+}
+
+[[nodiscard]] constexpr bool run_configuration_supported(
+    const std::uint64_t memory_limit_bytes,
+    const std::uint32_t timed_repetitions) noexcept {
+  return memory_limit_bytes != 0U && timed_repetitions != 0U;
+}
+
 }  // namespace paper_crossover
 
 namespace benchmark {
@@ -614,9 +696,34 @@ namespace benchmark {
 // observable. There is no global wall-clock timeout policy.
 inline constexpr std::uint64_t kFullTerMemoryBytes =
     control_panel::benchmark::kFullTerMemoryBytes;
+inline constexpr std::uint32_t kFullTerFixtureN = control_panel::benchmark::kFullTerFixtureN;
+inline constexpr std::uint8_t kFullTerFixtureModulusBits =
+    control_panel::benchmark::kFullTerFixtureModulusBits;
+inline constexpr std::uint64_t kFullTerFixtureSeed =
+    control_panel::benchmark::kFullTerFixtureSeed;
+inline constexpr std::uint32_t kFullTerTimedRepetitions =
+    control_panel::benchmark::kFullTerTimedRepetitions;
 
 // Fixed resource settings for the two legacy count-only benchmark fixtures.
 // They are benchmark sampling limits, not solver defaults.
+inline constexpr std::uint64_t kQ3ReportFixtureSeed =
+    control_panel::benchmark::kQ3ReportFixtureSeed;
+inline constexpr std::uint64_t kQ3ReportFixtureInstanceSeed =
+    control_panel::benchmark::kQ3ReportFixtureInstanceSeed;
+inline constexpr std::uint32_t kQ3ReportFixtureN =
+    control_panel::benchmark::kQ3ReportFixtureN;
+inline constexpr std::uint8_t kQ3ReportFixtureModulusBits =
+    control_panel::benchmark::kQ3ReportFixtureModulusBits;
+inline constexpr std::uint8_t kQ3ReportGeneratedB2 =
+    control_panel::benchmark::kQ3ReportGeneratedB2;
+inline constexpr std::uint8_t kQ3ReportGeneratedB1 =
+    control_panel::benchmark::kQ3ReportGeneratedB1;
+inline constexpr std::uint32_t kQ3ReportGeneratedListSize =
+    control_panel::benchmark::kQ3ReportGeneratedListSize;
+inline constexpr std::uint8_t kQ3ReportFixedProjectionR1 =
+    control_panel::benchmark::kQ3ReportFixedProjectionR1;
+inline constexpr std::uint32_t kQ3ReportTimedRepetitions =
+    control_panel::benchmark::kQ3ReportTimedRepetitions;
 inline constexpr std::uint32_t kQ3ReportBenchmarkInitialHalfPool =
     control_panel::benchmark::kQ3ReportInitialHalfPool;
 inline constexpr std::uint32_t kQ3ReportBenchmarkMaximumHalfPool =
@@ -629,6 +736,50 @@ inline constexpr std::uint32_t kCrossoverBenchmarkMaximumHalfPool =
     control_panel::benchmark::kCrossoverMaximumHalfPool;
 inline constexpr std::uint64_t kCrossoverBenchmarkAttemptLimit =
     control_panel::benchmark::kCrossoverAttemptLimit;
+inline constexpr std::uint8_t kCrossoverR2 = control_panel::benchmark::kCrossoverR2;
+inline constexpr std::uint32_t kCrossoverShapeN =
+    control_panel::benchmark::kCrossoverShapeN;
+inline constexpr const auto& kCrossoverListSizeLadder =
+    control_panel::benchmark::kCrossoverListSizeLadder;
+inline constexpr const auto& kCrossoverLambdaTargets =
+    control_panel::benchmark::kCrossoverLambdaTargets;
+inline constexpr const auto& kCrossoverSeeds = control_panel::benchmark::kCrossoverSeeds;
+inline constexpr std::uint32_t kCrossoverTimedRepetitions =
+    control_panel::benchmark::kCrossoverTimedRepetitions;
+inline constexpr std::uint32_t kCrossoverMaximumQuotientExponent =
+    control_panel::benchmark::kCrossoverMaximumQuotientExponent;
+
+inline constexpr std::uint8_t kBaselineB2 = control_panel::benchmark::kBaselineB2;
+inline constexpr std::uint8_t kBaselineB1 = control_panel::benchmark::kBaselineB1;
+inline constexpr std::uint32_t kBaselineMinimumHalfPool =
+    control_panel::benchmark::kBaselineMinimumHalfPool;
+inline constexpr std::uint32_t kBaselineHalfPoolMultiplier =
+    control_panel::benchmark::kBaselineHalfPoolMultiplier;
+inline constexpr const auto& kBaselineFullListSizes =
+    control_panel::benchmark::kBaselineFullListSizes;
+inline constexpr const auto& kBaselineQuickListSizes =
+    control_panel::benchmark::kBaselineQuickListSizes;
+inline constexpr std::uint32_t kBaselineFullSeedCount =
+    control_panel::benchmark::kBaselineFullSeedCount;
+inline constexpr std::uint32_t kBaselineQuickSeedCount =
+    control_panel::benchmark::kBaselineQuickSeedCount;
+inline constexpr std::uint32_t kBaselineFullTimedRepetitions =
+    control_panel::benchmark::kBaselineFullTimedRepetitions;
+inline constexpr std::uint32_t kBaselineQuickTimedRepetitions =
+    control_panel::benchmark::kBaselineQuickTimedRepetitions;
+inline constexpr std::uint64_t kBaselineSeedBase =
+    control_panel::benchmark::kBaselineSeedBase;
+inline constexpr std::uint64_t kBaselineSeedSizeMultiplier =
+    control_panel::benchmark::kBaselineSeedSizeMultiplier;
+
+inline constexpr std::uint64_t kPaperAnchorSeed = control_panel::benchmark::kPaperAnchorSeed;
+inline constexpr std::uint64_t kPaperAnchorInstanceSeed =
+    control_panel::benchmark::kPaperAnchorInstanceSeed;
+inline constexpr const auto& kPaperListSizeLadder =
+    control_panel::benchmark::kPaperListSizeLadder;
+inline constexpr const auto& kPaperSeeds = control_panel::benchmark::kPaperSeeds;
+inline constexpr std::uint32_t kPaperSingleSeedWarmupRepetitions =
+    control_panel::benchmark::kPaperSingleSeedWarmupRepetitions;
 
 // The paper crossover's declared sampling schedule. The non-executable final
 // point is reported because its required transform exceeds the verified 2^27

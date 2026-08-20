@@ -32,21 +32,6 @@
 namespace {
 
 constexpr std::uint64_t kMemoryLimit = ter::limits::crossover::kDefaultMemoryBytes;
-constexpr std::uint8_t kR2 = 6U;             // fixed child-target width for every point
-constexpr std::uint32_t kShapeN = 36U;
-
-// Required nominal list-size ladder (TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md
-// extension). Attempted in order; a point that cannot be generated or safely
-// transformed is reported explicitly and skipped, never silently dropped.
-constexpr std::array<std::uint32_t, 8> kListSizeLadder = {
-    64U, 128U, 256U, 512U, 1024U, 2048U, 4096U, 8192U};
-
-constexpr std::array<long double, 4> kLambdaTargets = {0.25L, 1.0L, 4.0L, 16.0L};
-
-constexpr std::array<std::uint64_t, 7> kSeeds = {
-    0x1001ULL, 0x2003ULL, 0x3007ULL, 0x4009ULL, 0x500BULL, 0x600DULL, 0x700FULL};
-
-constexpr std::uint32_t kTimingRepetitions = 7U;
 
 [[nodiscard]] std::uint64_t median(std::vector<std::uint64_t> values) {
   std::sort(values.begin(), values.end());
@@ -73,7 +58,9 @@ struct QChoice {
     return choice;
   }
   auto exponent = static_cast<int>(std::llround(std::log2(static_cast<double>(ideal_q))));
-  exponent = std::clamp(exponent, 1, 40);
+  exponent = std::clamp(
+      exponent, 1,
+      static_cast<int>(ter::limits::benchmark::kCrossoverMaximumQuotientExponent));
   const std::uint64_t q = std::uint64_t{1} << exponent;
 
   if (!ter::limits::ntt::q3report_length_supported(q)) {
@@ -81,10 +68,12 @@ struct QChoice {
                           " exceeds the supported single-prime transform length 2^23";
     return choice;
   }
-  const auto r1 = static_cast<std::uint32_t>(kR2) + static_cast<std::uint32_t>(exponent);
-  if (r1 >= kShapeN) {
+  const auto r1 = static_cast<std::uint32_t>(ter::limits::benchmark::kCrossoverR2) +
+                  static_cast<std::uint32_t>(exponent);
+  if (r1 >= ter::limits::benchmark::kCrossoverShapeN) {
     choice.skip_reason =
-        "r1=r2+log2(Q)=" + std::to_string(r1) + " would not stay below n=" + std::to_string(kShapeN);
+        "r1=r2+log2(Q)=" + std::to_string(r1) + " would not stay below n=" +
+        std::to_string(ter::limits::benchmark::kCrossoverShapeN);
     return choice;
   }
   choice.feasible = true;
@@ -121,11 +110,11 @@ void print_skip(const std::uint32_t list_size, const long double lambda, const s
     }
   }
 
-  for (const auto seed : kSeeds) {
+  for (const auto seed : ter::limits::benchmark::kCrossoverSeeds) {
     ter::CrossoverSnapshotConfig config;
-    config.n = kShapeN;
+    config.n = ter::limits::benchmark::kCrossoverShapeN;
     config.list_size = list_size;
-    config.r2 = kR2;
+    config.r2 = ter::limits::benchmark::kCrossoverR2;
     config.r1 = choice.r1;
     config.seed = seed;
     config.half_pool_size = ter::limits::benchmark::kCrossoverBenchmarkInitialHalfPool;
@@ -148,18 +137,20 @@ void print_skip(const std::uint32_t list_size, const long double lambda, const s
     std::vector<std::uint64_t> direct_setup, direct_count, direct_lookup;
     std::vector<std::uint64_t> ntt_frequency, ntt_transform, ntt_reconstruction, ntt_lookup;
     std::vector<std::uint64_t> plan_build_ns;
-    direct_setup.reserve(kTimingRepetitions);
-    direct_count.reserve(kTimingRepetitions);
-    direct_lookup.reserve(kTimingRepetitions);
-    ntt_frequency.reserve(kTimingRepetitions);
-    ntt_transform.reserve(kTimingRepetitions);
-    ntt_reconstruction.reserve(kTimingRepetitions);
-    ntt_lookup.reserve(kTimingRepetitions);
-    plan_build_ns.reserve(kTimingRepetitions);
+    direct_setup.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    direct_count.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    direct_lookup.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    ntt_frequency.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    ntt_transform.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    ntt_reconstruction.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    ntt_lookup.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
+    plan_build_ns.reserve(ter::limits::benchmark::kCrossoverTimedRepetitions);
 
     ter::CrossoverRunResult last;
     bool failed = false;
-    for (std::uint32_t repetition = 0; repetition < kTimingRepetitions; ++repetition) {
+    for (std::uint32_t repetition = 0;
+         repetition < ter::limits::benchmark::kCrossoverTimedRepetitions;
+         ++repetition) {
       // Amortized series: reuse the Q-specific plan built once above.
       const auto amortized = ter::run_crossover_point(snapshot.value, &shared_plan, kMemoryLimit);
       if (amortized.status != ter::CrossoverStatus::Completed) {
@@ -230,7 +221,8 @@ void print_skip(const std::uint32_t list_size, const long double lambda, const s
                   static_cast<long double>(report.c_weighted_selected.population);
 
     csv << std::fixed << std::setprecision(6) << "TER_SCALING_EMULATION," << seed << ','
-        << snapshot.value.fingerprint << ',' << kShapeN << ',' << report.a_size << ','
+        << snapshot.value.fingerprint << ',' << ter::limits::benchmark::kCrossoverShapeN << ','
+        << report.a_size << ','
         << report.b_size << ',' << report.c_size << ',' << static_cast<unsigned>(report.r2)
         << ',' << static_cast<unsigned>(report.r1) << ',' << report.q << ',' << report.lambda
         << ',' << support_fraction << ',' << report.predicted_support_fraction << ','
@@ -242,7 +234,9 @@ void print_skip(const std::uint32_t list_size, const long double lambda, const s
         << median(ntt_reconstruction) << ',' << median(ntt_lookup) << ',' << ntt_cold_total << ','
         << ntt_amortized_total << ',' << ratio_cold << ',' << ratio_amortized << ','
         << report.memory.direct_bytes << ',' << report.memory.ntt_plan_bytes << ','
-        << report.memory.ntt_per_run_bytes << ',' << kSeeds.size() << ',' << kTimingRepetitions
+        << report.memory.ntt_per_run_bytes << ','
+        << ter::limits::benchmark::kCrossoverSeeds.size() << ','
+        << ter::limits::benchmark::kCrossoverTimedRepetitions
         << ',' << (report.exactness_passed ? 1 : 0) << ",Completed\n";
   }
 
@@ -293,8 +287,8 @@ int main() {
                "exactness_passed,status\n";
 
   std::vector<std::tuple<std::uint32_t, long double, PointOutcome>> summary;
-  for (const auto list_size : kListSizeLadder) {
-    for (const auto lambda : kLambdaTargets) {
+  for (const auto list_size : ter::limits::benchmark::kCrossoverListSizeLadder) {
+    for (const auto lambda : ter::limits::benchmark::kCrossoverLambdaTargets) {
       const auto choice = choose_q(list_size, lambda);
       if (!choice.feasible) {
         print_skip(list_size, lambda, choice.skip_reason);
