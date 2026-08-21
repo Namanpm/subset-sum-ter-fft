@@ -49,6 +49,10 @@ inline constexpr std::uint32_t kFiniteDimensionDivisor = 36U;  // finite shape
 inline constexpr std::uint32_t kDefaultAttemptLimit = 1U;
 inline constexpr std::uint64_t kDefaultMemoryBytes = 512ULL * kBytesPerMiB;
 inline constexpr std::uint64_t kDefaultFixtureLevel3Limit = 64ULL;
+// M2 root prefilter defaults. They are deterministic implementation defaults,
+// not measured optima; M3 is the only milestone allowed to tune them.
+inline constexpr std::uint32_t kDefaultRootPrefilterBits = 24U;
+inline constexpr std::uint32_t kDefaultRootPreferredTileBits = 15U;
 }  // namespace full_ter
 
 namespace generator {
@@ -346,6 +350,10 @@ inline constexpr std::uint64_t kDefaultMemoryBytes = control_panel::full_ter::kD
 // classical Full TER mathematics. A fixture expansion past it is ResourceLimit.
 inline constexpr std::uint64_t kDefaultFixtureLevel3Limit =
     control_panel::full_ter::kDefaultFixtureLevel3Limit;
+inline constexpr std::uint32_t kDefaultRootPrefilterBits =
+    control_panel::full_ter::kDefaultRootPrefilterBits;
+inline constexpr std::uint32_t kDefaultRootPreferredTileBits =
+    control_panel::full_ter::kDefaultRootPreferredTileBits;
 
 [[nodiscard]] constexpr bool finite_dimension_supported(const std::uint32_t n) noexcept {
   return n != 0U && n % kFiniteDimensionDivisor == 0U;
@@ -364,6 +372,29 @@ inline constexpr std::uint64_t kDefaultFixtureLevel3Limit =
     const std::uint32_t n,
     const std::uint64_t words_per_value) noexcept {
   return n != 0U && words_per_value == (static_cast<std::uint64_t>(n) + 63U) / 64U;
+}
+
+// M2 keeps the full root quotient in uint64_t and projects only its low w
+// bits into the existing 32-bit tiled reporter. A wider root quotient retains
+// the legacy exact merge; it is not a solver failure.
+[[nodiscard]] constexpr bool native_root_quotient_supported(const std::uint32_t n,
+                                                            const std::uint32_t r1) noexcept {
+  return r1 != 0U && r1 < n && n - r1 <= arithmetic::kMachineWordBits;
+}
+
+[[nodiscard]] constexpr bool root_prefilter_configuration_supported(
+    const std::uint32_t configured_prefilter_bits,
+    const std::uint32_t configured_tile_bits,
+    const std::uint32_t quotient_bits) noexcept {
+  if (configured_prefilter_bits == 0U || configured_tile_bits == 0U || quotient_bits == 0U) {
+    return false;
+  }
+  const std::uint32_t effective_prefilter =
+      configured_prefilter_bits < quotient_bits ? configured_prefilter_bits : quotient_bits;
+  const std::uint32_t reporter_cap = arithmetic::kMaximumQuotientBits;
+  const std::uint32_t supported_prefilter =
+      effective_prefilter < reporter_cap ? effective_prefilter : reporter_cap;
+  return supported_prefilter != 0U && configured_tile_bits <= supported_prefilter;
 }
 
 // The complete L3 cardinality is derived locally from TER's exact shape. This

@@ -413,6 +413,30 @@ void visitor_decisions_stop_the_scan() {
   require(cancellation.visited == 1U, "cancellation stops after the requesting visitor call");
 }
 
+// The reporter is deliberately a low-bit locator. This controlled 47-bit
+// example is a root-prefilter false positive: it must be reported modulo 2^3
+// and then rejected by FullTer's complete quotient check.
+void low_bit_prefilter_can_report_a_full_quotient_false_positive() {
+  constexpr std::uint64_t kFullBits = 47U;
+  constexpr std::uint64_t kFullMask = (std::uint64_t{1} << kFullBits) - 1U;
+  constexpr std::uint64_t kLowQ = 8U;
+  constexpr std::uint64_t kTau = 0U;
+  const std::uint64_t full_a = 8U;
+  const std::uint64_t full_b = 0U;
+  const std::uint64_t full_c = 0U;
+  const auto a = make_list({static_cast<std::uint32_t>(full_a & (kLowQ - 1U))});
+  const auto b = make_list({static_cast<std::uint32_t>(full_b & (kLowQ - 1U))});
+  const auto c = make_list({static_cast<std::uint32_t>(full_c & (kLowQ - 1U))});
+  Collector collector;
+  const auto reported =
+      ter::tiled_q3report_report(a, b, c, kTau, kLowQ, config_with(3U), collect, &collector);
+  require(reported.status == ter::TiledQ3ReportStatus::Completed &&
+              collector.triples.size() == 1U,
+          "the low-bit tiled prefilter reports its arithmetic candidate");
+  require(((full_a + full_b + full_c) & kFullMask) != kTau,
+          "the same candidate fails the independent full 47-bit equation");
+}
+
 }  // namespace
 
 int main() {
@@ -423,6 +447,7 @@ int main() {
   random_fixtures_agree_with_the_cubic_reference();
   empty_windows_are_skipped_exactly();
   visitor_decisions_stop_the_scan();
+  low_bit_prefilter_can_report_a_full_quotient_false_positive();
   std::cout << "tiled q3report tests passed (" << g_checks << " assertions)\n";
   return 0;
 }

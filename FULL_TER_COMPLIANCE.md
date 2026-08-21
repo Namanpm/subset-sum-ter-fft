@@ -14,7 +14,7 @@ Information 16(10), 887 (2025), DOI `10.3390/info16100887`.
 | Packed ternary representation | disjoint positive/negative word masks in optimized full-TER entries | optimized packed stages vs independent scalar stage oracles |
 | 18 to 9 binary MITM | `binary_mitm` | nested-loop `binary_oracle` in audit mode |
 | 9 to 3 ternary merge and distribution filter | `ternary_mitm` | cubic `ternary_oracle` in audit mode |
-| 3 to 1 full-target root merge | `ternary_mitm` with `D^n[0,1/2]` | root scalar oracle and guided end-to-end test |
+| 3 to 1 full-target root merge | M2 `ternary_tiled_l1_to_l0` when `n-r1 <= 64`, otherwise exact `ternary_mitm` fallback | root scalar oracle, n=72 47-bit quotient fixture, and guided end-to-end test |
 | Parent deduplication and provenance multiplicity | packed canonicalization plus audit-only child-ID records | exact optimized-vs-scalar provenance comparison at all three stages |
 | Independent exact root verification | `verify_full_ter_witness` | valid, non-binary, wrong-weight and target tests |
 | Deterministic retries; no false UNSAT | `solve_full_ter` | random replay and attempt-limit tests |
@@ -27,6 +27,25 @@ The implementation supports exact arithmetic modulo powers of two, including
 multiword residues. It does not claim arbitrary-modulus support. `FixtureTer`
 may retain a guided representation in reduced authentic lists; it is a pipeline
 fixture, not a full performance result.
+
+## M2 root merge
+
+For a supported root, M2 derives the complete quotient
+`((residue - child_target) mod 2^n) >> r1` from the multiword residue, keeps it
+in `uint64_t`, and sends only its low `w` bits to the cache-tiled reporter. A
+low-bit match is merely a prefilter candidate: the full `n-r1` bit equation is
+checked before packed ternary validation and parent construction. This keeps
+the solution set exact and avoids an `|A|*|B|` root pair-record array.
+
+The deterministic defaults (`w=24`, preferred tile width `15`) are M2 policy,
+not optimality claims. M2 does not change TER's asymptotic exponent; M3, if
+authorized later, is the only place for parameter tuning.
+
+`FullTerConfig::root_capture` is a deliberately narrow replay seam: it copies
+the genuine L1 lists immediately before the root stage, retaining every residue
+as little-endian 32-bit words. Its copied storage is charged against the same
+declared memory ceiling, and its explicit execution mode prevents FixtureTer
+data from being labelled FullTer.
 
 Out of scope and absent from the implementation: NTT, FFT, sparse convolution,
 Schroeppel-Shamir integration, GPU execution, parallelism, quantum TER, and

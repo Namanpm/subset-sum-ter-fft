@@ -58,6 +58,21 @@ struct FullTerParameterResult {
   std::string message;
 };
 
+// Narrow M2 replay seam. When supplied through FullTerConfig, this receives
+// the genuine three L1 lists immediately before the root merge. Residues stay
+// in little-endian 32-bit words, so n>64 information is never truncated.
+struct FullTerRootCapture {
+  Status status = Status::InvalidConfiguration;
+  FullTerParameters parameters{};
+  std::uint64_t seed = 0;
+  TerExecutionMode execution_mode = TerExecutionMode::FixtureTer;
+  std::array<std::vector<ReferenceTernaryVector>, 3> children;
+  std::array<std::vector<std::vector<std::uint32_t>>, 3> residues_words_le;
+  std::array<std::vector<std::uint32_t>, 3> child_targets_words_le;
+  std::vector<std::uint32_t> root_target_words_le;
+  std::string message;
+};
+
 struct FullTerConfig {
   ShapeFamily family = ShapeFamily::FiniteSanity;
   TerExecutionMode execution_mode = TerExecutionMode::FixtureTer;
@@ -66,14 +81,25 @@ struct FullTerConfig {
   std::uint32_t attempt_limit = limits::full_ter::kDefaultAttemptLimit;
   std::uint64_t memory_limit_bytes = limits::full_ter::kDefaultMemoryBytes;
   std::uint64_t fixture_level3_limit = limits::full_ter::kDefaultFixtureLevel3Limit;
+  // M2 fixed root prefilter policy. The effective width is clamped to the
+  // root quotient width and the tiled reporter's 32-bit universe.
+  std::uint32_t root_prefilter_bits = limits::full_ter::kDefaultRootPrefilterBits;
+  std::uint32_t root_preferred_tile_bits =
+      limits::full_ter::kDefaultRootPreferredTileBits;
+  FullTerRootCapture* root_capture = nullptr;
   bool audit = true;
   const std::atomic_bool* cancellation = nullptr;
 };
 
 struct FullTerStageTelemetry {
   std::uint64_t pair_candidates = 0;
-  // Materialized pair records.  The tiled L2-to-L1 path keeps this at zero.
+  // Materialized pair records. Every tiled merge path keeps this at zero.
   std::uint64_t pair_records = 0;
+  std::uint32_t quotient_bits = 0;
+  std::uint32_t prefilter_bits = 0;
+  std::uint64_t low_prefilter_candidates = 0;
+  std::uint64_t full_quotient_rejects = 0;
+  bool full_quotient_uses_bits_above_63 = false;
   std::uint64_t modular_candidates = 0;
   std::uint64_t structural_rejects = 0;
   std::uint64_t distribution_rejects = 0;

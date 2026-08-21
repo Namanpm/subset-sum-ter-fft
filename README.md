@@ -26,6 +26,17 @@ Run the complete tiny-parameter end-to-end benchmark:
 .\build-full\Release\ter_full_bench.exe
 ```
 
+The same bounded full-TER benchmark can exercise the M2 root path at `n=72`
+(the genuine root quotient is 47 bits) without changing source:
+
+```powershell
+.\build-full\Release\ter_full_bench.exe --n=72
+```
+
+Its appended `l1_to_l0_*` CSV fields distinguish low-bit prefilter candidates
+from full-quotient matches. A prefilter match is never accepted without the
+full 47-bit check.
+
 For explicitly synthetic adversarial L2-to-L1 merge fixtures, use the separate
 stress benchmark. Its rows are never paper-faithful FullTer evidence:
 

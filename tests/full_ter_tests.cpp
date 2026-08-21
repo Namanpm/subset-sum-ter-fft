@@ -242,6 +242,8 @@ void test_guided_pipeline_and_replay() {
   config.attempt_limit = 1U;
   config.fixture_level3_limit = 18U;
   config.memory_limit_bytes = 64U * 1024U * 1024U;
+  ter::FullTerRootCapture first_capture;
+  config.root_capture = &first_capture;
   const auto first = ter::solve_full_ter(instance, config);
   require(first.status == ter::Status::Found,
           "guided 18-to-9-to-3-to-1 pipeline must find its planted root");
@@ -270,6 +272,14 @@ void test_guided_pipeline_and_replay() {
           "finite-sanity native L2-to-L1 must select the exact tiled reporter");
   require(first.telemetry.attempts[0].level2_to_level1.pair_records == 0U,
           "the tiled L2-to-L1 path must not materialize native pair records");
+  require(first.telemetry.attempts[0].level1_to_level0.tiled_used &&
+              first.telemetry.attempts[0].level1_to_level0.pair_records == 0U &&
+              first.telemetry.attempts[0].level1_to_level0.quotient_bits == 24U &&
+              first.telemetry.attempts[0].level1_to_level0.prefilter_bits == 24U &&
+              first.telemetry.attempts[0].level1_to_level0.low_prefilter_candidates ==
+                  first.telemetry.attempts[0].level1_to_level0.modular_candidates +
+                      first.telemetry.attempts[0].level1_to_level0.full_quotient_rejects,
+          "M2 tiled root must expose exact quotient accounting without pair records");
   require(first.telemetry.terminal_status == ter::Status::Found &&
               first.telemetry.witness_found &&
               first.telemetry.total_solver_ns > 0U &&
@@ -278,14 +288,34 @@ void test_guided_pipeline_and_replay() {
   require(ter::verify_full_ter_witness(instance, first.witness).status ==
               ter::Status::Completed,
           "independent root witness verification must pass");
+  require(first_capture.status == ter::Status::Completed &&
+              first_capture.seed == config.seed && first_capture.parameters.n == 36U &&
+              first_capture.execution_mode == ter::TerExecutionMode::FullTer &&
+              first_capture.children[0].size() == first.telemetry.attempts[0].level1_sizes[0] &&
+              first_capture.children[1].size() == first.telemetry.attempts[0].level1_sizes[1] &&
+              first_capture.children[2].size() == first.telemetry.attempts[0].level1_sizes[2] &&
+              first_capture.residues_words_le[0].size() == first_capture.children[0].size() &&
+              !first_capture.root_target_words_le.empty(),
+          "M2 root capture must retain the genuine pre-root lists and full residues");
   require(independent_weight_half_solution_exists(instance),
           "independent binary MITM oracle must confirm the end-to-end instance is SAT");
 
+  ter::FullTerRootCapture second_capture;
+  config.root_capture = &second_capture;
   const auto second = ter::solve_full_ter(instance, config);
   require(second.status == first.status && second.witness == first.witness &&
               second.telemetry.fingerprint == first.telemetry.fingerprint,
           "fixed-seed guided execution must replay exactly");
+  require(second_capture.status == first_capture.status &&
+              second_capture.seed == first_capture.seed &&
+              second_capture.execution_mode == first_capture.execution_mode &&
+              second_capture.children == first_capture.children &&
+              second_capture.residues_words_le == first_capture.residues_words_le &&
+              second_capture.child_targets_words_le == first_capture.child_targets_words_le &&
+              second_capture.root_target_words_le == first_capture.root_target_words_le,
+          "fixed seed/configuration must replay the exact captured root workload");
 
+  config.root_capture = nullptr;
   config.execution_mode = ter::TerExecutionMode::FixtureTer;
   config.fixture_level3_limit = 9U;
   const auto reduced = ter::solve_full_ter(instance, config);
@@ -379,6 +409,38 @@ void test_paper_rounded_multiword_fixture() {
           "multiword paper-rounded fixture must replay exactly");
 }
 
+void test_m2_root_uses_complete_47_bit_quotients() {
+  const auto instance = balanced_instance(72U, 0x4d32524f4f543732ULL);
+  ter::FullTerConfig config;
+  config.family = ter::ShapeFamily::FiniteSanity;
+  config.execution_mode = ter::TerExecutionMode::FixtureTer;
+  config.target_mode = ter::TerTargetMode::GuidedPlanted;
+  config.seed = 0x373242495453ULL;
+  config.attempt_limit = 1U;
+  config.fixture_level3_limit = 9U;
+  config.memory_limit_bytes = 128ULL * 1024ULL * 1024ULL;
+  // Deliberately tiny only for this test: exercise a low-w prefilter while
+  // retaining the genuine 47-bit root quotient check.
+  config.root_prefilter_bits = 3U;
+  config.root_preferred_tile_bits = 3U;
+  const auto result = ter::solve_full_ter(instance, config);
+  require(result.status == ter::Status::Found && !result.telemetry.attempts.empty(),
+          "bounded n=72 guided fixture must reach the exact M2 root path");
+  if (result.status != ter::Status::Found || result.telemetry.attempts.empty()) {
+    return;
+  }
+  const auto& root = result.telemetry.attempts[0].level1_to_level0;
+  require(root.tiled_used && root.pair_records == 0U && root.quotient_bits == 47U &&
+              root.prefilter_bits == 3U && root.low_prefilter_candidates > 0U &&
+              root.full_quotient_uses_bits_above_63 &&
+              root.low_prefilter_candidates ==
+                  root.full_quotient_rejects + root.modular_candidates,
+          "M2 root must read n=72 quotient bits above bit 63 and account exactly");
+  require(ter::verify_full_ter_witness(instance, result.witness).status ==
+              ter::Status::Completed,
+          "the n=72 tiled-root witness must pass independent full-modulus validation");
+}
+
 void test_failure_semantics() {
   const auto instance = balanced_instance(36U, 17U);
   ter::FullTerConfig config;
@@ -442,6 +504,17 @@ void test_failure_semantics() {
   const auto invalid_mode = ter::solve_full_ter(instance, config);
   require(invalid_mode.status == ter::Status::InvalidConfiguration,
           "invalid public execution-mode enum values must fail closed");
+
+  config.execution_mode = ter::TerExecutionMode::FixtureTer;
+  config.root_prefilter_bits = 0U;
+  const auto invalid_root_prefilter = ter::solve_full_ter(instance, config);
+  require(invalid_root_prefilter.status == ter::Status::InvalidConfiguration,
+          "zero M2 root prefilter width must fail closed");
+  config.root_prefilter_bits = 24U;
+  config.root_preferred_tile_bits = 0U;
+  const auto invalid_root_tile = ter::solve_full_ter(instance, config);
+  require(invalid_root_tile.status == ter::Status::InvalidConfiguration,
+          "zero M2 root tile width must fail closed");
 }
 
 }  // namespace
@@ -452,6 +525,7 @@ int main() {
   test_guided_pipeline_and_replay();
   test_authentic_l2_capture_tiled_merge_matches_exact_authorities();
   test_paper_rounded_multiword_fixture();
+  test_m2_root_uses_complete_47_bit_quotients();
   test_failure_semantics();
   std::cout << "full TER tests passed\n";
   return 0;

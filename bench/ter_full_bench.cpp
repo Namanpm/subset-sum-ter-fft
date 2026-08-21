@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -23,8 +25,8 @@ void add_value(ter::Instance& instance, std::uint32_t index) {
   }
 }
 
-ter::Instance benchmark_instance(std::uint64_t seed) {
-  auto built = ter::build_instance(ter::limits::benchmark::kFullTerFixtureN,
+ter::Instance benchmark_instance(std::uint32_t n, std::uint64_t seed) {
+  auto built = ter::build_instance(n,
                                    ter::limits::benchmark::kFullTerFixtureModulusBits,
                                    seed);
   if (built.status != ter::Status::Completed) {
@@ -59,9 +61,29 @@ std::uint64_t median(std::vector<std::uint64_t> values) {
 
 }  // namespace
 
-int main() {
+int main(const int argc, char** const argv) {
+  std::uint32_t benchmark_n = ter::limits::benchmark::kFullTerFixtureN;
+  for (int argument = 1; argument < argc; ++argument) {
+    const std::string_view value(argv[argument]);
+    constexpr std::string_view kDimensionPrefix{"--n="};
+    if (!value.starts_with(kDimensionPrefix)) {
+      std::cerr << "usage: ter_full_bench [--n=<finite TER dimension>]\n";
+      return EXIT_FAILURE;
+    }
+    std::uint32_t parsed = 0U;
+    for (const char character : value.substr(kDimensionPrefix.size())) {
+      if (character < '0' || character > '9' ||
+          parsed > (std::numeric_limits<std::uint32_t>::max() -
+                    static_cast<std::uint32_t>(character - '0')) / 10U) {
+        std::cerr << "invalid --n value\n";
+        return EXIT_FAILURE;
+      }
+      parsed = parsed * 10U + static_cast<std::uint32_t>(character - '0');
+    }
+    benchmark_n = parsed;
+  }
   constexpr std::uint64_t seed = ter::limits::benchmark::kFullTerFixtureSeed;
-  const auto instance = benchmark_instance(seed);
+  const auto instance = benchmark_instance(benchmark_n, seed);
   if (instance.n == 0U) {
     std::cerr << "failed to build benchmark instance\n";
     return EXIT_FAILURE;
@@ -135,7 +157,13 @@ int main() {
                "l2_to_l1_tiled_used,l2_to_l1_pair_records,l2_to_l1_tile_bits,"
                "l2_to_l1_tiled_pair_probes,l2_to_l1_tiled_nonempty_windows,"
                "l2_to_l1_tiled_auxiliary_bytes,l2_to_l1_tiled_setup_ns,"
-               "l2_to_l1_tiled_scan_ns\n";
+               "l2_to_l1_tiled_scan_ns,"
+               "l1_to_l0_tiled_used,l1_to_l0_pair_records,l1_to_l0_quotient_bits,"
+               "l1_to_l0_prefilter_bits,l1_to_l0_low_prefilter_candidates,"
+               "l1_to_l0_full_quotient_rejects,l1_to_l0_tile_bits,"
+               "l1_to_l0_tiled_pair_probes,l1_to_l0_tiled_nonempty_windows,"
+               "l1_to_l0_tiled_auxiliary_bytes,l1_to_l0_tiled_setup_ns,"
+               "l1_to_l0_tiled_scan_ns\n";
   const auto& attempt = warmup.telemetry.attempts[0];
   std::cout << (warmup.status == ter::Status::Found ? "Found"
                                                     : "AttemptLimitReached")
@@ -191,6 +219,18 @@ int main() {
             << attempt.level2_to_level1.tiled_nonempty_windows << ','
             << attempt.level2_to_level1.tiled_auxiliary_bytes << ','
             << attempt.level2_to_level1.tiled_setup_ns << ','
-            << attempt.level2_to_level1.tiled_scan_ns << '\n';
+            << attempt.level2_to_level1.tiled_scan_ns << ','
+            << (attempt.level1_to_level0.tiled_used ? 1 : 0) << ','
+            << attempt.level1_to_level0.pair_records << ','
+            << attempt.level1_to_level0.quotient_bits << ','
+            << attempt.level1_to_level0.prefilter_bits << ','
+            << attempt.level1_to_level0.low_prefilter_candidates << ','
+            << attempt.level1_to_level0.full_quotient_rejects << ','
+            << attempt.level1_to_level0.tile_bits << ','
+            << attempt.level1_to_level0.tiled_pair_probes << ','
+            << attempt.level1_to_level0.tiled_nonempty_windows << ','
+            << attempt.level1_to_level0.tiled_auxiliary_bytes << ','
+            << attempt.level1_to_level0.tiled_setup_ns << ','
+            << attempt.level1_to_level0.tiled_scan_ns << '\n';
   return EXIT_SUCCESS;
 }

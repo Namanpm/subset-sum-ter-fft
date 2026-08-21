@@ -36,12 +36,24 @@ void test_full_ter_shape_policy() {
           "n-bit modulus width is valid");
   require(!ter::limits::full_ter::modulus_width_supported(36U, 37U),
           "modulus width above n is invalid");
+  require(ter::limits::full_ter::native_root_quotient_supported(72U, 25U) &&
+              !ter::limits::full_ter::native_root_quotient_supported(130U, 65U),
+          "M2 root quotient gate accepts 47 bits and rejects widths beyond uint64");
+  require(ter::limits::full_ter::root_prefilter_configuration_supported(24U, 15U, 47U) &&
+              ter::limits::full_ter::root_prefilter_configuration_supported(64U, 15U, 47U) &&
+              !ter::limits::full_ter::root_prefilter_configuration_supported(0U, 15U, 47U) &&
+              !ter::limits::full_ter::root_prefilter_configuration_supported(24U, 25U, 47U),
+          "M2 root policy clamps oversized widths and rejects invalid tile settings");
 }
 
 void test_control_panel_wiring() {
   namespace panel = ter::limits::control_panel;
   require(ter::limits::kMiB == panel::kBytesPerMiB &&
               ter::limits::full_ter::kDefaultMemoryBytes == panel::full_ter::kDefaultMemoryBytes &&
+              ter::limits::full_ter::kDefaultRootPrefilterBits ==
+                  panel::full_ter::kDefaultRootPrefilterBits &&
+              ter::limits::full_ter::kDefaultRootPreferredTileBits ==
+                  panel::full_ter::kDefaultRootPreferredTileBits &&
               ter::limits::generator::kDefaultAttemptLimit ==
                   panel::generator::kDefaultAttemptLimit &&
               ter::limits::paper_generator::kDefaultN == panel::paper_generator::kDefaultN &&
@@ -179,10 +191,17 @@ void test_n72_full_benchmark_ceiling_regression() {
   config.audit = false;
 
   const auto result = ter::solve_full_ter(instance.value, config);
-  require(result.status == ter::Status::ResourceLimit,
-          "n=72 at the full benchmark ceiling must remain resource-limited");
-  require(result.message.find("ternary pair index") != std::string::npos,
-          "n=72 at 256 MiB must still refuse the ternary pair index");
+  if (result.status != ter::Status::AttemptLimitReached && result.status != ter::Status::Found) {
+    std::cerr << "n72 M2 regression status=" << static_cast<unsigned>(result.status)
+              << " message=" << result.message << '\n';
+  }
+  require(result.status == ter::Status::AttemptLimitReached || result.status == ter::Status::Found,
+          "n=72 at the full benchmark ceiling must pass the old root-pair barrier");
+  require(!result.telemetry.attempts.empty() &&
+              result.telemetry.attempts[0].level1_to_level0.tiled_used &&
+              result.telemetry.attempts[0].level1_to_level0.pair_records == 0U &&
+              result.telemetry.attempts[0].level1_to_level0.quotient_bits == 47U,
+          "n=72 must use M2's bounded 47-bit tiled root path");
 }
 
 }  // namespace
