@@ -117,10 +117,19 @@ oracle work. Resource arithmetic uses `ter/limitations.hpp` checked helpers.
 
 ## Benchmark row
 
-`ter_stress_bench` emits one CSV header and one `ADVERSARIAL_STRESS` row. It
-includes seed, dimensions, arithmetic widths, list sizes, bucket geometry,
-distribution metrics, candidate tile settings, auxiliary memory, phase timing,
-and actual survivor count. `prediction_available=0` is intentional: no planner
-is implemented yet, so `predicted_survivor_count=NA` rather than fabricated
-model output. `verification_ns=NA` under the benchmark policy because that
-existing policy does not separately time validation; zero would be a lie.
+`ter_stress_bench` emits one CSV header and one `ADVERSARIAL_STRESS` row per
+invocation. Its command line controls the source geometry without changing
+source code, for example:
+
+```powershell
+.\build-full\Release\ter_stress_bench.exe --uniform --no-plant --n=72 --b1=25 --b2=6 `
+  --sizes=4096,4096,4096 --candidate-pool=4096 --half-pool=2048 `
+  --max-half-pool=8192 --memory-mib=1024 --prefilter-bits=8 --seed=7201 --repetitions=5
+```
+
+Generation happens once, one warm-up is discarded, and `--repetitions` runs
+the identical selected fixture repeatedly. The row includes seed, dimensions,
+arithmetic widths, list sizes, bucket geometry, distribution metrics,
+generation time, p10/median/p90 merge time, auxiliary memory, and actual
+survivor count. The benchmark policy intentionally does not separately time
+validation, so that unavailable timing is not emitted as zero.

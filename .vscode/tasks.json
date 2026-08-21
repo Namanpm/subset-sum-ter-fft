@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "TER: Configure (MSVC x64)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-S",
+        "${workspaceFolder}",
+        "-B",
+        "${workspaceFolder}/build",
+        "-G",
+        "Visual Studio 18 2026",
+        "-T",
+        "host=x64",
+        "-A",
+        "x64",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "TER: Build Release",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "${workspaceFolder}/build",
+        "--config",
+        "Release",
+        "--parallel"
+      ],
+      "dependsOn": "TER: Configure (MSVC x64)",
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "TER: Test Release",
+      "type": "shell",
+      "command": "ctest",
+      "args": [
+        "--test-dir",
+        "${workspaceFolder}/build",
+        "-C",
+        "Release",
+        "--output-on-failure"
+      ],
+      "dependsOn": "TER: Build Release",
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -277,3 +277,11 @@ target_link_libraries(
 )
 ter_enable_strict_warnings(ter_q3report_paper_crossover_bench)
 ter_enable_release_ipo(ter_q3report_paper_crossover_bench)
+
+add_executable(
+    ter_tiled_parameter_sweep
+    bench/ter_tiled_parameter_sweep.cpp
+)
+target_link_libraries(ter_tiled_parameter_sweep PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_tiled_parameter_sweep)
+ter_enable_release_ipo(ter_tiled_parameter_sweep)
