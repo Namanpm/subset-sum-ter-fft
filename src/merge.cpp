@@ -774,6 +774,10 @@ MergeOutput run_pair_tiled_impl(const InputSnapshot& snapshot, OutputPolicy poli
   switch (reported.status) {
     case TiledQ3ReportStatus::Completed:
       break;
+    case TiledQ3ReportStatus::StoppedByVisitor:
+      output.status = Status::InvariantViolation;
+      output.message = "tiled merge visitor stopped although this path does not permit early success";
+      return output;
     case TiledQ3ReportStatus::NotApplicable:
       output.status = Status::InvalidConfiguration;
       output.message = "tiled merge is not applicable to this quotient universe: " +

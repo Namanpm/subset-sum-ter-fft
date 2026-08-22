@@ -280,6 +280,10 @@ void test_guided_pipeline_and_replay() {
                   first.telemetry.attempts[0].level1_to_level0.modular_candidates +
                       first.telemetry.attempts[0].level1_to_level0.full_quotient_rejects,
           "M2 tiled root must expose exact quotient accounting without pair records");
+  require(first.telemetry.attempts[0].level1_to_level0.effective_root_output_policy ==
+              ter::RootOutputPolicy::FullCanonicalOutput &&
+              !first.telemetry.attempts[0].level1_to_level0.early_stopped,
+          "an audited root must retain canonical output rather than early-stop");
   require(first.telemetry.terminal_status == ter::Status::Found &&
               first.telemetry.witness_found &&
               first.telemetry.total_solver_ns > 0U &&
@@ -342,6 +346,151 @@ void test_guided_pipeline_and_replay() {
   require(ter::verify_full_ter_witness(wrong_target_instance, first.witness).status ==
               ter::Status::InvariantViolation,
           "right-weight binary witnesses with the wrong full target must fail closed");
+}
+
+void test_phase5_root_output_policies() {
+  const auto instance = balanced_instance(36U, 0x5048415345355445ULL);
+  ter::FullTerConfig canonical_config;
+  canonical_config.family = ter::ShapeFamily::FiniteSanity;
+  canonical_config.execution_mode = ter::TerExecutionMode::FixtureTer;
+  canonical_config.target_mode = ter::TerTargetMode::GuidedPlanted;
+  canonical_config.seed = 0x5048415345355345ULL;
+  canonical_config.attempt_limit = 1U;
+  canonical_config.fixture_level3_limit = 9U;
+  canonical_config.memory_limit_bytes = 64U * 1024U * 1024U;
+  // Force many low-bit arithmetic hits. The full quotient/root checks remain
+  // exact, while this makes the planted root deliberately early versus a
+  // complete canonical scan.
+  canonical_config.root_prefilter_bits = 1U;
+  canonical_config.root_preferred_tile_bits = 1U;
+  canonical_config.audit = true;
+  ter::FullTerRootCapture capture;
+  canonical_config.root_capture = &capture;
+  const auto canonical = ter::solve_full_ter(instance, canonical_config);
+  require(canonical.status == ter::Status::Found && !canonical.telemetry.attempts.empty(),
+          "the audited Phase-5 fixture must produce canonical root output");
+  if (canonical.status != ter::Status::Found || canonical.telemetry.attempts.empty()) {
+    return;
+  }
+  const auto& canonical_root = canonical.telemetry.attempts[0].level1_to_level0;
+  require(canonical_root.effective_root_output_policy ==
+              ter::RootOutputPolicy::FullCanonicalOutput &&
+              !canonical_root.early_stopped && canonical_root.survivors_after_dedup > 0U,
+          "audit forces full canonical root output and preserves the oracle contract");
+
+  auto first_config = canonical_config;
+  first_config.audit = false;
+  first_config.root_capture = nullptr;
+  first_config.root_output_policy = ter::RootOutputPolicy::FirstWitness;
+  const auto first = ter::solve_full_ter(instance, first_config);
+  require(first.status == ter::Status::Found && !first.telemetry.attempts.empty(),
+          "non-audited FirstWitness execution must retain a SAT witness");
+  if (first.status != ter::Status::Found || first.telemetry.attempts.empty()) {
+    return;
+  }
+  const auto& first_root = first.telemetry.attempts[0].level1_to_level0;
+  require(first_root.effective_root_output_policy == ter::RootOutputPolicy::FirstWitness &&
+              first_root.early_stopped && first.telemetry.attempts[0].level0_size == 1U &&
+              first_root.valid_root_count == 1U,
+          "FirstWitness must retain exactly one verified root and stop successfully");
+  require(first_root.output_peak_bytes == first_root.first_witness_output_ceiling_bytes &&
+              first_root.output_live_bytes <= first_root.output_peak_bytes &&
+              first_root.working_peak_bytes <= first_config.memory_limit_bytes,
+          "FirstWitness output memory must obey its exact declared one-witness ceiling");
+  require(first_root.tiled_pair_probes <= canonical_root.tiled_pair_probes,
+          "FirstWitness cannot probe more tiled pairs than the same canonical root");
+  require(ter::verify_full_ter_witness(instance, first.witness).status == ter::Status::Completed,
+          "the early-stopped root witness must independently verify");
+
+  const auto counted = ter::count_full_ter_root(capture, canonical_config);
+  require(counted.status == ter::Status::Completed &&
+              counted.telemetry.effective_root_output_policy == ter::RootOutputPolicy::CountOnly &&
+              counted.telemetry.output_live_bytes == 0U && !counted.telemetry.early_stopped &&
+              counted.valid_root_count == canonical_root.survivors_before_dedup,
+          "CountOnly must retain no root and equal canonical pre-dedup multiplicity");
+
+  auto illegal_count = first_config;
+  illegal_count.root_output_policy = ter::RootOutputPolicy::CountOnly;
+  require(ter::solve_full_ter(instance, illegal_count).status == ter::Status::InvalidConfiguration,
+          "ordinary solve_full_ter must reject CountOnly without a witness");
+
+  auto no_root = first_config;
+  no_root.target_mode = ter::TerTargetMode::Random;
+  no_root.seed = 0x4E4F524F4F543535ULL;
+  const auto absent = ter::solve_full_ter(instance, no_root);
+  require(absent.status == ter::Status::AttemptLimitReached &&
+              !absent.telemetry.attempts.empty() &&
+              absent.telemetry.attempts[0].level0_size == 0U &&
+              !absent.telemetry.attempts[0].level1_to_level0.early_stopped,
+          "a deterministic no-root FirstWitness run must not claim SAT");
+}
+
+ter::FullTerRootCapture early_root_capture() {
+  ter::FullTerRootCapture capture;
+  const auto parameters =
+      ter::derive_full_ter_parameters(ter::ShapeFamily::FiniteSanity, 36U, 36U);
+  require(parameters.status == ter::Status::Completed,
+          "the deterministic root-report fixture needs finite n=36 parameters");
+  capture.status = ter::Status::Completed;
+  capture.parameters = parameters.value;
+  ter::ReferenceTernaryVector first_parent(36U, 0);
+  ter::ReferenceTernaryVector second_parent(36U, 0);
+  for (std::size_t index = 18U; index < first_parent.size(); ++index) {
+    first_parent[index] = 1;
+  }
+  for (std::size_t index = 0U; index < 18U; ++index) {
+    second_parent[index] = 1;
+  }
+  const ter::ReferenceTernaryVector zero(36U, 0);
+  capture.children[0] = {first_parent, second_parent, first_parent, second_parent};
+  for (std::size_t group = 0U; group < capture.children.size(); ++group) {
+    if (group != 0U) {
+      capture.children[group].resize(4U, zero);
+    }
+    capture.residues_words_le[group].resize(4U);
+  }
+  // Empty word arrays encode residue/targets 0 modulo 2^36. Every 4x4x4
+  // triple is therefore an exact arithmetic root; two distinct parents force
+  // canonical-output growth, while the first one is scan-first.
+  return capture;
+}
+
+void test_phase5_deterministic_root_report_stop() {
+  const auto capture = early_root_capture();
+  ter::FullTerConfig config;
+  config.memory_limit_bytes = 4U * 1024U * 1024U;
+  config.root_prefilter_bits = 1U;
+  config.root_preferred_tile_bits = 1U;
+  config.audit = false;
+
+  const auto canonical = ter::report_full_ter_root(
+      capture, config, ter::RootOutputPolicy::FullCanonicalOutput);
+  const auto first = ter::report_full_ter_root(
+      capture, config, ter::RootOutputPolicy::FirstWitness);
+  const auto counted = ter::count_full_ter_root(capture, config);
+  require(canonical.status == ter::Status::Completed && canonical.valid_root_count == 64U &&
+              canonical.retained_root_count == 2U && !canonical.telemetry.early_stopped,
+          "canonical root report must enumerate the deterministic 4x4x4 multiplicity");
+  require(first.status == ter::Status::Completed && first.valid_root_count == 1U &&
+              first.retained_root_count == 1U && first.telemetry.early_stopped &&
+              first.telemetry.tiled_pair_probes == 1U &&
+              canonical.telemetry.tiled_pair_probes == 16U,
+          "FirstWitness root report must stop on the deliberately first valid triple");
+  require(first.telemetry.output_peak_bytes ==
+              first.telemetry.first_witness_output_ceiling_bytes &&
+              first.telemetry.output_live_bytes <= first.telemetry.output_peak_bytes,
+          "the deterministic FirstWitness report must stay inside its exact one-root ceiling");
+  require(counted.status == ter::Status::Completed && counted.valid_root_count == 64U &&
+              counted.telemetry.output_live_bytes == 0U && !counted.telemetry.early_stopped,
+          "CountOnly report must retain no parents and preserve pre-dedup multiplicity");
+
+  auto constrained = config;
+  constrained.memory_limit_bytes = first.telemetry.working_peak_bytes;
+  const auto refused = ter::report_full_ter_root(
+      capture, constrained, ter::RootOutputPolicy::FullCanonicalOutput);
+  require(refused.status == ter::Status::ResourceLimit &&
+              refused.telemetry.working_peak_bytes <= constrained.memory_limit_bytes,
+          "canonical output must refuse growth before crossing its declared memory ceiling");
 }
 
 void test_authentic_l2_capture_tiled_merge_matches_exact_authorities() {
@@ -436,6 +585,9 @@ void test_m2_root_uses_complete_47_bit_quotients() {
               root.low_prefilter_candidates ==
                   root.full_quotient_rejects + root.modular_candidates,
           "M2 root must read n=72 quotient bits above bit 63 and account exactly");
+  require(root.effective_root_output_policy == ter::RootOutputPolicy::FullCanonicalOutput &&
+              !root.early_stopped,
+          "the audited n=72 M2 root must preserve canonical audit semantics");
   require(ter::verify_full_ter_witness(instance, result.witness).status ==
               ter::Status::Completed,
           "the n=72 tiled-root witness must pass independent full-modulus validation");
@@ -523,6 +675,8 @@ int main() {
   test_parameters();
   test_level3_generation();
   test_guided_pipeline_and_replay();
+  test_phase5_root_output_policies();
+  test_phase5_deterministic_root_report_stop();
   test_authentic_l2_capture_tiled_merge_matches_exact_authorities();
   test_paper_rounded_multiword_fixture();
   test_m2_root_uses_complete_47_bit_quotients();

@@ -287,3 +287,10 @@ Testing/
 /graphify-out/
 
 .claude/worktrees/
+
+# Documents
+*.md
+*.pdf
+*.docx
+*.txt
+!CMakeLists.txt

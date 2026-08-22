@@ -663,6 +663,7 @@ struct DirectTiledComponents {
       break;
     case TiledQ3ReportStatus::InvalidConfiguration:
     case TiledQ3ReportStatus::Cancelled:
+    case TiledQ3ReportStatus::StoppedByVisitor:
     case TiledQ3ReportStatus::InvariantViolation:
       *status = PaperCrossoverStatus::InternalInvariantFailure;
       break;

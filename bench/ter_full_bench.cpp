@@ -63,24 +63,63 @@ std::uint64_t median(std::vector<std::uint64_t> values) {
 
 int main(const int argc, char** const argv) {
   std::uint32_t benchmark_n = ter::limits::benchmark::kFullTerFixtureN;
+  bool audit = false;
+  bool guided = false;
+  bool fixture = false;
+  std::uint64_t fixture_level3_limit = ter::limits::full_ter::kDefaultFixtureLevel3Limit;
   for (int argument = 1; argument < argc; ++argument) {
     const std::string_view value(argv[argument]);
     constexpr std::string_view kDimensionPrefix{"--n="};
-    if (!value.starts_with(kDimensionPrefix)) {
-      std::cerr << "usage: ter_full_bench [--n=<finite TER dimension>]\n";
-      return EXIT_FAILURE;
+    constexpr std::string_view kFixtureLimitPrefix{"--fixture-limit="};
+    if (value == "--audit") {
+      audit = true;
+      continue;
     }
-    std::uint32_t parsed = 0U;
-    for (const char character : value.substr(kDimensionPrefix.size())) {
-      if (character < '0' || character > '9' ||
-          parsed > (std::numeric_limits<std::uint32_t>::max() -
-                    static_cast<std::uint32_t>(character - '0')) / 10U) {
+    if (value == "--guided") {
+      guided = true;
+      continue;
+    }
+    if (value == "--fixture") {
+      fixture = true;
+      continue;
+    }
+    const auto parse_unsigned = [](const std::string_view text, std::uint64_t* const out) {
+      if (out == nullptr || text.empty()) {
+        return false;
+      }
+      std::uint64_t parsed = 0U;
+      for (const char character : text) {
+        if (character < '0' || character > '9' ||
+            parsed > (std::numeric_limits<std::uint64_t>::max() -
+                      static_cast<std::uint64_t>(character - '0')) / 10U) {
+          return false;
+        }
+        parsed = parsed * 10U + static_cast<std::uint64_t>(character - '0');
+      }
+      *out = parsed;
+      return true;
+    };
+    std::uint64_t parsed = 0U;
+    if (value.starts_with(kDimensionPrefix)) {
+      if (!parse_unsigned(value.substr(kDimensionPrefix.size()), &parsed) ||
+          parsed > std::numeric_limits<std::uint32_t>::max()) {
         std::cerr << "invalid --n value\n";
         return EXIT_FAILURE;
       }
-      parsed = parsed * 10U + static_cast<std::uint32_t>(character - '0');
+      benchmark_n = static_cast<std::uint32_t>(parsed);
+      continue;
     }
-    benchmark_n = parsed;
+    if (value.starts_with(kFixtureLimitPrefix)) {
+      if (!parse_unsigned(value.substr(kFixtureLimitPrefix.size()), &fixture_level3_limit) ||
+          fixture_level3_limit == 0U) {
+        std::cerr << "invalid --fixture-limit value\n";
+        return EXIT_FAILURE;
+      }
+      continue;
+    }
+    std::cerr << "usage: ter_full_bench [--n=<finite TER dimension>] [--fixture] "
+                 "[--fixture-limit=<entries>] [--guided] [--audit]\n";
+    return EXIT_FAILURE;
   }
   constexpr std::uint64_t seed = ter::limits::benchmark::kFullTerFixtureSeed;
   const auto instance = benchmark_instance(benchmark_n, seed);
@@ -90,12 +129,15 @@ int main(const int argc, char** const argv) {
   }
   ter::FullTerConfig config;
   config.family = ter::ShapeFamily::FiniteSanity;
-  config.execution_mode = ter::TerExecutionMode::FullTer;
-  config.target_mode = ter::TerTargetMode::Random;
+  config.execution_mode = fixture ? ter::TerExecutionMode::FixtureTer
+                                  : ter::TerExecutionMode::FullTer;
+  config.target_mode = guided ? ter::TerTargetMode::GuidedPlanted
+                              : ter::TerTargetMode::Random;
   config.seed = seed;
   config.attempt_limit = ter::limits::full_ter::kDefaultAttemptLimit;
   config.memory_limit_bytes = ter::limits::benchmark::kFullTerMemoryBytes;
-  config.audit = false;
+  config.fixture_level3_limit = fixture_level3_limit;
+  config.audit = audit;
 
   const auto warmup = ter::solve_full_ter(instance, config);
   if (!ter::limits::benchmark::full_ter_warmup_acceptable(warmup.status)) {
@@ -141,7 +183,10 @@ int main(const int argc, char** const argv) {
 #else
   std::cout << " native_opt=off";
 #endif
-  std::cout << " threads=1 mode=FullTer target=Random family=FiniteSanity\n";
+  std::cout << " threads=1 mode=" << (fixture ? "FixtureTer" : "FullTer")
+            << " target=" << (guided ? "GuidedPlanted" : "Random")
+            << " audit=" << (audit ? "on" : "off")
+            << " family=FiniteSanity\n";
   std::cout << "status,n,r1,r2,L3_left,L3_right,L2_sizes,L1_sizes,L0,"
                "l3_generation_ns,l3_to_l2_ns,l2_to_l1_ns,l1_to_l0_ns,"
                "verification_ns,total_solver_ns,"
@@ -163,7 +208,11 @@ int main(const int argc, char** const argv) {
                "l1_to_l0_full_quotient_rejects,l1_to_l0_tile_bits,"
                "l1_to_l0_tiled_pair_probes,l1_to_l0_tiled_nonempty_windows,"
                "l1_to_l0_tiled_auxiliary_bytes,l1_to_l0_tiled_setup_ns,"
-               "l1_to_l0_tiled_scan_ns\n";
+               "l1_to_l0_tiled_scan_ns,"
+               "l1_to_l0_root_policy,l1_to_l0_valid_roots,"
+               "l1_to_l0_early_stopped,l1_to_l0_output_peak_bytes,"
+               "l1_to_l0_output_live_bytes,l1_to_l0_working_peak_bytes,"
+               "l1_to_l0_first_witness_ceiling_bytes\n";
   const auto& attempt = warmup.telemetry.attempts[0];
   std::cout << (warmup.status == ter::Status::Found ? "Found"
                                                     : "AttemptLimitReached")
@@ -231,6 +280,13 @@ int main(const int argc, char** const argv) {
             << attempt.level1_to_level0.tiled_nonempty_windows << ','
             << attempt.level1_to_level0.tiled_auxiliary_bytes << ','
             << attempt.level1_to_level0.tiled_setup_ns << ','
-            << attempt.level1_to_level0.tiled_scan_ns << '\n';
+            << attempt.level1_to_level0.tiled_scan_ns << ','
+            << static_cast<unsigned int>(attempt.level1_to_level0.effective_root_output_policy)
+            << ',' << attempt.level1_to_level0.valid_root_count << ','
+            << (attempt.level1_to_level0.early_stopped ? 1 : 0) << ','
+            << attempt.level1_to_level0.output_peak_bytes << ','
+            << attempt.level1_to_level0.output_live_bytes << ','
+            << attempt.level1_to_level0.working_peak_bytes << ','
+            << attempt.level1_to_level0.first_witness_output_ceiling_bytes << '\n';
   return EXIT_SUCCESS;
 }

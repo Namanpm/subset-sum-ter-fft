@@ -73,6 +73,15 @@ struct FullTerRootCapture {
   std::string message;
 };
 
+// Root-output ownership is policy, not TER arithmetic. CountOnly is exposed
+// only through the narrow root-report APIs; solve_full_ter() rejects it
+// because a SAT result must retain an independently verifiable witness.
+enum class RootOutputPolicy : std::uint8_t {
+  FirstWitness,
+  CountOnly,
+  FullCanonicalOutput,
+};
+
 struct FullTerConfig {
   ShapeFamily family = ShapeFamily::FiniteSanity;
   TerExecutionMode execution_mode = TerExecutionMode::FixtureTer;
@@ -86,6 +95,9 @@ struct FullTerConfig {
   std::uint32_t root_prefilter_bits = limits::full_ter::kDefaultRootPrefilterBits;
   std::uint32_t root_preferred_tile_bits =
       limits::full_ter::kDefaultRootPreferredTileBits;
+  // Audited solve_full_ter() calls force FullCanonicalOutput so that the
+  // existing oracle/provenance comparison remains complete.
+  RootOutputPolicy root_output_policy = RootOutputPolicy::FirstWitness;
   FullTerRootCapture* root_capture = nullptr;
   bool audit = true;
   const std::atomic_bool* cancellation = nullptr;
@@ -115,6 +127,15 @@ struct FullTerStageTelemetry {
   std::uint64_t tiled_auxiliary_bytes = 0;
   std::uint64_t tiled_setup_ns = 0;
   std::uint64_t tiled_scan_ns = 0;
+  // Root-stage fields. output_peak_bytes and working_peak_bytes use the
+  // declared accounting model, including bounded vector growth overlap.
+  RootOutputPolicy effective_root_output_policy = RootOutputPolicy::FullCanonicalOutput;
+  std::uint64_t valid_root_count = 0;
+  std::uint64_t first_witness_output_ceiling_bytes = 0;
+  std::uint64_t output_peak_bytes = 0;
+  std::uint64_t output_live_bytes = 0;
+  std::uint64_t working_peak_bytes = 0;
+  bool early_stopped = false;
 };
 
 struct FullTerAttemptTelemetry {
@@ -164,6 +185,28 @@ struct FullTerResult {
   std::string message;
 };
 
+// Narrow diagnostic-only result for replaying a captured L1 root. It is not a
+// SAT solver result and deliberately never carries a subset-sum witness.
+struct FullTerRootReportResult {
+  Status status = Status::InvalidConfiguration;
+  RootOutputPolicy effective_root_output_policy = RootOutputPolicy::CountOnly;
+  // Exact pre-dedup accepted-triple multiplicity: every counted root passed
+  // the full quotient, ternary-distribution, and full-modulus residue checks.
+  std::uint64_t valid_root_count = 0;
+  std::uint64_t retained_root_count = 0;
+  FullTerStageTelemetry telemetry{};
+  std::string message;
+};
+
+// Convenience projection for the count-only benchmark/report path.
+struct FullTerRootCountResult {
+  Status status = Status::InvalidConfiguration;
+  // Same pre-dedup accepted-triple multiplicity as FullTerRootReportResult.
+  std::uint64_t valid_root_count = 0;
+  FullTerStageTelemetry telemetry{};
+  std::string message;
+};
+
 // A narrowly scoped extraction seam for the count-only Q3REPORT experiment.
 // It captures one genuine complete Full TER L2(A,B,C)->L1 group.  It is not a
 // general solver hook and does not expose Full TER's internal packed entries.
@@ -206,6 +249,15 @@ struct Level3GenerationResult {
 
 [[nodiscard]] FullTerResult solve_full_ter(const Instance& instance,
                                            const FullTerConfig& config);
+
+[[nodiscard]] FullTerRootReportResult report_full_ter_root(
+    const FullTerRootCapture& capture,
+    const FullTerConfig& config,
+    RootOutputPolicy output_policy);
+
+[[nodiscard]] FullTerRootCountResult count_full_ter_root(
+    const FullTerRootCapture& capture,
+    const FullTerConfig& config);
 
 [[nodiscard]] FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
     const Instance& instance,

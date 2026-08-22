@@ -170,6 +170,8 @@ const char* tiled_q3report_status_name(const TiledQ3ReportStatus status) noexcep
   switch (status) {
     case TiledQ3ReportStatus::Completed:
       return "Completed";
+    case TiledQ3ReportStatus::StoppedByVisitor:
+      return "StoppedByVisitor";
     case TiledQ3ReportStatus::NotApplicable:
       return "NotApplicable";
     case TiledQ3ReportStatus::InvalidConfiguration:
@@ -395,6 +397,7 @@ TiledQ3ReportResult tiled_q3report_report(const std::vector<TiledQEntry>& pair_f
             for (std::uint32_t yi = y_begin;
                  yi < y_end && decision == TiledVisitDecision::Continue; ++yi) {
               const auto& y_entry = prepared.second.ordered[yi];
+              ++executed;
               const std::uint64_t sum = x_q + y_entry.q;
               std::uint32_t record = head_data[static_cast<std::size_t>(sum - w0)];
               while (record != kNoRecord) {
@@ -407,8 +410,6 @@ TiledQ3ReportResult tiled_q3report_report(const std::vector<TiledQEntry>& pair_f
               }
             }
           }
-          executed += static_cast<std::uint64_t>(x_end - x_begin) *
-                      static_cast<std::uint64_t>(y_end - y_begin);
         }
       }
       for (std::size_t index = lo; index < hi; ++index) {
@@ -422,6 +423,10 @@ TiledQ3ReportResult tiled_q3report_report(const std::vector<TiledQEntry>& pair_f
     switch (decision) {
       case TiledVisitDecision::Continue:
         result.status = TiledQ3ReportStatus::Completed;
+        break;
+      case TiledVisitDecision::Stop:
+        result.status = TiledQ3ReportStatus::StoppedByVisitor;
+        result.message = "witness consumer requested successful early stop";
         break;
       case TiledVisitDecision::ResourceLimit:
         result.status = TiledQ3ReportStatus::ResourceLimit;

@@ -28,6 +28,7 @@ namespace ter {
 
 enum class TiledQ3ReportStatus : std::uint8_t {
   Completed,
+  StoppedByVisitor,
   NotApplicable,
   InvalidConfiguration,
   ResourceLimit,
@@ -70,6 +71,9 @@ struct TiledQ3ReportTelemetry {
 
 enum class TiledVisitDecision : std::uint8_t {
   Continue,
+  // Successful caller-requested termination.  The reporter remains agnostic
+  // about why a consumer no longer needs further arithmetic witnesses.
+  Stop,
   ResourceLimit,
   Cancelled,
   InvariantViolation,

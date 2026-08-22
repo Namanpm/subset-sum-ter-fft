@@ -1233,6 +1233,69 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   return result;
 }
 
+[[nodiscard]] bool root_output_policy_supported(const RootOutputPolicy policy) noexcept {
+  return policy == RootOutputPolicy::FirstWitness || policy == RootOutputPolicy::CountOnly ||
+         policy == RootOutputPolicy::FullCanonicalOutput;
+}
+
+[[nodiscard]] bool root_output_live_bytes(const std::vector<BigEntry>& entries,
+                                          const std::vector<ProvenanceRecord>* provenance,
+                                          std::uint64_t* const bytes) noexcept {
+  if (bytes == nullptr) {
+    return false;
+  }
+  std::uint64_t total = 0U;
+  if (!checked_multiply(entries.capacity(), sizeof(BigEntry), total)) {
+    return false;
+  }
+  for (const auto& entry : entries) {
+    std::uint64_t packed_bytes = 0U;
+    std::uint64_t residue_bytes = 0U;
+    if (!checked_multiply(entry.digits.words.capacity(), sizeof(std::uint64_t), packed_bytes) ||
+        !checked_multiply(entry.residue.words().capacity(), sizeof(std::uint32_t), residue_bytes) ||
+        !checked_add(total, packed_bytes, total) || !checked_add(total, residue_bytes, total)) {
+      return false;
+    }
+  }
+  if (provenance != nullptr) {
+    std::uint64_t outer_bytes = 0U;
+    if (!checked_multiply(provenance->capacity(), sizeof(ProvenanceRecord), outer_bytes) ||
+        !checked_add(total, outer_bytes, total)) {
+      return false;
+    }
+    for (const auto& record : *provenance) {
+      std::uint64_t packed_bytes = 0U;
+      if (!checked_multiply(record.parent.words.capacity(), sizeof(std::uint64_t), packed_bytes) ||
+          !checked_add(total, packed_bytes, total)) {
+        return false;
+      }
+    }
+  }
+  *bytes = total;
+  return true;
+}
+
+[[nodiscard]] bool root_next_capacity(const std::size_t size,
+                                      const std::size_t capacity,
+                                      std::size_t* const next) noexcept {
+  if (next == nullptr) {
+    return false;
+  }
+  if (size < capacity) {
+    *next = capacity;
+    return true;
+  }
+  if (capacity == 0U) {
+    *next = 1U;
+    return true;
+  }
+  if (capacity > std::numeric_limits<std::size_t>::max() / 2U) {
+    return false;
+  }
+  *next = capacity * 2U;
+  return true;
+}
+
 // M2 root reporter. The low-w tiled equation is only a no-false-negative
 // prefilter; the visitor checks the complete q-bit equation before any ternary
 // parent is constructed. No |A|*|B| pair record is allocated on this path.
@@ -1244,14 +1307,110 @@ struct FullTerRootTiledContext {
   const std::vector<std::uint64_t>* second_quotients = nullptr;
   const std::vector<std::uint64_t>* third_quotients = nullptr;
   const DigitCounts* expected = nullptr;
+  const BigInt* root_target = nullptr;
   std::vector<BigEntry>* result = nullptr;
   std::vector<ProvenanceRecord>* provenance = nullptr;
   FullTerStageTelemetry* telemetry = nullptr;
   const std::atomic_bool* cancellation = nullptr;
+  RootOutputPolicy output_policy = RootOutputPolicy::FullCanonicalOutput;
   std::uint64_t tau = 0U;
   std::uint64_t quotient_mask = 0U;
   std::uint64_t maximum_outputs = 0U;
+  std::uint64_t fixed_bytes = 0U;
+  std::uint64_t memory_limit_bytes = 0U;
+  std::uint64_t packed_digits_bytes = 0U;
+  std::uint64_t residue_bytes = 0U;
 };
+
+[[nodiscard]] bool root_record_working_peak(FullTerRootTiledContext* const context,
+                                             const std::uint64_t output_bytes) noexcept {
+  std::uint64_t working_bytes = 0U;
+  if (!checked_add(context->fixed_bytes, output_bytes, working_bytes) ||
+      !limits::checked::fits_memory_budget(0U, working_bytes, context->memory_limit_bytes)) {
+    return false;
+  }
+  context->telemetry->output_peak_bytes =
+      std::max(context->telemetry->output_peak_bytes, output_bytes);
+  context->telemetry->working_peak_bytes =
+      std::max(context->telemetry->working_peak_bytes, working_bytes);
+  return true;
+}
+
+[[nodiscard]] bool root_refresh_output_memory(FullTerRootTiledContext* const context) noexcept {
+  std::uint64_t output_bytes = 0U;
+  if (!root_output_live_bytes(*context->result, context->provenance, &output_bytes) ||
+      !root_record_working_peak(context, output_bytes)) {
+    return false;
+  }
+  context->telemetry->output_live_bytes = output_bytes;
+  return true;
+}
+
+// Before add_three() allocates a packed parent, charge its maximum temporary
+// payload and any vector reallocation overlap needed if that parent survives.
+[[nodiscard]] bool root_preflight_candidate(FullTerRootTiledContext* const context,
+                                             const bool may_retain) noexcept {
+  std::uint64_t output_bytes = 0U;
+  if (!root_output_live_bytes(*context->result, context->provenance, &output_bytes)) {
+    return false;
+  }
+  if (may_retain) {
+    if (context->result->size() == context->result->capacity()) {
+      std::size_t next = 0U;
+      std::uint64_t outer_bytes = 0U;
+      if (!root_next_capacity(context->result->size(), context->result->capacity(), &next) ||
+          !checked_multiply(next, sizeof(BigEntry), outer_bytes) ||
+          !checked_add(output_bytes, outer_bytes, output_bytes)) {
+        return false;
+      }
+    }
+    if (context->provenance != nullptr &&
+        context->provenance->size() == context->provenance->capacity()) {
+      std::size_t next = 0U;
+      std::uint64_t outer_bytes = 0U;
+      if (!root_next_capacity(context->provenance->size(), context->provenance->capacity(),
+                              &next) ||
+          !checked_multiply(next, sizeof(ProvenanceRecord), outer_bytes) ||
+          !checked_add(output_bytes, outer_bytes, output_bytes)) {
+        return false;
+      }
+    }
+  }
+  // One packed parent, the two simultaneously live add_mod residues, and the
+  // copied packed parent retained by provenance when auditing are all charged.
+  std::uint64_t transient = context->packed_digits_bytes;
+  if (!checked_add(transient, context->residue_bytes, transient) ||
+      !checked_add(transient, context->residue_bytes, transient) ||
+      (may_retain && context->provenance != nullptr &&
+       !checked_add(transient, context->packed_digits_bytes, transient)) ||
+      !checked_add(output_bytes, transient, output_bytes)) {
+    return false;
+  }
+  return root_record_working_peak(context, output_bytes);
+}
+
+[[nodiscard]] bool root_reserve_for_append(FullTerRootTiledContext* const context) {
+  if (context->result->size() >= context->maximum_outputs) {
+    return false;
+  }
+  if (context->result->size() == context->result->capacity()) {
+    std::size_t next = 0U;
+    if (!root_next_capacity(context->result->size(), context->result->capacity(), &next)) {
+      return false;
+    }
+    context->result->reserve(next);
+  }
+  if (context->provenance != nullptr &&
+      context->provenance->size() == context->provenance->capacity()) {
+    std::size_t next = 0U;
+    if (!root_next_capacity(context->provenance->size(), context->provenance->capacity(),
+                            &next)) {
+      return false;
+    }
+    context->provenance->reserve(next);
+  }
+  return root_refresh_output_memory(context);
+}
 
 TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
                                                const EntryId first_id,
@@ -1271,6 +1430,11 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     return TiledVisitDecision::Continue;
   }
   ++context->telemetry->modular_candidates;
+  const bool may_retain = context->output_policy != RootOutputPolicy::CountOnly &&
+                          context->result->size() < context->maximum_outputs;
+  if (!root_preflight_candidate(context, may_retain)) {
+    return TiledVisitDecision::ResourceLimit;
+  }
   auto parent = add_three((*context->first)[first_id].digits,
                           (*context->second)[second_id].digits,
                           (*context->third)[third_id].digits,
@@ -1279,21 +1443,42 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   if (!parent.has_value()) {
     return TiledVisitDecision::Continue;
   }
-  if (context->result->size() >= context->maximum_outputs) {
+  BigInt residue =
+      add_mod(add_mod((*context->first)[first_id].residue,
+                      (*context->second)[second_id].residue,
+                      parent->n),
+              (*context->third)[third_id].residue,
+              parent->n);
+  if (residue != *context->root_target) {
+    return TiledVisitDecision::InvariantViolation;
+  }
+  if (!checked_add(context->telemetry->valid_root_count, 1U,
+                   context->telemetry->valid_root_count) ||
+      !checked_add(context->telemetry->survivors_before_dedup, 1U,
+                   context->telemetry->survivors_before_dedup)) {
+    return TiledVisitDecision::ResourceLimit;
+  }
+  if (context->output_policy == RootOutputPolicy::CountOnly) {
+    return TiledVisitDecision::Continue;
+  }
+  if (!root_reserve_for_append(context)) {
     return TiledVisitDecision::ResourceLimit;
   }
   context->result->push_back(BigEntry{
       std::move(*parent),
-      add_mod(add_mod((*context->first)[first_id].residue,
-                      (*context->second)[second_id].residue,
-                      (*context->third)[third_id].digits.n),
-              (*context->third)[third_id].residue,
-              (*context->third)[third_id].digits.n)});
+      std::move(residue)});
   if (context->provenance != nullptr) {
     context->provenance->push_back(ProvenanceRecord{context->result->back().digits,
                                                     first_id,
                                                     second_id,
                                                     third_id});
+  }
+  if (!root_refresh_output_memory(context)) {
+    return TiledVisitDecision::ResourceLimit;
+  }
+  if (context->output_policy == RootOutputPolicy::FirstWitness) {
+    context->telemetry->early_stopped = true;
+    return TiledVisitDecision::Stop;
   }
   return TiledVisitDecision::Continue;
 }
@@ -1306,12 +1491,18 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     const BigInt& root_target,
     const FullTerParameters& parameters,
     const FullTerConfig& config,
+    const RootOutputPolicy output_policy,
     const DigitCounts& expected,
     const std::uint64_t memory_limit_bytes,
     FullTerStageTelemetry& telemetry,
     std::vector<ProvenanceRecord>* provenance,
     Status& status,
     std::string& message) {
+  if (!root_output_policy_supported(output_policy)) {
+    status = Status::InvalidConfiguration;
+    message = "tiled root output policy is invalid";
+    return {};
+  }
   if (first.empty() || second.empty() || third.empty()) {
     status = Status::Completed;
     return {};
@@ -1383,18 +1574,24 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     message = "tiled root fixed workspace exceeds the declared memory limit";
     return {};
   }
-  std::uint64_t per_output = estimated_entry_bytes(parameters.n);
-  const std::uint64_t packed_word_bytes =
+  const std::uint64_t packed_digits_bytes =
       2U * ((static_cast<std::uint64_t>(parameters.n) + 63U) / 64U) * sizeof(std::uint64_t);
-  if (provenance != nullptr &&
-      (!checked_add(per_output, sizeof(ProvenanceRecord), per_output) ||
-       !checked_add(per_output, packed_word_bytes, per_output))) {
+  const std::uint64_t residue_bytes =
+      ((static_cast<std::uint64_t>(parameters.n) + 31U) / 32U) * sizeof(std::uint32_t);
+  std::uint64_t per_output = sizeof(BigEntry);
+  if (!checked_add(per_output, packed_digits_bytes, per_output) ||
+      !checked_add(per_output, residue_bytes, per_output) ||
+      (provenance != nullptr &&
+       (!checked_add(per_output, sizeof(ProvenanceRecord), per_output) ||
+        !checked_add(per_output, packed_digits_bytes, per_output)))) {
     status = Status::ResourceLimit;
-    message = "tiled root provenance accounting overflows";
+    message = "tiled root output accounting overflows";
     return {};
   }
-  const std::uint64_t maximum_outputs = per_output == 0U ? 0U : remaining / per_output;
-  if (maximum_outputs > std::numeric_limits<std::size_t>::max()) {
+  const std::uint64_t maximum_outputs =
+      output_policy == RootOutputPolicy::CountOnly ? 0U : remaining / per_output;
+  if (output_policy != RootOutputPolicy::CountOnly &&
+      maximum_outputs > std::numeric_limits<std::size_t>::max()) {
     status = Status::ResourceLimit;
     message = "tiled root output capacity exceeds addressable range";
     return {};
@@ -1468,10 +1665,6 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   }
 
   std::vector<BigEntry> result;
-  result.reserve(static_cast<std::size_t>(maximum_outputs));
-  if (provenance != nullptr) {
-    provenance->reserve(static_cast<std::size_t>(maximum_outputs));
-  }
   FullTerRootTiledContext context;
   context.first = &first;
   context.second = &second;
@@ -1480,13 +1673,39 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   context.second_quotients = &second_full;
   context.third_quotients = &third_full;
   context.expected = &expected;
+  context.root_target = &root_target;
   context.result = &result;
   context.provenance = provenance;
   context.telemetry = &telemetry;
   context.cancellation = config.cancellation;
+  context.output_policy = output_policy;
   context.tau = tau & quotient_mask;
   context.quotient_mask = quotient_mask;
   context.maximum_outputs = maximum_outputs;
+  context.fixed_bytes = fixed_bytes;
+  context.memory_limit_bytes = memory_limit_bytes;
+  context.packed_digits_bytes = packed_digits_bytes;
+  context.residue_bytes = residue_bytes;
+  telemetry.effective_root_output_policy = output_policy;
+  if (output_policy == RootOutputPolicy::FirstWitness) {
+    std::uint64_t ceiling = sizeof(BigEntry);
+    if (!checked_add(ceiling, packed_digits_bytes, ceiling) ||
+        !checked_add(ceiling, residue_bytes, ceiling) ||
+        !checked_add(ceiling, residue_bytes, ceiling) ||
+        (provenance != nullptr &&
+         (!checked_add(ceiling, sizeof(ProvenanceRecord), ceiling) ||
+          !checked_add(ceiling, packed_digits_bytes, ceiling)))) {
+      status = Status::ResourceLimit;
+      message = "tiled root one-witness output ceiling overflows";
+      return {};
+    }
+    telemetry.first_witness_output_ceiling_bytes = ceiling;
+  }
+  if (!root_refresh_output_memory(&context)) {
+    status = Status::ResourceLimit;
+    message = "tiled root initial output accounting exceeds the declared memory limit";
+    return {};
+  }
 
   TiledQ3ReportConfig tiled_config;
   tiled_config.preferred_tile_bits = config.root_preferred_tile_bits;
@@ -1503,7 +1722,8 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   telemetry.tiled_setup_ns += reported.telemetry.setup_ns;
   telemetry.tiled_scan_ns += reported.telemetry.scan_ns;
   telemetry.allocated_bytes = std::max(telemetry.allocated_bytes, fixed_bytes);
-  if (reported.status != TiledQ3ReportStatus::Completed) {
+  if (reported.status != TiledQ3ReportStatus::Completed &&
+      reported.status != TiledQ3ReportStatus::StoppedByVisitor) {
     status = reported.status == TiledQ3ReportStatus::ResourceLimit
                  ? Status::ResourceLimit
                  : reported.status == TiledQ3ReportStatus::Cancelled ? Status::Cancelled
@@ -1518,12 +1738,38 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     message = "tiled root candidate accounting disagrees with the reporter";
     return {};
   }
-  telemetry.survivors_before_dedup += result.size();
-  if (provenance != nullptr) {
+  if (output_policy == RootOutputPolicy::FirstWitness) {
+    if (reported.status == TiledQ3ReportStatus::StoppedByVisitor) {
+      if (!telemetry.early_stopped || result.size() != 1U ||
+          telemetry.valid_root_count != 1U) {
+        status = Status::InvariantViolation;
+        message = "first-witness root stop did not retain exactly one valid parent";
+        return {};
+      }
+    } else if (telemetry.early_stopped || !result.empty()) {
+      status = Status::InvariantViolation;
+      message = "first-witness root completed without a valid stop state";
+      return {};
+    }
+  } else if (reported.status == TiledQ3ReportStatus::StoppedByVisitor || telemetry.early_stopped) {
+    status = Status::InvariantViolation;
+    message = "non-first-witness root unexpectedly stopped early";
+    return {};
+  }
+  if (output_policy == RootOutputPolicy::FullCanonicalOutput && provenance != nullptr) {
     canonicalize_provenance(*provenance);
   }
-  canonicalize(result);
-  telemetry.survivors_after_dedup += result.size();
+  if (output_policy == RootOutputPolicy::FullCanonicalOutput) {
+    canonicalize(result);
+    telemetry.survivors_after_dedup = result.size();
+  } else if (output_policy == RootOutputPolicy::FirstWitness) {
+    telemetry.survivors_after_dedup = result.size();
+  }
+  if (!root_refresh_output_memory(&context)) {
+    status = Status::ResourceLimit;
+    message = "tiled root final output accounting exceeds the declared memory limit";
+    return {};
+  }
   status = Status::Completed;
   return result;
 }
@@ -2542,9 +2788,11 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
       sizeof(std::uint64_t);
   if ((config.execution_mode != TerExecutionMode::FullTer &&
        config.execution_mode != TerExecutionMode::FixtureTer) ||
-      (config.target_mode != TerTargetMode::Random &&
-       config.target_mode != TerTargetMode::GuidedPlanted) ||
-      !limits::full_ter::runtime_limit_supported(config.attempt_limit) ||
+       (config.target_mode != TerTargetMode::Random &&
+        config.target_mode != TerTargetMode::GuidedPlanted) ||
+       !root_output_policy_supported(config.root_output_policy) ||
+       config.root_output_policy == RootOutputPolicy::CountOnly ||
+       !limits::full_ter::runtime_limit_supported(config.attempt_limit) ||
       !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
       !limits::full_ter::instance_word_layout_supported(instance.n, instance.words_per_value) ||
       instance.values_le.size() !=
@@ -2963,6 +3211,14 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         checked_multiply(level1[0].size(), level1[1].size(), root_pairs) &&
         checked_multiply(root_pairs, level1[2].size(), root_work) &&
           limits::oracle::cubic_work_supported(root_work);
+    const bool tiled_root_supported =
+        limits::full_ter::native_root_quotient_supported(parameters.value.n, parameters.value.r1);
+    // The legacy multiword root reference remains canonical. The M2 root is
+    // the bounded Phase-5 execution path; audit always wins over its default
+    // first-witness policy.
+    const RootOutputPolicy effective_root_policy =
+        (config.audit || !tiled_root_supported) ? RootOutputPolicy::FullCanonicalOutput
+                                                 : config.root_output_policy;
     std::vector<ProvenanceRecord> optimized_root_provenance;
     std::uint64_t root_merge_budget = 0U;
     if (!limits::checked::remaining_memory(level1_resident, config.memory_limit_bytes,
@@ -2985,14 +3241,15 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
                             parameters.value, attempt_telemetry.seed, config.execution_mode);
     }
     std::vector<BigEntry> level0;
-    if (limits::full_ter::native_root_quotient_supported(parameters.value.n,
-                                                          parameters.value.r1)) {
+    if (tiled_root_supported) {
       level0 = ternary_tiled_l1_to_l0(
           level1[0], level1[1], level1[2], targets.level1, instance_target(instance),
-          parameters.value, config, root_counts, root_merge_budget,
+          parameters.value, config, effective_root_policy, root_counts, root_merge_budget,
           attempt_telemetry.level1_to_level0,
           audit_root ? &optimized_root_provenance : nullptr, root_status, result.message);
     } else {
+      attempt_telemetry.level1_to_level0.effective_root_output_policy =
+          RootOutputPolicy::FullCanonicalOutput;
       level0 = ternary_mitm(level1[0], level1[1], level1[2], instance_target(instance),
                              instance.n, root_counts, root_merge_budget,
                              attempt_telemetry.level1_to_level0,
@@ -3002,6 +3259,22 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     if (root_status != Status::Completed) {
       result.status = root_status;
       return result;
+    }
+    if (!tiled_root_supported) {
+      const std::uint64_t output_bytes = estimated_entries_bytes(level0);
+      std::uint64_t working_bytes = 0U;
+      if (output_bytes == std::numeric_limits<std::uint64_t>::max() ||
+          !checked_add(attempt_telemetry.level1_to_level0.allocated_bytes,
+                       output_bytes,
+                       working_bytes) ||
+          !limits::checked::fits_memory_budget(0U, working_bytes, root_merge_budget)) {
+        result.status = Status::ResourceLimit;
+        result.message = "legacy root output accounting exceeds the declared memory limit";
+        return result;
+      }
+      attempt_telemetry.level1_to_level0.output_live_bytes = output_bytes;
+      attempt_telemetry.level1_to_level0.output_peak_bytes = output_bytes;
+      attempt_telemetry.level1_to_level0.working_peak_bytes = working_bytes;
     }
     if (config.root_capture != nullptr &&
         !checked_add(attempt_telemetry.level1_to_level0.allocated_bytes,
@@ -3032,17 +3305,18 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     attempt_telemetry.level1_to_level0.output_fingerprint =
         stage_fingerprint(level0);
     attempt_telemetry.level1_to_level0.elapsed_ns = elapsed_ns(stage_start);
-    attempt_telemetry.level0_allocated_bytes = estimated_entries_bytes(level0);
+    attempt_telemetry.level0_allocated_bytes =
+        attempt_telemetry.level1_to_level0.output_live_bytes;
     std::uint64_t root_peak = level1_resident;
     if (!checked_add(root_peak,
-                     attempt_telemetry.level0_allocated_bytes,
+                     root_capture_bytes_value,
                      root_peak)) {
       result.status = Status::ResourceLimit;
-      result.message = "root output memory accounting overflow";
+      result.message = "root capture memory accounting overflow";
       return result;
     }
     if (!checked_add(root_peak,
-                     attempt_telemetry.level1_to_level0.allocated_bytes,
+                     attempt_telemetry.level1_to_level0.working_peak_bytes,
                      root_peak) ||
         !limits::checked::fits_memory_budget(0U, root_peak,
                                               config.memory_limit_bytes)) {
@@ -3281,6 +3555,151 @@ FullTerL2CaptureResult capture_full_ter_l2_merge_snapshot(
   } catch (const std::invalid_argument& error) {
     return {Status::InvariantViolation, {}, {}, group, error.what()};
   }
+}
+
+FullTerRootReportResult report_full_ter_root(const FullTerRootCapture& capture,
+                                             const FullTerConfig& config,
+                                             const RootOutputPolicy output_policy) {
+  try {
+    FullTerRootReportResult result;
+    if (capture.status != Status::Completed ||
+        !root_output_policy_supported(output_policy) ||
+        !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
+        capture.parameters.n == 0U || capture.parameters.r1 >= capture.parameters.n ||
+        !limits::full_ter::native_root_quotient_supported(capture.parameters.n,
+                                                           capture.parameters.r1) ||
+        !limits::full_ter::root_prefilter_configuration_supported(
+            config.root_prefilter_bits, config.root_preferred_tile_bits,
+            capture.parameters.n - capture.parameters.r1)) {
+      result.message = "root report requires a completed native root capture and valid tiled limits";
+      return result;
+    }
+    if (config.cancellation != nullptr &&
+        config.cancellation->load(std::memory_order_relaxed)) {
+      result.status = Status::Cancelled;
+      result.message = "root report was cancelled";
+      return result;
+    }
+
+    std::uint64_t entry_count = 0U;
+    for (std::size_t group = 0U; group < capture.children.size(); ++group) {
+      if (capture.children[group].size() != capture.residues_words_le[group].size() ||
+          !checked_add(entry_count, capture.children[group].size(), entry_count)) {
+        result.status = Status::InvalidConfiguration;
+        result.message = "root capture child/residue lists are inconsistent";
+        return result;
+      }
+    }
+    std::uint64_t conversion_bytes = 0U;
+    if (!checked_multiply(entry_count, estimated_entry_bytes(capture.parameters.n),
+                          conversion_bytes) ||
+        !limits::checked::fits_memory_budget(0U, conversion_bytes,
+                                              config.memory_limit_bytes)) {
+      result.status = Status::ResourceLimit;
+      result.message = "root report capture conversion exceeds the declared memory limit";
+      return result;
+    }
+    std::uint64_t root_budget = 0U;
+    if (!limits::checked::remaining_memory(conversion_bytes, config.memory_limit_bytes,
+                                            &root_budget)) {
+      result.status = Status::ResourceLimit;
+      result.message = "root report has no tiled workspace after capture conversion";
+      return result;
+    }
+
+    std::array<BigInt, 3> child_targets;
+    for (std::size_t group = 0U; group < child_targets.size(); ++group) {
+      child_targets[group] = BigInt::from_words(capture.child_targets_words_le[group]);
+      if (child_targets[group].bit_length() > capture.parameters.n) {
+        result.status = Status::InvalidConfiguration;
+        result.message = "root count child target exceeds the captured modulus";
+        return result;
+      }
+    }
+    const BigInt root_target = BigInt::from_words(capture.root_target_words_le);
+    if (root_target.bit_length() > capture.parameters.n) {
+      result.status = Status::InvalidConfiguration;
+      result.message = "root count target exceeds the captured modulus";
+      return result;
+    }
+
+    std::array<std::vector<BigEntry>, 3> children;
+    for (std::size_t group = 0U; group < children.size(); ++group) {
+      children[group].reserve(capture.children[group].size());
+      for (std::size_t entry = 0U; entry < capture.children[group].size(); ++entry) {
+        const auto& digits = capture.children[group][entry];
+        if (digits.size() != capture.parameters.n) {
+          result.status = Status::InvalidConfiguration;
+          result.message = "root report capture digit width is invalid";
+          return result;
+        }
+        BigInt residue = BigInt::from_words(capture.residues_words_le[group][entry]);
+        if (residue.bit_length() > capture.parameters.n ||
+            !masked(subtract_mod(residue, child_targets[group], capture.parameters.n),
+                    capture.parameters.r1)
+                 .is_zero()) {
+          result.status = Status::InvalidConfiguration;
+          result.message = "root report capture violates the child target invariant";
+          return result;
+        }
+        children[group].push_back(BigEntry{pack_digits(digits), std::move(residue)});
+      }
+    }
+
+    Status root_status = Status::InvariantViolation;
+    const DigitCounts root_counts{0U, capture.parameters.n / 2U, capture.parameters.n / 2U};
+    std::string message;
+    const auto ignored_output = ternary_tiled_l1_to_l0(
+        children[0], children[1], children[2], child_targets, root_target,
+        capture.parameters, config, output_policy, root_counts, root_budget,
+        result.telemetry, nullptr, root_status, message);
+    if (output_policy == RootOutputPolicy::CountOnly && !ignored_output.empty()) {
+      result.status = Status::InvariantViolation;
+      result.message = "count-only root retained a parent";
+      return result;
+    }
+    if (root_status != Status::Completed) {
+      result.status = root_status;
+      result.message = message;
+      return result;
+    }
+    if (!checked_add(result.telemetry.working_peak_bytes, conversion_bytes,
+                     result.telemetry.working_peak_bytes) ||
+        !checked_add(result.telemetry.allocated_bytes, conversion_bytes,
+                     result.telemetry.allocated_bytes) ||
+        !limits::checked::fits_memory_budget(0U, result.telemetry.working_peak_bytes,
+                                              config.memory_limit_bytes)) {
+      result.status = Status::ResourceLimit;
+      result.message = "root report working-memory accounting overflow";
+      return result;
+    }
+    result.effective_root_output_policy = output_policy;
+    result.valid_root_count = result.telemetry.valid_root_count;
+    result.retained_root_count = ignored_output.size();
+    result.status = Status::Completed;
+    return result;
+  } catch (const std::bad_alloc&) {
+    FullTerRootReportResult result;
+    result.status = Status::ResourceLimit;
+    result.message = "root report allocation failed";
+    return result;
+  } catch (const std::length_error& error) {
+    FullTerRootReportResult result;
+    result.status = Status::ResourceLimit;
+    result.message = error.what();
+    return result;
+  } catch (const std::invalid_argument& error) {
+    FullTerRootReportResult result;
+    result.status = Status::InvalidConfiguration;
+    result.message = error.what();
+    return result;
+  }
+}
+
+FullTerRootCountResult count_full_ter_root(const FullTerRootCapture& capture,
+                                           const FullTerConfig& config) {
+  const auto report = report_full_ter_root(capture, config, RootOutputPolicy::CountOnly);
+  return {report.status, report.valid_root_count, report.telemetry, report.message};
 }
 
 FullTerResult solve_full_ter(const Instance& instance, const FullTerConfig& config) {

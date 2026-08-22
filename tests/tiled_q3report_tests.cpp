@@ -119,6 +119,21 @@ ter::TiledVisitDecision cancel_immediately(void* context,
   return ter::TiledVisitDecision::Cancelled;
 }
 
+struct StopCollector {
+  std::uint64_t visited = 0;
+  Triple first{};
+};
+
+ter::TiledVisitDecision stop_after_first(void* context,
+                                         const ter::EntryId x,
+                                         const ter::EntryId y,
+                                         const ter::EntryId z) {
+  auto* const collector = static_cast<StopCollector*>(context);
+  ++collector->visited;
+  collector->first = Triple{x, y, z};
+  return ter::TiledVisitDecision::Stop;
+}
+
 [[nodiscard]] ter::TiledQ3ReportConfig config_with(const std::uint32_t tile_bits) {
   ter::TiledQ3ReportConfig config;
   config.preferred_tile_bits = tile_bits;
@@ -411,6 +426,18 @@ void visitor_decisions_stop_the_scan() {
   require(cancelled.status == ter::TiledQ3ReportStatus::Cancelled,
           "a visitor cancellation surfaces as Cancelled");
   require(cancellation.visited == 1U, "cancellation stops after the requesting visitor call");
+
+  const auto complete =
+      ter::tiled_q3report_count(a, b, c, 0U, kQ, config_with(15U));
+  StopCollector stopped;
+  const auto early =
+      ter::tiled_q3report_report(a, b, c, 0U, kQ, config_with(15U), stop_after_first, &stopped);
+  require(early.status == ter::TiledQ3ReportStatus::StoppedByVisitor,
+          "a visitor Stop surfaces as successful StoppedByVisitor");
+  require(stopped.visited == 1U && early.telemetry.raw_triples == 1U,
+          "successful stop performs no later visitor calls");
+  require(early.telemetry.executed_pairs < complete.telemetry.executed_pairs,
+          "successful-stop telemetry reports only pairs actually probed");
 }
 
 // The reporter is deliberately a low-bit locator. This controlled 47-bit

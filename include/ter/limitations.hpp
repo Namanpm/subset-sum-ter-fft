@@ -131,7 +131,7 @@ inline constexpr std::uint64_t kPoolSamplingAttemptSlack = 65'536U;
 }  // namespace paper_crossover
 
 namespace benchmark {
-inline constexpr std::uint64_t kFullTerMemoryBytes = 256ULL * kBytesPerMiB;
+inline constexpr std::uint64_t kFullTerMemoryBytes = 4ULL * 1024ULL * kBytesPerMiB;
 // Fixed finite-sanity smoke-fixture policy.  These values describe the
 // benchmark input, not the FullTer dimension domain.
 inline constexpr std::uint32_t kFullTerFixtureN = 36U;

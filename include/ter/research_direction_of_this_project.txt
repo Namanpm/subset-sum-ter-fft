@@ -1,1 +1,0 @@
-Can the practical L1→L0 bottleneck of depth-3 TER be replaced by an exact bounded-memory cache-tiled merge whose execution parameters are selected adaptively, substantially reducing memory and runtime on realistic TER workloads?
