@@ -11,6 +11,11 @@
 
 namespace {
 
+static_assert(static_cast<std::uint8_t>(ter::Status::Completed) == 0U);
+static_assert(static_cast<std::uint8_t>(ter::Status::InvariantViolation) == 9U);
+static_assert(static_cast<std::uint8_t>(ter::Status::NotApplicable) == 10U);
+static_assert(static_cast<std::uint8_t>(ter::Status::UnsupportedWidth) == 11U);
+
 void require(const bool condition, const std::string_view message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -76,6 +81,23 @@ void test_control_panel_wiring() {
               ter::limits::benchmark::kFullTerMemoryBytes ==
                   panel::benchmark::kFullTerMemoryBytes,
           "the control panel drives NTT, Q3, crossover, and benchmark policies");
+}
+
+void test_root_partition_policy() {
+  namespace partition = ter::limits::control_panel::root_partition;
+  require(partition::kDefaultThreads == 1U &&
+              partition::kCurrentScatterMaximumBits == 16U &&
+              partition::kBlockInPlaceBits == 8U &&
+              partition::kDefaultBlockBytes == 2U * 1024U &&
+              partition::kMinimumBlockBytes == 64U &&
+              partition::kMaximumPhysicalBits == 16U &&
+              partition::kMaximumProjectionBits == 32U,
+          "root partition policy retains its declared defaults");
+  require(ter::limits::is_power_of_two(partition::kDefaultBlockBytes) &&
+              ter::limits::is_power_of_two(partition::kMinimumBlockBytes) &&
+              partition::kDefaultBlockBytes >= partition::kMinimumBlockBytes &&
+              partition::kDefaultBlockBytes % partition::kMinimumBlockBytes == 0U,
+          "root partition block defaults are compatible power-of-two byte sizes");
 }
 
 void test_checked_arithmetic_policy() {
@@ -208,6 +230,7 @@ void test_n72_full_benchmark_ceiling_regression() {
 
 int main() {
   test_control_panel_wiring();
+  test_root_partition_policy();
   test_full_ter_shape_policy();
   test_checked_arithmetic_policy();
   test_oracle_and_tiled_policy();

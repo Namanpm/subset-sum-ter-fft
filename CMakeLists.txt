@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.24)
 
 project(ter_t0_baseline VERSION 0.1.0 LANGUAGES CXX)
 
+find_package(Threads REQUIRED)
+include(CTest)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -85,6 +88,9 @@ add_library(
     src/q3report_crossover.cpp
     src/q3report_paper_crossover.cpp
     src/reference_vector.cpp
+    src/root_partition.cpp
+    src/root_partition_block_inplace.cpp
+    src/root_partition_current_scatter.cpp
     src/shape.cpp
     src/stress_generator.cpp
     src/tiled_q3report.cpp
@@ -95,6 +101,13 @@ target_include_directories(
     ter_t0
     PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+target_link_libraries(ter_t0 PRIVATE Threads::Threads)
+target_compile_definitions(
+    ter_t0
+    PRIVATE
+    $<$<BOOL:${BUILD_TESTING}>:TER_ROOT_PARTITION_TESTING=1>
 )
 
 ter_enable_strict_warnings(ter_t0)
@@ -227,12 +240,42 @@ add_test(
 )
 
 add_executable(
+    ter_root_partition_tests
+    tests/root_partition_tests.cpp
+    bench/ter_root_capture_adapter.cpp
+)
+target_link_libraries(ter_root_partition_tests PRIVATE ter_t0)
+target_include_directories(
+    ter_root_partition_tests
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/bench"
+)
+target_compile_definitions(
+    ter_root_partition_tests
+    PRIVATE
+    $<$<BOOL:${BUILD_TESTING}>:TER_ROOT_PARTITION_TESTING=1>
+)
+ter_enable_strict_warnings(ter_root_partition_tests)
+ter_enable_release_ipo(ter_root_partition_tests)
+add_test(NAME ter_root_partition_tests COMMAND ter_root_partition_tests)
+
+add_executable(
     ter_baseline_bench
     bench/ter_baseline_bench.cpp
 )
 target_link_libraries(ter_baseline_bench PRIVATE ter_t0)
 ter_enable_strict_warnings(ter_baseline_bench)
 ter_enable_release_ipo(ter_baseline_bench)
+
+add_executable(
+    ter_root_partition_bench
+    bench/ter_root_partition_bench.cpp
+    bench/ter_root_capture_adapter.cpp
+)
+target_link_libraries(ter_root_partition_bench PRIVATE ter_t0)
+ter_enable_strict_warnings(ter_root_partition_bench)
+ter_enable_release_ipo(ter_root_partition_bench)
 
 add_executable(
     ter_full_bench

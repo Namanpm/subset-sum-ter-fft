@@ -294,3 +294,19 @@ Testing/
 *.docx
 *.txt
 !CMakeLists.txt
+
+# Third-party license provenance stays versioned despite the *.txt rule above:
+# src/root_partition_block_inplace.cpp cites this file as the BSD-2-Clause text
+# covering its IPS2Ra-derived source, so the citation must resolve in-tree.
+!third_party/licenses/*.txt
+
+# TER root-partition measurement data. Per-repetition rows are bulk (~40 MB) and
+# regenerable; every raw file's SHA-256 is recorded in the versioned
+# data-hashes.jsonl, so local copies stay verifiable without committing them.
+# The Task-11 decision audit trail below is versioned deliberately: the captured
+# root rows plus bench/analyse_root_partition.py reproduce analysis/*.json exactly.
+/results/**/*.jsonl
+!/results/partition/task11-final-20260825/command-manifest.jsonl
+!/results/partition/task11-final-20260825/data-hashes.jsonl
+!/results/partition/task11-final-20260825/captured-root/*.jsonl
+!/results/partition/task11-final-20260825/rerun-N32496-reverse-t2-b2048/*.jsonl

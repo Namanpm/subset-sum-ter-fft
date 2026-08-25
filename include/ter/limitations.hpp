@@ -55,6 +55,16 @@ inline constexpr std::uint32_t kDefaultRootPrefilterBits = 24U;
 inline constexpr std::uint32_t kDefaultRootPreferredTileBits = 15U;
 }  // namespace full_ter
 
+namespace root_partition {
+inline constexpr std::uint32_t kDefaultThreads = 1U;
+inline constexpr std::uint32_t kCurrentScatterMaximumBits = 16U;
+inline constexpr std::uint32_t kBlockInPlaceBits = 8U;
+inline constexpr std::uint32_t kDefaultBlockBytes = 2U * 1024U;
+inline constexpr std::uint32_t kMinimumBlockBytes = 64U;
+inline constexpr std::uint32_t kMaximumPhysicalBits = 16U;
+inline constexpr std::uint32_t kMaximumProjectionBits = 32U;
+}  // namespace root_partition
+
 namespace generator {
 inline constexpr std::uint32_t kDefaultN = 36U;
 inline constexpr std::uint8_t kDefaultB2 = 6U;

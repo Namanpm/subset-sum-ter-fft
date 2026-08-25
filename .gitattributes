@@ -1,0 +1,6 @@
+# The versioned TER root-partition measurement artifacts are hash-verified byte
+# streams: docs/root_partition_decision.md records SHA-256 digests of these exact
+# files, and results/partition/task11-final-20260825/data-hashes.jsonl records a
+# digest for every raw campaign file. core.autocrlf must therefore never rewrite
+# their line endings, or the recorded digests stop verifying after a checkout.
+/results/** -text

@@ -18,6 +18,8 @@ enum class Status : std::uint8_t {
   ResourceLimit,
   Cancelled,
   InvariantViolation,
+  NotApplicable,
+  UnsupportedWidth,
 };
 
 enum class TerExecutionMode : std::uint8_t {
