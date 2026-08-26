@@ -95,7 +95,10 @@ Status partition_chunk(const std::span<TerPartitionEntry> entries,
          offset < bucket_offsets.size(); ++offset) {
       bucket_offsets[offset] = 1U;
     }
+    // The lone record already occupies its output position, so it counts as
+    // written even though no physical move happens (see PartitionStats).
     stats.records_classified = 1U;
+    stats.records_written = 1U;
     return Status::Completed;
   }
 

@@ -644,26 +644,46 @@ void canonicalize(std::vector<BigEntry>& entries) {
   return result;
 }
 
+// Canonical capacity-aware accounting for a retained std::vector<BigEntry>
+// (repair item P24).
+//
+// The previous version charged sizeof(BigEntry) per *live* element and sized
+// residues with words().size().  Both understate what the process still holds:
+// a merge output keeps its grown allocation after canonicalization erases
+// elements, and a BigInt keeps its word capacity.  A declared memory cap built
+// on the old numbers was therefore not conservative.  Every resident/peak
+// computation must use this one function so audit and non-audit modes, and the
+// root and non-root stages, all mean the same thing by "bytes".
+[[nodiscard]] bool entries_live_bytes(const std::vector<BigEntry>& entries,
+                                      std::uint64_t* const bytes) noexcept {
+  if (bytes == nullptr) {
+    return false;
+  }
+  std::uint64_t total = 0U;
+  if (!checked_multiply(entries.capacity(), sizeof(BigEntry), total)) {
+    return false;
+  }
+  for (const auto& entry : entries) {
+    std::uint64_t packed_bytes = 0U;
+    std::uint64_t residue_bytes = 0U;
+    if (!checked_multiply(entry.digits.words.capacity(), sizeof(std::uint64_t),
+                          packed_bytes) ||
+        !checked_multiply(entry.residue.words().capacity(), sizeof(std::uint32_t),
+                          residue_bytes) ||
+        !checked_add(total, packed_bytes, total) ||
+        !checked_add(total, residue_bytes, total)) {
+      return false;
+    }
+  }
+  *bytes = total;
+  return true;
+}
+
 [[nodiscard]] std::uint64_t estimated_entries_bytes(
     const std::vector<BigEntry>& entries) {
-  std::uint64_t bytes = 0;
-  for (const auto& entry : entries) {
-    std::uint64_t entry_bytes = sizeof(BigEntry);
-    std::uint64_t residue_bytes = 0;
-    if (!checked_multiply(entry.residue.words().size(),
-                          sizeof(std::uint32_t),
-                          residue_bytes)) {
-      return std::numeric_limits<std::uint64_t>::max();
-    }
-    std::uint64_t packed_bytes = 0;
-    if (!checked_multiply(entry.digits.words.capacity(),
-                          sizeof(std::uint64_t),
-                          packed_bytes) ||
-        !checked_add(entry_bytes, packed_bytes, entry_bytes) ||
-        !checked_add(entry_bytes, residue_bytes, entry_bytes) ||
-        !checked_add(bytes, entry_bytes, bytes)) {
-      return std::numeric_limits<std::uint64_t>::max();
-    }
+  std::uint64_t bytes = 0U;
+  if (!entries_live_bytes(entries, &bytes)) {
+    return std::numeric_limits<std::uint64_t>::max();
   }
   return bytes;
 }
@@ -777,6 +797,32 @@ void canonicalize(std::vector<BigEntry>& entries) {
          residue_words * sizeof(std::uint32_t);
 }
 
+// Per-surviving-output admission cost, including provenance when audit mode
+// retains it (repair item P26).
+//
+// A ProvenanceRecord and its packed parent are real retained bytes, so a merge
+// that ignored them admitted more outputs under audit than the declared cap
+// actually allows.  A memory cap must mean the same thing with audit on and
+// off; only the native tiled L2->L1 path charged this before.
+[[nodiscard]] bool merge_output_unit_bytes(const std::uint32_t n,
+                                           const bool retains_provenance,
+                                           std::uint64_t* const bytes) noexcept {
+  if (bytes == nullptr) {
+    return false;
+  }
+  std::uint64_t total = estimated_entry_bytes(n);
+  if (retains_provenance) {
+    const std::uint64_t packed_word_bytes =
+        2U * ((static_cast<std::uint64_t>(n) + 63U) / 64U) * sizeof(std::uint64_t);
+    if (!checked_add(total, sizeof(ProvenanceRecord), total) ||
+        !checked_add(total, packed_word_bytes, total)) {
+      return false;
+    }
+  }
+  *bytes = total;
+  return true;
+}
+
 [[nodiscard]] std::vector<BigEntry> binary_mitm(
     const std::vector<BigEntry>& left,
     const std::vector<BigEntry>& right,
@@ -820,7 +866,13 @@ void canonicalize(std::vector<BigEntry>& entries) {
     message = "L3-to-L2 residue index exceeds the declared resource limit";
     return {};
   }
-  const std::uint64_t entry_bytes = estimated_entry_bytes(left.front().digits.n);
+  std::uint64_t entry_bytes = 0U;
+  if (!merge_output_unit_bytes(left.front().digits.n, provenance != nullptr,
+                               &entry_bytes)) {
+    status = Status::ResourceLimit;
+    message = "L3-to-L2 output accounting overflow";
+    return {};
+  }
   const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : index_remaining / entry_bytes;
   for (std::uint32_t id = 0; id < right.size(); ++id) {
     right_index.emplace_back(masked(right[id].residue, modulus_bits), id);
@@ -937,7 +989,13 @@ void canonicalize(std::vector<BigEntry>& entries) {
     message = "native ternary pair index exceeds the declared resource limit";
     return {};
   }
-  const std::uint64_t entry_bytes = estimated_entry_bytes(third.front().digits.n);
+  std::uint64_t entry_bytes = 0U;
+  if (!merge_output_unit_bytes(third.front().digits.n, provenance != nullptr,
+                               &entry_bytes)) {
+    status = Status::ResourceLimit;
+    message = "native ternary output accounting overflow";
+    return {};
+  }
   const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : pair_remaining / entry_bytes;
   if (third.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
@@ -1007,6 +1065,14 @@ struct FullTerTiledContext {
   std::vector<ProvenanceRecord>* provenance = nullptr;
   FullTerStageTelemetry* telemetry = nullptr;
   std::uint64_t maximum_outputs = 0;
+  // Repair item P13. When r1-r2 <= 32 the projected quotient is the whole
+  // quotient and the tiled match decides. Above that the match is an exact
+  // prefilter on the low 32 bits, and the parent residue must still be shown
+  // congruent to the L1 target modulo 2^r1 before the parent may be retained.
+  const BigInt* parent_target_r1 = nullptr;
+  std::uint32_t modulus_bits = 0U;
+  std::uint32_t r1 = 0U;
+  bool projection_is_decisive = true;
 };
 
 TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
@@ -1028,13 +1094,37 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   if (!parent.has_value()) {
     return TiledVisitDecision::Continue;
   }
-  context->result->push_back(BigEntry{
-      std::move(*parent),
-      add_mod(add_mod((*context->first)[first_id].residue,
-                      (*context->second)[second_id].residue,
-                      (*context->third)[third_id].digits.n),
-              (*context->third)[third_id].residue,
-              (*context->third)[third_id].digits.n)});
+  if (context->projection_is_decisive) [[likely]] {
+    // r1-r2 <= 32: the tiled match proved the whole quotient congruence, so
+    // this stays the original single-expression construction. Kept separate
+    // from the wide path below because interposing a named residue here cost a
+    // measured 6.9% of L2-to-L1 time at n=72.
+    context->result->push_back(BigEntry{
+        std::move(*parent),
+        add_mod(add_mod((*context->first)[first_id].residue,
+                        (*context->second)[second_id].residue,
+                        (*context->third)[third_id].digits.n),
+                (*context->third)[third_id].residue,
+                (*context->third)[third_id].digits.n)});
+  } else {
+    // r1-r2 > 32: the tiled match only proved the low 32 quotient bits. An L1
+    // entry is well formed only when its residue is congruent to the L1 target
+    // modulo 2^r1, so prove that exactly over the arbitrary-width words rather
+    // than trusting the projection.
+    BigInt parent_residue =
+        add_mod(add_mod((*context->first)[first_id].residue,
+                        (*context->second)[second_id].residue,
+                        (*context->third)[third_id].digits.n),
+                (*context->third)[third_id].residue,
+                (*context->third)[third_id].digits.n);
+    if (!masked(subtract_mod(parent_residue, *context->parent_target_r1,
+                             context->modulus_bits),
+                context->r1)
+             .is_zero()) {
+      return TiledVisitDecision::Continue;
+    }
+    context->result->push_back(BigEntry{std::move(*parent), std::move(parent_residue)});
+  }
   if (context->provenance != nullptr) {
     context->provenance->push_back(ProvenanceRecord{context->result->back().digits,
                                                     first_id,
@@ -1076,10 +1166,18 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
     return {};
   }
 
+  // Repair item P13: project onto b1' = min(r1, r2 + 32). Masking a residue to
+  // 2^b1' and shifting by r2 yields exactly the low 32 bits of the true
+  // quotient, so this is identical to the old construction whenever
+  // r1-r2 <= 32 and an exact prefilter above it.
+  const std::uint32_t projected_b1 =
+      std::min(parameters.r1, parameters.r2 + limits::arithmetic::kMaximumQuotientBits);
+  const bool projection_is_decisive =
+      parameters.r1 - parameters.r2 <= limits::arithmetic::kMaximumQuotientBits;
   const auto arithmetic = build_arithmetic(
       parameters.n,
       static_cast<std::uint8_t>(parameters.r2),
-      static_cast<std::uint8_t>(parameters.r1),
+      static_cast<std::uint8_t>(projected_b1),
       first_target_r2.to_uint64(),
       second_target_r2.to_uint64(),
       parent_target_r1.to_uint64());
@@ -1179,11 +1277,30 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
                                   static_cast<EntryId>(index)});
   }
 
+  // Repair item P25: maximum_outputs is the memory-budget ceiling, not an
+  // expected cardinality.  Reserving it up front retained an allocation sized
+  // by the cap (gigabytes at a 4 GiB budget) even when the stage produced a
+  // handful of survivors.  The vectors now grow geometrically like the root
+  // output path; maximum_outputs stays purely as the admission bound enforced
+  // by FullTerTiledContext.
+  // Repair item P25, performance follow-up -- MEASURED AND REJECTED.
+  //
+  // Growing from zero costs a measured +8.2% of this stage at n=72. An
+  // input-derived initial reserve was tried: under the reporter's projected
+  // quotient modulus q the expected triple count is |A|*|B|*|C|/q, which at
+  // n=72 predicts 111,437 against 110,160 measured modular candidates -- an
+  // accurate estimate. Reserving it was still worse, because the structural
+  // filter keeps only 19,109 of those, so the reserve over-allocates 5.8x and
+  // the resulting sparse L1 lists hurt the downstream root scan:
+  //
+  //     stage        pre-repair   geometric growth   input-derived reserve
+  //     L2->L1        98.28 ms    106.35 ms (+8.2%)  111.56 ms (+13.5%)
+  //     L1->L0       531.79 ms    530.89 ms (-0.2%)  584.76 ms (+10.0%)
+  //     whole solver 647.86 ms    658.40 ms (+1.6%)  713.52 ms (+10.1%)
+  //
+  // Geometric growth therefore stays. The +8.2% is accepted as the price of
+  // removing a 6.9 GB commit; reserving the budget ceiling must never return.
   std::vector<BigEntry> result;
-  result.reserve(static_cast<std::size_t>(maximum_outputs));
-  if (provenance != nullptr) {
-    provenance->reserve(static_cast<std::size_t>(maximum_outputs));
-  }
   FullTerTiledContext context;
   context.first = &first;
   context.second = &second;
@@ -1193,6 +1310,10 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   context.provenance = provenance;
   context.telemetry = &telemetry;
   context.maximum_outputs = maximum_outputs;
+  context.parent_target_r1 = &parent_target_r1;
+  context.modulus_bits = parameters.n;
+  context.r1 = parameters.r1;
+  context.projection_is_decisive = projection_is_decisive;
 
   TiledQ3ReportConfig tiled_config;
   tiled_config.preferred_tile_bits = limits::tiled::kDefaultPreferredTileBits;
@@ -1244,18 +1365,11 @@ TiledVisitDecision full_ter_tiled_visitor(void* const opaque,
   if (bytes == nullptr) {
     return false;
   }
+  // Shares entries_live_bytes() so the root stage and every other stage agree
+  // on what a retained entry vector costs (repair item P24).
   std::uint64_t total = 0U;
-  if (!checked_multiply(entries.capacity(), sizeof(BigEntry), total)) {
+  if (!entries_live_bytes(entries, &total)) {
     return false;
-  }
-  for (const auto& entry : entries) {
-    std::uint64_t packed_bytes = 0U;
-    std::uint64_t residue_bytes = 0U;
-    if (!checked_multiply(entry.digits.words.capacity(), sizeof(std::uint64_t), packed_bytes) ||
-        !checked_multiply(entry.residue.words().capacity(), sizeof(std::uint32_t), residue_bytes) ||
-        !checked_add(total, packed_bytes, total) || !checked_add(total, residue_bytes, total)) {
-      return false;
-    }
   }
   if (provenance != nullptr) {
     std::uint64_t outer_bytes = 0U;
@@ -1315,6 +1429,13 @@ struct FullTerRootTiledContext {
   RootOutputPolicy output_policy = RootOutputPolicy::FullCanonicalOutput;
   std::uint64_t tau = 0U;
   std::uint64_t quotient_mask = 0U;
+  // Repair item P12. When the root quotient is at most 64 bits wide the
+  // machine-word quotient congruence is exact and decisive, so a residue
+  // disagreement downstream is a bug. Above 64 bits the stored quotient holds
+  // only the low 64 bits: agreement is then necessary but not sufficient, and
+  // the arbitrary-width residue words become the deciding authority.
+  bool quotient_is_decisive = true;
+  std::uint32_t modulus_bits = 0U;
   std::uint64_t maximum_outputs = 0U;
   std::uint64_t fixed_bytes = 0U;
   std::uint64_t memory_limit_bytes = 0U;
@@ -1429,6 +1550,22 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     ++context->telemetry->full_quotient_rejects;
     return TiledVisitDecision::Continue;
   }
+  if (!context->quotient_is_decisive) {
+    // Q > 64: the low-64 quotient agreement above is an exact no-false-negative
+    // prefilter only. Decide with the original arbitrary-width residue words --
+    // never by truncation and never by a fingerprint. Rejections are counted as
+    // quotient rejects so the reporter's candidate accounting stays exact.
+    const BigInt wide_residue =
+        add_mod(add_mod((*context->first)[first_id].residue,
+                        (*context->second)[second_id].residue,
+                        context->modulus_bits),
+                (*context->third)[third_id].residue,
+                context->modulus_bits);
+    if (wide_residue != *context->root_target) {
+      ++context->telemetry->full_quotient_rejects;
+      return TiledVisitDecision::Continue;
+    }
+  }
   ++context->telemetry->modular_candidates;
   const bool may_retain = context->output_policy != RootOutputPolicy::CountOnly &&
                           context->result->size() < context->maximum_outputs;
@@ -1507,9 +1644,12 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     status = Status::Completed;
     return {};
   }
-  if (!limits::full_ter::native_root_quotient_supported(parameters.n, parameters.r1)) {
+  // Repair item P12/P14: the bounded tiled root no longer refuses a quotient
+  // wider than one machine word. It streams A x B and never materializes a pair
+  // index, so the only real requirement is a well-formed 0 < r1 < n.
+  if (!limits::full_ter::bounded_root_supported(parameters.n, parameters.r1)) {
     status = Status::InvalidConfiguration;
-    message = "tiled root is outside its uint64_t quotient range";
+    message = "tiled root requires 0 < r1 < n";
     return {};
   }
   if (first.size() > std::numeric_limits<EntryId>::max() ||
@@ -1532,7 +1672,13 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   }
   const std::uint64_t prefilter_q = std::uint64_t{1} << prefilter_bits;
   const std::uint64_t prefilter_mask = prefilter_q - 1U;
-  const std::uint64_t quotient_mask = low_mask(quotient_bits);
+  // The stored quotient keeps min(Q, 64) bits. For Q <= 64 that is the whole
+  // quotient and the congruence decides; for Q > 64 it is an exact prefilter
+  // whose survivors are settled by the arbitrary-width residue comparison.
+  const std::uint32_t checked_quotient_bits =
+      std::min(quotient_bits, limits::arithmetic::kMachineWordBits);
+  const bool quotient_is_decisive = quotient_bits <= limits::arithmetic::kMachineWordBits;
+  const std::uint64_t quotient_mask = low_mask(checked_quotient_bits);
   telemetry.quotient_bits = quotient_bits;
   telemetry.prefilter_bits = prefilter_bits;
 
@@ -1597,18 +1743,19 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     return {};
   }
 
-  const auto derive_quotient = [&parameters](const BigEntry& entry,
-                                               const BigInt& child_target,
-                                               std::uint64_t* const out) {
+  const auto derive_quotient = [&parameters, checked_quotient_bits](
+                                   const BigEntry& entry,
+                                   const BigInt& child_target,
+                                   std::uint64_t* const out) {
     return extract_bits_u64(subtract_mod(entry.residue, child_target, parameters.n),
-                            parameters.r1, parameters.n - parameters.r1, out);
+                            parameters.r1, checked_quotient_bits, out);
   };
   BigInt tau_residue = root_target;
   for (const auto& child_target : child_targets_r1) {
     tau_residue = subtract_mod(tau_residue, child_target, parameters.n);
   }
   std::uint64_t tau = 0U;
-  if (!extract_bits_u64(tau_residue, parameters.r1, quotient_bits, &tau)) {
+  if (!extract_bits_u64(tau_residue, parameters.r1, checked_quotient_bits, &tau)) {
     status = Status::InvariantViolation;
     message = "tiled root could not extract the full quotient target";
     return {};
@@ -1681,6 +1828,8 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
   context.output_policy = output_policy;
   context.tau = tau & quotient_mask;
   context.quotient_mask = quotient_mask;
+  context.quotient_is_decisive = quotient_is_decisive;
+  context.modulus_bits = parameters.n;
   context.maximum_outputs = maximum_outputs;
   context.fixed_bytes = fixed_bytes;
   context.memory_limit_bytes = memory_limit_bytes;
@@ -1845,7 +1994,13 @@ TiledVisitDecision full_ter_root_tiled_visitor(void* const opaque,
     return {};
   }
   std::vector<BigEntry> result;
-  const std::uint64_t entry_bytes = estimated_entry_bytes(third.front().digits.n);
+  std::uint64_t entry_bytes = 0U;
+  if (!merge_output_unit_bytes(third.front().digits.n, provenance != nullptr,
+                               &entry_bytes)) {
+    status = Status::ResourceLimit;
+    message = "ternary output accounting overflow";
+    return {};
+  }
   const std::uint64_t maximum_outputs = entry_bytes == 0U ? 0U : pair_remaining / entry_bytes;
   if (third.size() > std::numeric_limits<std::uint32_t>::max()) {
     status = Status::ResourceLimit;
@@ -2809,8 +2964,8 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
     return result;
   }
   result.telemetry.parameters = parameters.value;
-  if (limits::full_ter::native_root_quotient_supported(parameters.value.n,
-                                                        parameters.value.r1) &&
+  if (limits::full_ter::bounded_root_supported(parameters.value.n,
+                                              parameters.value.r1) &&
       !limits::full_ter::root_prefilter_configuration_supported(
           config.root_prefilter_bits,
           config.root_preferred_tile_bits,
@@ -3122,7 +3277,10 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
           limits::oracle::cubic_work_supported(oracle_work);
       std::vector<ProvenanceRecord> optimized_provenance;
       Status stage_status = Status::InvariantViolation;
-      if (limits::tiled::native_full_ter_l2_l1_supported(parameters.value.r1,
+      // Repair item P13: wide r1-r2 now stays on the bounded projected path
+      // instead of diverting to the pair-materializing generic merge.
+      if (limits::tiled::bounded_full_ter_l2_l1_supported(parameters.value.n,
+                                                          parameters.value.r1,
                                                           parameters.value.r2)) {
         level1[group] = ternary_tiled_l2_to_l1_native(
             level2[group * 3U],
@@ -3211,8 +3369,11 @@ FullTerResult solve_full_ter_impl(const Instance& instance, const FullTerConfig&
         checked_multiply(level1[0].size(), level1[1].size(), root_pairs) &&
         checked_multiply(root_pairs, level1[2].size(), root_work) &&
           limits::oracle::cubic_work_supported(root_work);
+    // Repair item P12/P14: any well-formed shape now takes the bounded
+    // streaming root. A quotient wider than one machine word no longer diverts
+    // the production path into the pair-materializing generic merge.
     const bool tiled_root_supported =
-        limits::full_ter::native_root_quotient_supported(parameters.value.n, parameters.value.r1);
+        limits::full_ter::bounded_root_supported(parameters.value.n, parameters.value.r1);
     // The legacy multiword root reference remains canonical. The M2 root is
     // the bounded Phase-5 execution path; audit always wins over its default
     // first-witness policy.
@@ -3566,8 +3727,8 @@ FullTerRootReportResult report_full_ter_root(const FullTerRootCapture& capture,
         !root_output_policy_supported(output_policy) ||
         !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
         capture.parameters.n == 0U || capture.parameters.r1 >= capture.parameters.n ||
-        !limits::full_ter::native_root_quotient_supported(capture.parameters.n,
-                                                           capture.parameters.r1) ||
+        !limits::full_ter::bounded_root_supported(capture.parameters.n,
+                                                  capture.parameters.r1) ||
         !limits::full_ter::root_prefilter_configuration_supported(
             config.root_prefilter_bits, config.root_preferred_tile_bits,
             capture.parameters.n - capture.parameters.r1)) {

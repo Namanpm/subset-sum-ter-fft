@@ -1,3 +1,4 @@
+#include "ter/arithmetic.hpp"
 #include "ter/full_ter.hpp"
 #include "ter/merge.hpp"
 
@@ -669,9 +670,274 @@ void test_failure_semantics() {
           "zero M2 root tile width must fail closed");
 }
 
+// ---------------------------------------------------------------------------
+// Gate H: wide L2->L1, repair item P13.
+//
+// The bounded L2->L1 path projects onto b1' = min(r1, r2+32). Everything rests
+// on one identity: masking a residue to 2^b1' and shifting right by r2 yields
+// exactly the low 32 bits of the true quotient ((residue - target) mod 2^r1)
+// >> r2. If that fails, the "exact prefilter" would drop real witnesses.
+// ---------------------------------------------------------------------------
+
+void test_wide_l2_l1_projection_is_exactly_the_low_quotient() {
+  struct Shape {
+    std::uint32_t n;
+    std::uint32_t r1;
+    std::uint32_t r2;
+  };
+  // Includes finite-sanity n=144 (r1-r2 = 37) and n=180 (r1-r2 = 46), plus the
+  // boundary at exactly 32 where the projection must stay decisive.
+  constexpr std::array<Shape, 6> shapes{{
+      {144U, 53U, 16U}, {180U, 62U, 21U}, {108U, 39U, 12U},
+      {72U, 25U, 7U},   {128U, 50U, 18U}, {128U, 44U, 12U},
+  }};
+  std::uint64_t state = 0x9E3779B97F4A7C15ULL;
+  const auto next = [&state]() {
+    state += 0x9E3779B97F4A7C15ULL;
+    std::uint64_t z = state;
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
+    return z ^ (z >> 31);
+  };
+
+  for (const auto [n, r1, r2] : shapes) {
+    const std::uint32_t projected_b1 = std::min(r1, r2 + 32U);
+    require(ter::limits::tiled::bounded_full_ter_l2_l1_supported(n, r1, r2),
+            "the wide L2-to-L1 shapes under test must be admissible");
+    const auto arithmetic = ter::build_arithmetic(
+        n, static_cast<std::uint8_t>(r2), static_cast<std::uint8_t>(projected_b1),
+        0U, 0U, 0U);
+    require(arithmetic.status == ter::Status::Completed,
+            "projected L2-to-L1 arithmetic must build for every admissible shape");
+    // TER semantics: an L2 residue agrees with its child target modulo 2^r2,
+    // and the quotient measures the remaining difference over 2^r1. So the
+    // target is masked to 2^r2 while the residue is masked to the modulus of
+    // whichever construction is being evaluated.
+    const std::uint64_t true_mask_m1 = (std::uint64_t{1} << r1) - 1U;
+    for (int trial = 0; trial < 4096; ++trial) {
+      const std::uint64_t residue = next();
+      const std::uint64_t child_target = next() & arithmetic.value.mask_m2;
+      const std::uint64_t true_delta = (residue - child_target) & true_mask_m1;
+      const auto expected =
+          static_cast<std::uint32_t>((true_delta >> r2) & 0xFFFFFFFFU);
+      const auto actual = ter::quotient_residue(residue & arithmetic.value.mask_m1,
+                                                child_target, arithmetic.value);
+      require(static_cast<std::uint32_t>(actual) == expected,
+              "projected L2-to-L1 quotient must equal the low 32 bits of the true quotient");
+    }
+  }
+}
+
+void test_l2_l1_and_root_width_gates_cover_the_finite_ladder() {
+  // Every finite-sanity dimension the solver can construct must now select a
+  // bounded streaming path on both merges (repair items P12/P13/P14).
+  for (const std::uint32_t n : {36U, 72U, 108U, 144U, 180U, 216U, 252U}) {
+    const auto parameters =
+        ter::derive_full_ter_parameters(ter::ShapeFamily::FiniteSanity, n, n);
+    require(parameters.status == ter::Status::Completed,
+            "every multiple of 36 under test must derive a finite shape");
+    const auto& value = parameters.value;
+    require(ter::limits::full_ter::bounded_root_supported(n, value.r1),
+            "the bounded root must admit every finite-sanity dimension");
+    require(ter::limits::tiled::bounded_full_ter_l2_l1_supported(n, value.r1, value.r2),
+            "the bounded L2-to-L1 path must admit every finite-sanity dimension");
+  }
+  // The narrower "decisive" predicates must still report the truth: n=36/72
+  // decide by quotient alone, n=108 and above need the residue authority.
+  require(ter::limits::full_ter::native_root_quotient_supported(72U, 25U),
+          "n=72 root quotient must remain decisive at Q=47");
+  require(!ter::limits::full_ter::native_root_quotient_supported(108U, 39U),
+          "n=108 root quotient must be reported as non-decisive at Q=69");
+  require(ter::limits::tiled::native_full_ter_l2_l1_supported(25U, 7U),
+          "n=72 L2-to-L1 projection must remain decisive at r1-r2=18");
+  require(!ter::limits::tiled::native_full_ter_l2_l1_supported(53U, 16U),
+          "n=144 L2-to-L1 projection must be reported as non-decisive at r1-r2=37");
+}
+
+// ---------------------------------------------------------------------------
+// Gate D: arbitrary-width bounded root, repair items P12/P14.
+//
+// At finite-sanity n=108 the root quotient is Q = n - r1 = 69 bits, so the
+// stored 64-bit quotient can no longer decide the congruence on its own. This
+// fixture builds two A entries whose low-64 quotients are *identical* and whose
+// full residues differ only at bit 2^103 -- which lands at quotient bit 64,
+// exactly outside the stored window. The quotient prefilter therefore cannot
+// separate them, and only the arbitrary-width residue comparison can. A run
+// that accepted both would be admitting a false positive by truncation.
+// ---------------------------------------------------------------------------
+
+ter::FullTerRootCapture wide_quotient_root_capture() {
+  ter::FullTerRootCapture capture;
+  const auto parameters =
+      ter::derive_full_ter_parameters(ter::ShapeFamily::FiniteSanity, 108U, 108U);
+  require(parameters.status == ter::Status::Completed,
+          "the wide-root fixture needs finite n=108 parameters");
+  require(parameters.value.r1 == 39U && parameters.value.n - parameters.value.r1 == 69U,
+          "the wide-root fixture requires r1=39 and Q=69");
+  capture.status = ter::Status::Completed;
+  capture.parameters = parameters.value;
+
+  // add_three must land on the root shape {0 negative, n/2 zero, n/2 positive}.
+  ter::ReferenceTernaryVector parent(108U, 0);
+  for (std::size_t index = 54U; index < parent.size(); ++index) {
+    parent[index] = 1;
+  }
+  const ter::ReferenceTernaryVector zero(108U, 0);
+  capture.children[0] = {parent, parent};
+  capture.children[1] = {zero};
+  capture.children[2] = {zero};
+
+  // Residues are little-endian 32-bit words over a 108-bit modulus (4 words).
+  // Every residue must stay congruent to its zero child target modulo 2^r1.
+  // 2^103 satisfies that (103 >= 39) while differing far above bit 63.
+  const std::vector<std::uint32_t> zero_residue{0U, 0U, 0U, 0U};
+  const std::vector<std::uint32_t> high_residue{0U, 0U, 0U, std::uint32_t{1} << 7};
+  capture.residues_words_le[0] = {zero_residue, high_residue};
+  capture.residues_words_le[1] = {zero_residue};
+  capture.residues_words_le[2] = {zero_residue};
+  capture.child_targets_words_le[0] = zero_residue;
+  capture.child_targets_words_le[1] = zero_residue;
+  capture.child_targets_words_le[2] = zero_residue;
+  capture.root_target_words_le = zero_residue;
+  return capture;
+}
+
+void test_wide_quotient_root_uses_arbitrary_width_authority() {
+  const auto capture = wide_quotient_root_capture();
+  ter::FullTerConfig config;
+  config.memory_limit_bytes = 4U * 1024U * 1024U;
+  config.root_prefilter_bits = 1U;
+  config.root_preferred_tile_bits = 1U;
+  config.audit = false;
+
+  const auto canonical = ter::report_full_ter_root(
+      capture, config, ter::RootOutputPolicy::FullCanonicalOutput);
+  require(canonical.status == ter::Status::Completed,
+          "a Q=69 root must run on the bounded path instead of being refused");
+  require(canonical.telemetry.quotient_bits == 69U,
+          "the wide root must report its true 69-bit quotient width");
+  require(canonical.telemetry.pair_records == 0U,
+          "the wide root must not materialize any A x B pair record");
+  require(canonical.telemetry.tiled_pair_probes == 2U,
+          "the wide fixture streams exactly |A|*|B| = 2 probes");
+  // The decisive assertion: entry 1 shares entry 0's low-64 quotient but is not
+  // an arithmetic root, so exactly one of the two triples may survive.
+  require(canonical.valid_root_count == 1U,
+          "only the exact arbitrary-width root may be accepted at Q=69");
+  require(canonical.retained_root_count == 1U,
+          "the wide root must retain exactly its one valid parent");
+  require(canonical.telemetry.low_prefilter_candidates ==
+              canonical.telemetry.full_quotient_rejects +
+                  canonical.telemetry.modular_candidates,
+          "wide-root candidate accounting must stay exact");
+  require(canonical.telemetry.full_quotient_rejects >= 1U,
+          "the residue authority must reject the truncation-equal impostor");
+
+  const auto counted = ter::count_full_ter_root(capture, config);
+  require(counted.status == ter::Status::Completed && counted.valid_root_count == 1U,
+          "count-only wide root must agree with the canonical wide root");
+}
+
+// ---------------------------------------------------------------------------
+// Gate B: memory-accounting repairs P24/P25/P26.
+// ---------------------------------------------------------------------------
+
+[[nodiscard]] ter::FullTerConfig accounting_config(const std::uint64_t cap,
+                                                   const bool audit) {
+  ter::FullTerConfig config;
+  config.family = ter::ShapeFamily::FiniteSanity;
+  config.execution_mode = ter::TerExecutionMode::FullTer;
+  config.target_mode = ter::TerTargetMode::Random;
+  config.seed = 0x46554c4c544552ULL;
+  config.attempt_limit = 1U;
+  config.memory_limit_bytes = cap;
+  config.audit = audit;
+  return config;
+}
+
+// P24: the declared cap must be conservative.  A cap at the reported peak has
+// to remain achievable, and a cap well below it has to fail closed instead of
+// completing while the process still retains more than it declared.
+void test_memory_accounting_is_conservative() {
+  const auto instance = balanced_instance(36U, 17U);
+  const auto generous = ter::solve_full_ter(instance, accounting_config(1U << 30, false));
+  require(generous.status == ter::Status::AttemptLimitReached ||
+              generous.status == ter::Status::Found,
+          "generous-cap accounting probe must reach a terminal search status");
+  const std::uint64_t peak = generous.telemetry.peak_working_bytes;
+  require(peak > 0U, "a completed attempt must report a positive peak");
+
+  const auto at_peak = ter::solve_full_ter(instance, accounting_config(peak, false));
+  require(at_peak.status == generous.status &&
+              at_peak.telemetry.fingerprint == generous.telemetry.fingerprint,
+          "a cap equal to the reported peak must remain achievable");
+
+  const auto starved = ter::solve_full_ter(instance, accounting_config(peak / 4U, false));
+  require(starved.status == ter::Status::ResourceLimit,
+          "a cap far below the reported peak must fail closed as ResourceLimit");
+  require(starved.status != ter::Status::AttemptLimitReached,
+          "a resource refusal must never be reported as an exhausted search");
+}
+
+// P26: audit provenance is retained memory, so the same declared cap must mean
+// the same thing with audit on and off.  Charging provenance can only raise the
+// accounted peak, never lower it.
+void test_audit_provenance_is_charged_against_the_same_cap() {
+  const auto instance = balanced_instance(36U, 17U);
+  const auto plain = ter::solve_full_ter(instance, accounting_config(1U << 30, false));
+  const auto audited = ter::solve_full_ter(instance, accounting_config(1U << 30, true));
+  require(plain.status == ter::Status::AttemptLimitReached ||
+              plain.status == ter::Status::Found,
+          "audit-off probe must reach a terminal search status");
+  require(audited.status == plain.status,
+          "enabling audit must not change the terminal search status");
+  require(audited.telemetry.peak_working_bytes >= plain.telemetry.peak_working_bytes,
+          "audit mode retains provenance and must never account for less memory");
+
+  // Both modes must refuse the same starved cap; audit must not be the mode
+  // that quietly admits more outputs than the cap allows.
+  const std::uint64_t starved = plain.telemetry.peak_working_bytes / 4U;
+  require(ter::solve_full_ter(instance, accounting_config(starved, false)).status ==
+              ter::Status::ResourceLimit &&
+              ter::solve_full_ter(instance, accounting_config(starved, true)).status ==
+                  ter::Status::ResourceLimit,
+          "a starved cap must fail closed identically with audit on and off");
+}
+
+// P25: the tiled L2->L1 stage used to reserve the whole remaining memory
+// budget, so its retained allocation scaled with the declared cap rather than
+// with the surviving output count.  Raising the cap by 16x must not change the
+// exact result or the accounted peak.
+void test_output_growth_is_independent_of_the_declared_cap() {
+  const auto instance = balanced_instance(36U, 17U);
+  // 64-bit literals: 4096U << 20 overflows 32-bit unsigned to zero, which the
+  // solver correctly refuses as an invalid cap rather than treating as huge.
+  const auto small_cap =
+      ter::solve_full_ter(instance, accounting_config(std::uint64_t{256} << 20, false));
+  const auto large_cap =
+      ter::solve_full_ter(instance, accounting_config(std::uint64_t{4096} << 20, false));
+  require(small_cap.status == large_cap.status &&
+              small_cap.witness == large_cap.witness &&
+              small_cap.telemetry.fingerprint == large_cap.telemetry.fingerprint,
+          "a larger memory cap must not change the exact merge result");
+  require(small_cap.telemetry.peak_working_bytes ==
+              large_cap.telemetry.peak_working_bytes,
+          "accounted peak must track surviving outputs, not the declared ceiling");
+  const auto& small_stage = small_cap.telemetry.attempts.front().level2_to_level1;
+  const auto& large_stage = large_cap.telemetry.attempts.front().level2_to_level1;
+  require(small_stage.allocated_bytes == large_stage.allocated_bytes,
+          "L2-to-L1 retained bytes must not scale with the memory budget");
+}
+
 }  // namespace
 
 int main() {
+  test_wide_l2_l1_projection_is_exactly_the_low_quotient();
+  test_l2_l1_and_root_width_gates_cover_the_finite_ladder();
+  test_wide_quotient_root_uses_arbitrary_width_authority();
+  test_memory_accounting_is_conservative();
+  test_audit_provenance_is_charged_against_the_same_cap();
+  test_output_growth_is_independent_of_the_declared_cap();
   test_parameters();
   test_level3_generation();
   test_guided_pipeline_and_replay();

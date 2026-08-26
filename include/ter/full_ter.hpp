@@ -84,7 +84,12 @@ enum class RootOutputPolicy : std::uint8_t {
 
 struct FullTerConfig {
   ShapeFamily family = ShapeFamily::FiniteSanity;
-  TerExecutionMode execution_mode = TerExecutionMode::FixtureTer;
+  // Repair item P8: a default-constructed config passed to solve_full_ter()
+  // must mean complete Full TER execution.  Defaulting to FixtureTer let an
+  // API named solve_full_ter() silently run reduced fixture semantics, so a
+  // caller who forgot this field got a fixture result labelled as a full run.
+  // FixtureTer remains fully supported, but it must now be asked for.
+  TerExecutionMode execution_mode = TerExecutionMode::FullTer;
   TerTargetMode target_mode = TerTargetMode::Random;
   std::uint64_t seed = 1;
   std::uint32_t attempt_limit = limits::full_ter::kDefaultAttemptLimit;

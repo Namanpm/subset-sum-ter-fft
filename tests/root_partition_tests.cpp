@@ -1172,6 +1172,10 @@ void test_empty_and_singleton_csr() {
   require(entries.front().low_k == 0x00000AB0U && entries.front().entry_id == 42U,
           "singleton partition does not move its record");
   require(stats.records_classified == 1U, "singleton partition records its exact classification");
+  // Repair item P23: the trivial path used to report classified=1 written=0,
+  // which contradicted the documented "both equal N" contract.
+  require(stats.records_written == 1U,
+          "singleton partition counts its record as written to its output position");
   for (std::size_t index = 0; index < offsets.size(); ++index) {
     const std::uint64_t expected = index <= bucket ? 0U : 1U;
     require(offsets[index] == expected, "singleton partition writes exact CSR offsets");

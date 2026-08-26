@@ -34,6 +34,11 @@ struct PartitionStats {
   PartitionBackend effective = PartitionBackend::CurrentScatter;
   std::uint64_t histogram_ns = 0, prefix_ns = 0, scatter_ns = 0;
   std::uint64_t local_classification_ns = 0, block_permute_ns = 0, cleanup_ns = 0;
+  // Contract (repair item P23): records_classified counts records whose digit
+  // was read; records_written counts records placed in their final output
+  // partition position. Both equal the input size for every Completed call,
+  // including the trivial N=0 and N=1 paths, where the single record already
+  // occupies its output position and no physical move is required.
   std::uint64_t records_classified = 0, records_written = 0;
   std::uint64_t blocks_flushed = 0, blocks_permuted = 0, partial_records_repaired = 0;
   std::uint64_t histogram_bytes = 0, offset_bytes = 0, record_scratch_bytes = 0;

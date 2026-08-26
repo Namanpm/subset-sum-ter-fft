@@ -392,6 +392,18 @@ inline constexpr std::uint32_t kDefaultRootPreferredTileBits =
   return r1 != 0U && r1 < n && n - r1 <= arithmetic::kMachineWordBits;
 }
 
+// Repair item P12/P14. The bounded tiled root streams the A x B space and never
+// materializes a pair index, so it is admissible for any well-formed shape --
+// including a root quotient wider than one machine word. When
+// native_root_quotient_supported() is false the stored quotient holds only the
+// low 64 bits and acts as an exact no-false-negative prefilter; the
+// arbitrary-width residue words then decide. This predicate exists so a wide
+// quotient selects the bounded path instead of the pair-materializing fallback.
+[[nodiscard]] constexpr bool bounded_root_supported(const std::uint32_t n,
+                                                    const std::uint32_t r1) noexcept {
+  return r1 != 0U && r1 < n;
+}
+
 [[nodiscard]] constexpr bool root_prefilter_configuration_supported(
     const std::uint32_t configured_prefilter_bits,
     const std::uint32_t configured_tile_bits,
@@ -565,6 +577,26 @@ inline constexpr std::uint64_t kMaximumQuotientUniverse =
     const std::uint32_t r2) noexcept {
   return r2 != 0U && r2 < r1 && r1 < arithmetic::kMachineWordBits &&
          r1 - r2 <= kMaximumQuotientBits;
+}
+
+// Repair item P13. The L2->L1 quotient index is 32 bits wide, which used to cap
+// r1-r2 at 32 and divert wider shapes (finite-sanity n=144 has r1-r2=37) into
+// the pair-materializing generic merge. The bounded path now projects onto
+// b1' = min(r1, r2+32), which is exactly the low 32 bits of the true quotient:
+// identical to the old behavior whenever r1-r2 <= 32, and an exact
+// no-false-negative prefilter above it, with the arbitrary-width residue
+// congruence deciding the survivors. The remaining requirement is that the
+// projected modulus stay inside the native signed-arithmetic window.
+[[nodiscard]] constexpr bool bounded_full_ter_l2_l1_supported(
+    const std::uint32_t n,
+    const std::uint32_t r1,
+    const std::uint32_t r2) noexcept {
+  if (r2 == 0U || r2 >= r1 || r1 >= n) {
+    return false;
+  }
+  const std::uint32_t projected_b1 =
+      r1 < r2 + kMaximumQuotientBits ? r1 : r2 + kMaximumQuotientBits;
+  return projected_b1 < arithmetic::kMachineWordBits && projected_b1 < n;
 }
 
 }  // namespace tiled
