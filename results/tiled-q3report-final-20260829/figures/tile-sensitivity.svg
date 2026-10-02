@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="460" viewBox="0 0 780 460" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="780" height="460" fill="#ffffff" />
+<text x="92" y="26" font-size="15" fill="#333333">Tile-width sensitivity: runtime normalized to the fastest tile per (seed, w)</text>
+<line x1="92" y1="362.41" x2="610" y2="362.41" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="366.41" font-size="11" text-anchor="end" fill="#333333">1</text>
+<line x1="92" y1="248.23" x2="610" y2="248.23" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="252.23" font-size="11" text-anchor="end" fill="#333333">10</text>
+<line x1="92" y1="134.04" x2="610" y2="134.04" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="138.04" font-size="11" text-anchor="end" fill="#333333">100</text>
+<line x1="119.75" y1="44" x2="119.75" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="119.75" y="404" font-size="11" text-anchor="middle" fill="#333333">10</text>
+<line x1="212.25" y1="44" x2="212.25" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="212.25" y="404" font-size="11" text-anchor="middle" fill="#333333">12</text>
+<line x1="304.75" y1="44" x2="304.75" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="304.75" y="404" font-size="11" text-anchor="middle" fill="#333333">14</text>
+<line x1="351.00" y1="44" x2="351.00" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="351.00" y="404" font-size="11" text-anchor="middle" fill="#333333">15</text>
+<line x1="397.25" y1="44" x2="397.25" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="397.25" y="404" font-size="11" text-anchor="middle" fill="#333333">16</text>
+<line x1="489.75" y1="44" x2="489.75" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="489.75" y="404" font-size="11" text-anchor="middle" fill="#333333">18</text>
+<line x1="582.25" y1="44" x2="582.25" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="582.25" y="404" font-size="11" text-anchor="middle" fill="#333333">20</text>
+<rect x="92" y="44" width="518" height="342" fill="none" stroke="#333333" stroke-width="1.2" />
+<text x="351" y="430" font-size="12" text-anchor="middle" fill="#333333">requested tile-width exponent SB</text>
+<text x="22" y="215" font-size="12" text-anchor="middle" fill="#333333" transform="rotate(-90 22 215)">normalized slowdown (1.0 = fastest measured tile)</text>
+<polyline points="119.75,362.41 212.25,358.88 304.75,353.08 351.00,350.78 397.25,345.73 489.75,346.18 582.25,344.78" fill="none" stroke="#1f4e79" stroke-width="1.9" />
+<circle cx="119.75" cy="362.41" r="3.4" fill="#1f4e79" />
+<circle cx="212.25" cy="358.88" r="3.4" fill="#1f4e79" />
+<circle cx="304.75" cy="353.08" r="3.4" fill="#1f4e79" />
+<circle cx="351.00" cy="350.78" r="3.4" fill="#1f4e79" />
+<circle cx="397.25" cy="345.73" r="3.4" fill="#1f4e79" />
+<circle cx="489.75" cy="346.18" r="3.4" fill="#1f4e79" />
+<circle cx="582.25" cy="344.78" r="3.4" fill="#1f4e79" />
+<polyline points="119.75,356.44 212.25,362.41 304.75,354.15 351.00,351.72 397.25,347.55 489.75,335.61 582.25,330.49" fill="none" stroke="#c0504d" stroke-width="1.9" />
+<circle cx="119.75" cy="356.44" r="3.4" fill="#c0504d" />
+<circle cx="212.25" cy="362.41" r="3.4" fill="#c0504d" />
+<circle cx="304.75" cy="354.15" r="3.4" fill="#c0504d" />
+<circle cx="351.00" cy="351.72" r="3.4" fill="#c0504d" />
+<circle cx="397.25" cy="347.55" r="3.4" fill="#c0504d" />
+<circle cx="489.75" cy="335.61" r="3.4" fill="#c0504d" />
+<circle cx="582.25" cy="330.49" r="3.4" fill="#c0504d" />
+<polyline points="119.75,301.28 212.25,361.21 304.75,361.20 351.00,355.85 397.25,354.17 489.75,341.03 582.25,309.08" fill="none" stroke="#2e7d32" stroke-width="1.9" />
+<circle cx="119.75" cy="301.28" r="3.4" fill="#2e7d32" />
+<circle cx="212.25" cy="361.21" r="3.4" fill="#2e7d32" />
+<circle cx="304.75" cy="361.20" r="3.4" fill="#2e7d32" />
+<circle cx="351.00" cy="355.85" r="3.4" fill="#2e7d32" />
+<circle cx="397.25" cy="354.17" r="3.4" fill="#2e7d32" />
+<circle cx="489.75" cy="341.03" r="3.4" fill="#2e7d32" />
+<circle cx="582.25" cy="309.08" r="3.4" fill="#2e7d32" />
+<polyline points="119.75,222.15 212.25,313.15 304.75,362.25 351.00,360.41 397.25,358.91 489.75,346.93 582.25,310.87" fill="none" stroke="#7b4f9d" stroke-width="1.9" />
+<circle cx="119.75" cy="222.15" r="3.4" fill="#7b4f9d" />
+<circle cx="212.25" cy="313.15" r="3.4" fill="#7b4f9d" />
+<circle cx="304.75" cy="362.25" r="3.4" fill="#7b4f9d" />
+<circle cx="351.00" cy="360.41" r="3.4" fill="#7b4f9d" />
+<circle cx="397.25" cy="358.91" r="3.4" fill="#7b4f9d" />
+<circle cx="489.75" cy="346.93" r="3.4" fill="#7b4f9d" />
+<circle cx="582.25" cy="310.87" r="3.4" fill="#7b4f9d" />
+<polyline points="119.75,190.00 212.25,230.18 304.75,319.38 351.00,351.26 397.25,362.41 489.75,354.76 582.25,318.12" fill="none" stroke="#b8860b" stroke-width="1.9" />
+<circle cx="119.75" cy="190.00" r="3.4" fill="#b8860b" />
+<circle cx="212.25" cy="230.18" r="3.4" fill="#b8860b" />
+<circle cx="304.75" cy="319.38" r="3.4" fill="#b8860b" />
+<circle cx="351.00" cy="351.26" r="3.4" fill="#b8860b" />
+<circle cx="397.25" cy="362.41" r="3.4" fill="#b8860b" />
+<circle cx="489.75" cy="354.76" r="3.4" fill="#b8860b" />
+<circle cx="582.25" cy="318.12" r="3.4" fill="#b8860b" />
+<polyline points="119.75,153.38 212.25,204.65 304.75,245.12 351.00,285.99 397.25,333.12 489.75,362.41 582.25,326.21" fill="none" stroke="#00707f" stroke-width="1.9" />
+<circle cx="119.75" cy="153.38" r="3.4" fill="#00707f" />
+<circle cx="212.25" cy="204.65" r="3.4" fill="#00707f" />
+<circle cx="304.75" cy="245.12" r="3.4" fill="#00707f" />
+<circle cx="351.00" cy="285.99" r="3.4" fill="#00707f" />
+<circle cx="397.25" cy="333.12" r="3.4" fill="#00707f" />
+<circle cx="489.75" cy="362.41" r="3.4" fill="#00707f" />
+<circle cx="582.25" cy="326.21" r="3.4" fill="#00707f" />
+<polyline points="119.75,109.23 212.25,185.57 304.75,234.00 351.00,246.77 397.25,271.49 489.75,356.94 582.25,362.29" fill="none" stroke="#a0522d" stroke-width="1.9" />
+<circle cx="119.75" cy="109.23" r="3.4" fill="#a0522d" />
+<circle cx="212.25" cy="185.57" r="3.4" fill="#a0522d" />
+<circle cx="304.75" cy="234.00" r="3.4" fill="#a0522d" />
+<circle cx="351.00" cy="246.77" r="3.4" fill="#a0522d" />
+<circle cx="397.25" cy="271.49" r="3.4" fill="#a0522d" />
+<circle cx="489.75" cy="356.94" r="3.4" fill="#a0522d" />
+<circle cx="582.25" cy="362.29" r="3.4" fill="#a0522d" />
+<polyline points="119.75,67.59 212.25,138.46 304.75,206.68 351.00,236.97 397.25,255.69 489.75,295.41 582.25,362.41" fill="none" stroke="#4a4a4a" stroke-width="1.9" />
+<circle cx="119.75" cy="67.59" r="3.4" fill="#4a4a4a" />
+<circle cx="212.25" cy="138.46" r="3.4" fill="#4a4a4a" />
+<circle cx="304.75" cy="206.68" r="3.4" fill="#4a4a4a" />
+<circle cx="351.00" cy="236.97" r="3.4" fill="#4a4a4a" />
+<circle cx="397.25" cy="255.69" r="3.4" fill="#4a4a4a" />
+<circle cx="489.75" cy="295.41" r="3.4" fill="#4a4a4a" />
+<circle cx="582.25" cy="362.41" r="3.4" fill="#4a4a4a" />
+<polyline points="119.75,75.73 212.25,143.49 304.75,213.94 351.00,246.35 397.25,279.41 489.75,325.81 582.25,362.41" fill="none" stroke="#8b1a4b" stroke-width="1.9" />
+<circle cx="119.75" cy="75.73" r="3.4" fill="#8b1a4b" />
+<circle cx="212.25" cy="143.49" r="3.4" fill="#8b1a4b" />
+<circle cx="304.75" cy="213.94" r="3.4" fill="#8b1a4b" />
+<circle cx="351.00" cy="246.35" r="3.4" fill="#8b1a4b" />
+<circle cx="397.25" cy="279.41" r="3.4" fill="#8b1a4b" />
+<circle cx="489.75" cy="325.81" r="3.4" fill="#8b1a4b" />
+<circle cx="582.25" cy="362.41" r="3.4" fill="#8b1a4b" />
+<rect x="628" y="50.00" width="12" height="12" fill="#1f4e79" />
+<text x="646" y="60.50" font-size="11" fill="#333333">w=16</text>
+<rect x="628" y="69.00" width="12" height="12" fill="#c0504d" />
+<text x="646" y="79.50" font-size="11" fill="#333333">w=18</text>
+<rect x="628" y="88.00" width="12" height="12" fill="#2e7d32" />
+<text x="646" y="98.50" font-size="11" fill="#333333">w=20</text>
+<rect x="628" y="107.00" width="12" height="12" fill="#7b4f9d" />
+<text x="646" y="117.50" font-size="11" fill="#333333">w=22</text>
+<rect x="628" y="126.00" width="12" height="12" fill="#b8860b" />
+<text x="646" y="136.50" font-size="11" fill="#333333">w=24</text>
+<rect x="628" y="145.00" width="12" height="12" fill="#00707f" />
+<text x="646" y="155.50" font-size="11" fill="#333333">w=26</text>
+<rect x="628" y="164.00" width="12" height="12" fill="#a0522d" />
+<text x="646" y="174.50" font-size="11" fill="#333333">w=28</text>
+<rect x="628" y="183.00" width="12" height="12" fill="#4a4a4a" />
+<text x="646" y="193.50" font-size="11" fill="#333333">w=30</text>
+<rect x="628" y="202.00" width="12" height="12" fill="#8b1a4b" />
+<text x="646" y="212.50" font-size="11" fill="#333333">w=32</text>
+<line x1="351.00" y1="44" x2="351.00" y2="386" stroke="#999999" stroke-width="1.4" stroke-dasharray="4 4" /><text x="356.00" y="58" font-size="10" fill="#333333">SB=15 frozen production default (fixed before this campaign)</text>
+</svg>

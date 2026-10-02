@@ -73,7 +73,12 @@ FULL_TER_COMPLIANCE.md
 ter_minimal_prototype_implementation_plan.md
 ter_ss_modular_convolution_master_spec.md
 TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md
+TER_L1_to_L0_ARWLF_Architecture_v1.0.md   (current TER² root-backend architecture)
+FROZEN_ROOT_BACKENDS.md
 ```
+
+The v2.1 radix-refined root architecture PDF is superseded and kept unchanged in
+`docs/history/` (see `docs/history/SUPERSEDED.md`).
 
 `FULL_TER_COMPLIANCE.md` governs the classical FullTer solver contract. `TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md` governs the separately authorized count-only NTT experiment. Historical statements saying NTT is absent/out of scope refer to solver integration, not the already implemented isolated Q3REPORT experiment.
 
@@ -555,6 +560,16 @@ full relevant verification -> inspect diff -> concise evidence report
 ```
 
 Ask the user only when a genuinely blocking ambiguity cannot be resolved from the repository or supplied task.
+
+---
+
+## Frozen TER² root backends
+
+K2, K2_WIDE, QUEUE_DENSE and ARWLF (with its dispatcher) are frozen research
+baselines; see `FROZEN_ROOT_BACKENDS.md`. Their 29 source files are pinned by
+`bench/frozen_root_backends.sha256` and CTest `ter_frozen_root_backends`. Do
+not edit them: new ideas become new backends in new files. Only a documented
+bug fix may change a frozen file, following the rules in that document.
 
 ---
 

@@ -1,10 +1,21 @@
 # Tiling the TER L2 to L1 Merge
 
-**Status:** measured prototype, not wired into the repository.
+**Status:** implemented and integrated. `src/tiled_q3report.cpp` owns the tiling arithmetic; the
+Q3REPORT `DIRECT_PRODUCTION_TILED` comparator, both public merges (`run_pair_tiled`,
+`run_pair_tiled_packed`) and the FullTer L2-to-L1 and root stages all route through it.
 **Scope:** the arithmetic-counting stage of the L2 to L1 merge, plus its interaction with the
 existing structural validation.
-**Headline:** 15.9x on the complete merge at the largest executed paper-scaling point, with the
-raw triple count, the structurally valid triple count and the unique parent set all unchanged.
+**Headline (final campaign, MSVC Release, `results/tiled-q3report-final-20260829/`):** at
+`L = 16384` the tiled comparator reached a geometric-mean **12.93x** over `DIRECT_PRODUCTION`
+across the five declared seeds, seed-level bootstrap 95% interval **[10.18, 16.43]**, with the
+raw triple count identical at every one of the 45 executed rows. Below `L = 512` the tiled
+comparator is **slower** than the direct comparator. See Section 10 for the full ladder and
+Section 17 for what the campaign changed about the parameter story.
+
+> Sections 10.1 and 10.2 are the **historical 2026-08 GCC/Linux standalone-prototype**
+> measurements, kept for provenance. The current evidence is Section 16 onward. The two
+> campaigns used different compilers, comparators and memory accounting and must not be
+> averaged.
 
 ---
 
@@ -22,8 +33,11 @@ every one misses cache.
 Tiling fixes this without skipping any work. Bucket A and B by the high bits of their quotient.
 If `a` lies in bucket `i` and `b` in bucket `j`, then `a + b` is confined to a window of width
 `2S` that depends only on `i + j`. Group all bucket pairs by `m = i + j` and process them
-together, holding only that one `2S`-wide slice of the table. Sized so the slice is 256 KiB, every
-probe becomes an L2 cache hit.
+together, holding only that one `2S`-wide slice of the table. Sized so the slice is 256 KiB, the hot
+count window is a private-cache-scale working set rather than a `Q`-wide random-access table.
+
+(No hardware cache counters were collected in any campaign in this repository, so no claim is
+made here about the actual hit rate of any individual probe.)
 
 Same number of operations, same answers, reordered to respect the memory hierarchy.
 
@@ -205,7 +219,7 @@ for m in 0 .. 2P-2:
             j <- m - i
             for a in Ao[Ag[i] .. Ag[i+1]):
                 for b in Bo[Bg[j] .. Bg[j+1]):
-                    raw += cnt[a + b - w0]             # always an L2 hit
+                    raw += cnt[a + b - w0]             # inside the hot 2S window
 
     for x in lo .. hi:                                 # selective clear
         cnt[dk[x] - w0] <- 0
@@ -238,23 +252,62 @@ The prototype uses `SB = 15`:
 | entries per A/B bucket | approximately 8 |
 | C keys per window | approximately 16 |
 
-This was not swept exhaustively; `SB = 15` was chosen to put the slice in L2 and worked at every
-point tested. A sweep is listed as open work in Section 15.
+`SB = 15` was originally chosen to put the slice in L2. The 2026-08-29 sensitivity campaign
+(Section 17) swept `SB` over `{10,12,14,15,16,18,20}` against nine quotient widths and three
+independent seed bases, and found that **the L2-capacity rationale above is not what governs the
+optimum**. What governs it is the per-bucket-pair enumeration cost: the best measured tile keeps
+`P = Q/S` small enough that each bucket holds enough entries to amortize the four offset loads
+the enumeration pays per `(i, j)`. `SB = 15` remains the frozen production default and was not
+retuned on the basis of that campaign.
 
 ---
 
 ## 9. Cost model
 
+Corrected against the actual allocations in `src/tiled_q3report.cpp`. The earlier
+`Theta(L + S)` row was wrong: it omitted the bucket-metadata term entirely.
+
 | | current | tiled |
 |---|---|---|
-| pair probes | `L^2` | `L^2` (identical) |
-| index construction | `O(Q + L)` | `O(L log L + L)` |
-| clearing | `O(Q)` once | `O(L)` total |
-| live working set | `Theta(Q) = Theta(L^2)` | `Theta(L + S)` |
+| logical pair universe | `\|A\|\|B\|` | `\|A\|\|B\|` (identical) |
+| executed pairs | `\|A\|\|B\|` | `<= \|A\|\|B\|`; a bucket group whose `2S` window holds no C key is skipped |
+| worst-case pair work | `O(\|A\|\|B\|)` | `O(\|A\|\|B\|)` (unchanged) |
+| index construction | `O(Q + L)` | `O(A + B + C log C + P)` |
+| clearing | `O(Q)` once | `O(C)` total |
+| total auxiliary storage | `O(Q + L)` | `O(A + B + C + Q/S + S)` |
+| hot random-access window | `Theta(Q)` | `Theta(S)` |
 | probe locality | random over `Q` | sequential within `2S` |
 
-Nothing is skipped and no candidate is pruned. The asymptotic time is unchanged at `Theta(L^2)`.
-The entire gain is the constant factor between an L2 hit and a DRAM round trip.
+**Total auxiliary storage is not the hot window.** Let `P = Q/S`. From
+`tiled_q3report_auxiliary_bytes()`, with `sizeof(TiledQEntry) = 8` and
+`sizeof(DoubledRecord) = 16`:
+
+```
+count mode  = 8A + 8B + 12(P+1) + 32C + 8S
+report mode = 8A + 8B + 12(P+1) + 40C + 8S      (adds the uint32 witness chain)
+```
+
+The three `(P+1)` offset arrays are the two bucket-offset arrays plus the live build
+cursor, all charged at peak. Only the `8S` term is the hot random-access window. The
+`12(P+1)` bucket-metadata term is not negligible: at `Q = 2^32`, `SB = 10` it is 48 MiB.
+
+**Scan cost has a term independent of pair work.** For each non-empty window the
+implementation enumerates every `i` in `[max(0, m-P+1), min(P-1, m)]` and performs four
+offset loads per `i`, *including for bucket pairs where both buckets are empty*. With
+`W_ne` the non-empty window count:
+
+```
+scan = O( C + W_ne * P + executed_pairs ),   W_ne <= min(2P - 1, 4C)
+```
+
+Each doubled key lies in exactly two windows, which is where the `4C` bound comes from;
+the 2026-08-29 campaign observed `W_ne = 16318` against `4C = 16384` at `w = 30`, so the
+bound is essentially tight in the sparse regime. When `Q/S >> C` the `W_ne * P` term
+dominates and the kernel's runtime is governed by bucket-pair enumeration rather than by
+how many pairs it actually executes. Section 17 measures this directly.
+
+Nothing is skipped that could contain a witness, and no candidate is pruned. The
+worst-case asymptotic pair work is unchanged at `O(\|A\|\|B\|)`.
 
 ---
 
@@ -359,7 +412,11 @@ The structural argument is untouched. Direct counting is `Theta(L^2) = Theta(Q)`
 
 ---
 
-## 14. Proposed implementation in this repository
+## 14. Implementation in this repository (completed)
+
+All five steps below were implemented; this section is retained as the design record.
+`direct_production_method` was preserved unchanged, and the tiled comparator was added
+alongside it under its own name with appended-only CSV columns.
 
 **Do not replace `direct_production_method`.** It is the declared comparator of a completed
 experiment with a recorded verdict and a committed CSV. Replacing it silently would break
@@ -382,23 +439,25 @@ Proposed shape:
 
 ---
 
-## 15. What has not been measured
+## 15. What had not been measured as of 2026-08-19
 
-Stated explicitly so none of the above is over-read:
+Kept as the historical open-work list. Items 1, 4 and 6 were closed by the 2026-08-29 campaign;
+see Section 17 for what replaced them.
 
-- **`S` was not swept.** `SB = 15` was picked to fit L2 and never tuned. The optimum may differ
-  per `Q`, and small `Q` may prefer no tiling at all.
+- ~~**`S` was not swept.**~~ Closed: 189-configuration sweep, Section 17.2.
 - **Only the L2 to L1 merge was measured**, not a complete `solve_full_ter` attempt, which also
   performs L3 to L2 generation, three merge groups and witness verification. The share of a whole
-  attempt is unknown.
+  attempt is **still unknown** and remains open.
 - **Section 10.1 used synthetic uniform quotients.** Section 10.2 used real snapshots, and the
   two agree, but the synthetic table should be read as corroboration only.
-- **Single seed** (`0x1001`) for the real-snapshot measurements. The declared multi-seed schedule
-  has not been run against the tiled path.
+- ~~**Single seed** (`0x1001`).~~ Closed: five declared seeds at every list size, Section 17.1.
 - **Single thread throughout.** No claim is made about parallel behaviour, although the window
-  decomposition is embarrassingly parallel over `m`.
-- **No prototype is in the repository.** All figures come from standalone programs linked against
-  the repository library.
+  decomposition is embarrassingly parallel over `m`. **Still open.**
+- ~~**No prototype is in the repository.**~~ Closed: the primitive is integrated; see the Status
+  header.
+- **No hardware cache counters have been collected**, in either campaign. Every statement about
+  cache behaviour in this document is an inference from timing and working-set size, not a
+  counter measurement. **Still open.**
 
 ---
 
@@ -416,3 +475,142 @@ Measurements were taken on an Intel Core Ultra 9 275HX, single-threaded, GCC 11.
 
 `cmake` is unavailable in the environment where these were produced; builds used a direct `g++`
 invocation mirroring the `CMakeLists.txt` configuration.
+
+---
+
+## 16. Final integrated campaign, 2026-08-29
+
+Evidence package: `results/tiled-q3report-final-20260829/`, with `environment.json`,
+`commands.json` and `data-hashes.json` recording the machine, the exact command sequence and a
+SHA-256 for every raw file. Intel Core Ultra 9 275HX, single thread, MSVC 19.51.36252.0,
+Release with `TER_NATIVE_OPT=ON`, generator `Visual Studio 18 2026`.
+
+This campaign supersedes Sections 10.1 and 10.2 as the current evidence. It does **not** average
+with them: different compiler, different operating system, different comparator and corrected
+memory accounting.
+
+### 16.1 Paper-scaling ladder, DIRECT_PRODUCTION vs DIRECT_PRODUCTION_TILED
+
+45 rows: nine list sizes x the five declared seeds, every row `exactness_passed=1`, every row's
+raw triple count identical across the full direct, production direct and tiled comparators.
+
+| L | q_bits | direct (ms) | tiled (ms) | geomean speedup | bootstrap 95% | memory ratio | f_executed |
+|---|---|---|---|---|---|---|---|
+| 64 | 11 | 0.009 | 0.009 | **0.976x** | [0.94, 1.02] | 0.40x | 1.0000 |
+| 128 | 13 | 0.018 | 0.042 | **0.447x** | [0.39, 0.54] | 0.45x | 1.0000 |
+| 256 | 15 | 0.084 | 0.104 | **0.882x** | [0.73, 1.25] | 0.47x | 1.0000 |
+| 512 | 17 | 0.340 | 0.155 | **2.403x** | [2.09, 2.78] | 1.76x | 1.0000 |
+| 1024 | 19 | 2.05 | 0.614 | **3.505x** | [3.31, 3.80] | 6.25x | 1.0000 |
+| 2048 | 21 | 10.65 | 2.01 | **5.110x** | [4.86, 5.30] | 20.46x | 1.0000 |
+| 4096 | 23 | 122.8 | 12.14 | **8.929x** | [7.63, 10.43] | 59.93x | 1.0000 |
+| 8192 | 24 | 885.8 | 103.6 | **8.677x** | [8.46, 8.88] | 78.24x | 1.0000 |
+| 16384 | 26 | 5130.7 | 330.0 | **12.934x** | [10.18, 16.43] | 183.10x | 1.0000 |
+
+The interval is a deterministic percentile bootstrap over the five declared seed-level
+observations. Five seeds do not support high-precision population inference and it should not be
+read as such.
+
+**Crossover.** Tiling is *slower* below `L = 512`, worst at `L = 128` (0.447x). The direct
+comparator wins while its `Q`-wide table is small enough to stay resident; the tiled path still
+pays setup, entry conversion and bucket metadata. This is expected and is left visible.
+
+**Memory.** The accounted comparator peak is *worse* for tiling at the three smallest points
+(0.40x-0.47x, i.e. tiling uses about 2.1-2.5x more), then crosses at `L = 512` and reaches
+**183x smaller** at `L = 16384`. These are declared-budget accounting figures, not RSS.
+
+### 16.2 The mechanism is not empty-window skipping
+
+`f_executed = executed_pairs / (L_A * L_B)` is **1.0000 at every one of the 45 rows**. Under the
+TER paper scaling `Q ~ L^2/lambda` holds the key density constant, so no bucket group is ever
+skipped. The measured improvement therefore comes from locality and from not building or clearing
+a `Q`-wide structure - not from doing less pair work. Both methods execute exactly `L_A * L_B`
+pair probes.
+
+That is a stronger result than a partial-skip explanation would be, and it is why the empty-window
+optimization, though present and exercised by the tile sweep, contributes nothing here.
+
+### 16.3 Complete exact merge
+
+`bench/ter_tiled_complete_merge_bench.cpp`, 15 rows, `lambda = 2` held at every point.
+Labelled exactly: **existing pair-materializing public baseline vs tiled public merge**. This is
+*not* the `DIRECT_PRODUCTION` comparator - `run_pair_baseline` materializes an `|X||Y|` pair-record
+array and a `Q`-wide `uint64` offset table - so this ratio must never be substituted for the
+headline ratio above. Both paths run full structural validation, parent construction and
+deduplication, and produced byte-identical parent sets, provenance and multiplicities at every row.
+
+| L | complete-merge ratio (median of 3 seeds) | arithmetic-index bytes ratio |
+|---|---|---|
+| 256 | 1.27x | 3x |
+| 512 | 1.95x | 11x |
+| 1024 | 3.44x | 39x |
+| 2048 | 8.11x | 133x |
+| 4096 | 10.18x | 407x |
+
+The memory column compares each method's own arithmetic-index accounting. The two paths'
+`working_set_budget_bytes` values are *not* comparable and are never divided: `src/merge.cpp`
+gives the tiled path a candidate ceiling that absorbs the whole remaining budget, while the
+baseline reports a measured peak.
+
+---
+
+## 17. Tile-width sensitivity, and what it says about SB = 15
+
+189 configurations: nine quotient widths x seven requested tile widths x three independent seed
+bases, `L = 4096`, five timed repetitions, every row passing the independent exact-count oracle.
+
+### 17.1 SB = 15 is not robust at large Q
+
+Normalized against the fastest measured tile in each `(seed, w)` group:
+
+| w | best SB observed | SB=15 median slowdown | SB=15 worst slowdown |
+|---|---|---|---|
+| 16 | 10 | 1.269x | 1.277x |
+| 18 | 12 | 1.192x | 1.413x |
+| 20 | 12, 14 | 1.166x | 1.250x |
+| 22 | 14, 15 | 1.046x | 1.079x |
+| 24 | 16 | 1.250x | 1.312x |
+| 26 | 18 | 4.588x | 4.887x |
+| 28 | 18, 20 | 10.309x | 10.962x |
+| 30 | 20 | 12.767x | 12.852x |
+| 32 | 20 | 10.846x | 11.018x |
+
+`SB = 15` was fastest in **1 of 27** `(seed, w)` groups. Its median normalized slowdown across all
+groups is **1.312x** and its worst is
+**12.852x**.
+
+Up to `w = 24` the penalty is modest (within about 1.27x). From `w = 26` it grows sharply, reaching
+roughly 12.5x at `w = 30`. The best observed tile tracks the quotient width rather than sitting at
+a fixed cache-derived constant, and at `w >= 28` it reaches `SB = 20`, the **edge of the tested
+grid** - so the true optimum there may lie beyond 20 and was not measured.
+
+**Production policy is unchanged.** `kDefaultPreferredTileBits`, `kDefaultRootPreferredTileBits`
+and `kDefaultRootPrefilterBits` were not modified. This campaign is evidence, not authorization to
+retune, and no autotuner or adaptive dispatch was added.
+
+Note also that the paper-scaling ladder of Section 16 never enters the regime where this penalty
+bites: there `Q` tracks `L^2`, and the largest executed point is `q_bits = 26` with `L = 16384`,
+where the entries-per-bucket ratio stays healthy. The sweep holds `L = 4096` fixed while `Q` grows,
+which is a different and deliberately more hostile regime.
+
+### 17.2 Why: the enumeration term, measured
+
+At `w = 30`, one run per configuration:
+
+| SB | P = Q/S | total | executed_pairs | f_executed |
+|---|---|---|---|---|
+| 10 | 1048576 | 28.86 s | 129834 | 0.008 |
+| 12 | 262144 | 7.16 s | 515683 | 0.031 |
+| 14 | 65536 | 1.90 s | 1967674 | 0.117 |
+| 15 | 32768 | 0.969 s | 3724671 | 0.222 |
+| 16 | 16384 | 0.670 s | 6638223 | 0.396 |
+| 18 | 4096 | 0.292 s | 14550865 | 0.867 |
+| 20 | 1024 | 0.081 s | 16777216 | 1.000 |
+
+Runtime is very nearly linear in `P` and *inversely* related to executed pairs: the slowest
+configuration performs the least pair work. This is the `W_ne * P` term derived in Section 9. The
+empty-window skip is doing a great deal of skipping here - `f_executed` falls to 0.008 - and the
+configuration is still 356x slower than `SB = 20`, because the cost is in walking bucket-pair
+indices, not in probing pairs.
+
+This is the concrete quantification of the caution recorded in Section 8, and it is the reason the
+L2-capacity rule of thumb is not the right way to pick `S` at large `Q/L`.

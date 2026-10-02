@@ -310,3 +310,23 @@ Testing/
 !/results/partition/task11-final-20260825/data-hashes.jsonl
 !/results/partition/task11-final-20260825/captured-root/*.jsonl
 !/results/partition/task11-final-20260825/rerun-N32496-reverse-t2-b2048/*.jsonl
+.gstack/
+
+# Data and diagnostic output: CSV, JSON/JSONL and captured stderr.
+# Already-tracked files stay tracked; this only stops new ones from being added.
+*.csv
+*.json
+*.jsonl
+*.stderr
+# The Task-11 partition decision audit trail stays versioned (see above).
+!/results/partition/task11-final-20260825/**/*.json
+!/results/partition/task11-final-20260825/command-manifest.jsonl
+!/results/partition/task11-final-20260825/data-hashes.jsonl
+!/results/partition/task11-final-20260825/captured-root/*.jsonl
+!/results/partition/task11-final-20260825/rerun-N32496-reverse-t2-b2048/*.jsonl
+# Generated Visual Studio projects and captured root snapshots (~1 GB each).
+*.vcxproj
+*.snap
+# ARWLF regime campaign figure data (main paper results) stays versioned.
+!/results/arwlf/regime-20261001/speedup_vs_L.csv
+!/results/arwlf/regime-20261001/regret_vs_L.csv

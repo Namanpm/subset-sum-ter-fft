@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cerrno>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -29,9 +30,11 @@ constexpr std::array<std::uint32_t, 7> kRequestedTileBits{10U, 12U, 14U, 15U,
 constexpr std::uint32_t kShapeN = 72U;
 constexpr std::uint32_t kR2 = 6U;
 constexpr std::uint64_t kListSize = 4'096U;
-constexpr std::uint64_t kSeed = 0x1001ULL;
+// Default experiment controls.  --seed-base and --repetitions may override
+// these; nothing else about the declared grid is configurable.
+constexpr std::uint64_t kDefaultSeedBase = 0x1001ULL;
 constexpr std::uint64_t kMemoryBytes = 2ULL * 1024ULL * 1024ULL * 1024ULL;
-constexpr std::uint32_t kTimedRepetitions = 3U;
+constexpr std::uint32_t kDefaultTimedRepetitions = 3U;
 
 [[nodiscard]] std::uint64_t elapsed_ns(const Clock::time_point start) noexcept {
   return static_cast<std::uint64_t>(
@@ -82,11 +85,35 @@ void fail(const std::string& message) {
   std::exit(2);
 }
 
+// Strict decimal parse for the experiment-control options.  A trailing
+// character, an empty value or an out-of-range value is a refusal, never a
+// silently truncated experiment parameter.
+[[nodiscard]] bool parse_u64(const std::string& text, std::uint64_t* const out) noexcept {
+  if (text.empty()) {
+    return false;
+  }
+  for (const char character : text) {
+    if (character < '0' || character > '9') {
+      return false;
+    }
+  }
+  errno = 0;
+  char* end = nullptr;
+  const unsigned long long value = std::strtoull(text.c_str(), &end, 10);
+  if (errno != 0 || end != text.c_str() + text.size()) {
+    return false;
+  }
+  *out = static_cast<std::uint64_t>(value);
+  return true;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
   std::uint32_t only_w = 0U;
   std::uint32_t only_sb = 0U;
+  std::uint64_t seed_base = kDefaultSeedBase;
+  std::uint32_t timed_repetitions = kDefaultTimedRepetitions;
   for (int index = 1; index < argc; ++index) {
     const std::string argument{argv[index]};
     constexpr const char* kPrefix = "--w=";
@@ -94,8 +121,22 @@ int main(int argc, char** argv) {
       only_w = static_cast<std::uint32_t>(std::strtoul(argument.c_str() + 4, nullptr, 10));
     } else if (argument.rfind("--SB=", 0U) == 0U) {
       only_sb = static_cast<std::uint32_t>(std::strtoul(argument.c_str() + 5, nullptr, 10));
+    } else if (argument.rfind("--seed-base=", 0U) == 0U) {
+      if (!parse_u64(argument.substr(12U), &seed_base)) {
+        std::cerr << "fatal: --seed-base requires a decimal 64-bit value\n";
+        return 2;
+      }
+    } else if (argument.rfind("--repetitions=", 0U) == 0U) {
+      std::uint64_t requested = 0U;
+      if (!parse_u64(argument.substr(14U), &requested) || requested == 0U ||
+          requested > 0xFFFFFFFFULL) {
+        std::cerr << "fatal: --repetitions requires a positive 32-bit value\n";
+        return 2;
+      }
+      timed_repetitions = static_cast<std::uint32_t>(requested);
     } else {
-      std::cerr << "usage: ter_tiled_parameter_sweep [--w=W] [--SB=N]\n";
+      std::cerr << "usage: ter_tiled_parameter_sweep [--w=W] [--SB=N]"
+                   " [--seed-base=U64] [--repetitions=N]\n";
       return 2;
     }
   }
@@ -109,7 +150,7 @@ int main(int argc, char** argv) {
     }
     ter::PaperCrossoverSnapshotConfig config;
     config.requested_list_size = kListSize;
-    config.seed = kSeed + w;
+    config.seed = seed_base + w;
     config.initial_half_pool = 256U;
     config.max_half_pool = 65'536U;
     config.memory_limit_bytes = kMemoryBytes;
@@ -147,11 +188,11 @@ int main(int argc, char** argv) {
       std::vector<std::uint64_t> setup_samples;
       std::vector<std::uint64_t> scan_samples;
       std::vector<std::uint64_t> total_samples;
-      setup_samples.reserve(kTimedRepetitions);
-      scan_samples.reserve(kTimedRepetitions);
-      total_samples.reserve(kTimedRepetitions);
+      setup_samples.reserve(timed_repetitions);
+      scan_samples.reserve(timed_repetitions);
+      total_samples.reserve(timed_repetitions);
       ter::TiledQ3ReportResult last;
-      for (std::uint32_t repetition = 0U; repetition < kTimedRepetitions; ++repetition) {
+      for (std::uint32_t repetition = 0U; repetition < timed_repetitions; ++repetition) {
         const auto total_start = Clock::now();
         last = ter::tiled_q3report_count(a, b, c, arithmetic.tau, arithmetic.q, tiled_config);
         const auto total = elapsed_ns(total_start);

@@ -111,6 +111,18 @@ configure-time commit, working-tree dirty state, build stamp, an executable
 SHA-256, the full command line, and every declared limit, so a row can always
 be tied to the binary that produced it.
 
+### Cache-tiled exact three-list merge
+
+The exact cache-tiled modular three-list reporter (`src/tiled_q3report.cpp`) is
+integrated into the Q3REPORT comparator, both public merges and the FullTer
+L2→L1 and root stages. Its measured evidence package lives in
+`results/tiled-q3report-final-20260829/`, and
+[tiling_implementation_idea.md](tiling_implementation_idea.md) Sections 16-17
+carry the current numbers. In short: it preserves exact outputs and the same
+worst-case `O(|A||B|)` pair bound, is **slower** than the `Q`-wide direct
+comparator below `L = 512`, and reaches a geometric-mean 12.93x over it at
+`L = 16384` across five declared seeds. It does not change TER's exponent.
+
 Its appended `l1_to_l0_*` CSV fields distinguish low-bit prefilter candidates
 from full-quotient matches. A prefilter match is never accepted without the
 full 47-bit check.

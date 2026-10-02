@@ -13,6 +13,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <new>
 #include <numeric>
@@ -3911,6 +3912,313 @@ FullTerResult solve_full_ter(const Instance& instance, const FullTerConfig& conf
     result.telemetry.execution_mode = config.execution_mode;
     result.telemetry.family = config.family;
     return finish(std::move(result));
+  }
+}
+
+namespace {
+
+// Releases a list's storage, not merely its size: clear() would keep the
+// capacity, and with it the memory the staging exists to give back.
+void release_entries(std::vector<BigEntry>& entries) noexcept {
+  std::vector<BigEntry>().swap(entries);
+}
+
+FullTerRootStreamResult stream_full_ter_root_lists_impl(const Instance& instance,
+                                                        const FullTerConfig& config,
+                                                        const std::uint32_t attempt,
+                                                        const FullTerRootStream& stream,
+                                                        const std::uint64_t buffer_request) {
+  FullTerRootStreamResult result;
+  const auto start = Clock::now();
+  if (stream.begin_list == nullptr || stream.write_records == nullptr ||
+      config.execution_mode != TerExecutionMode::FullTer ||
+      config.target_mode != TerTargetMode::Random ||
+      !limits::full_ter::runtime_limit_supported(config.memory_limit_bytes) ||
+      !limits::full_ter::instance_word_layout_supported(instance.n, instance.words_per_value) ||
+      instance.values_le.size() !=
+          static_cast<std::size_t>(instance.n) * instance.words_per_value ||
+      instance.root_target_le.size() != instance.words_per_value ||
+      !limits::attempts::within_budget(attempt, config.attempt_limit)) {
+    result.message =
+        "root stream requires Full TER, random targets, a valid instance, an attempt within "
+        "the budget, and a stream";
+    return result;
+  }
+  const auto parameters = derive_full_ter_parameters(config.family, instance.n, instance.n);
+  if (parameters.status != Status::Completed) {
+    result.status = parameters.status;
+    result.message = parameters.message;
+    return result;
+  }
+  result.parameters = parameters.value;
+  if (config.cancellation != nullptr && config.cancellation->load(std::memory_order_relaxed)) {
+    result.status = Status::Cancelled;
+    result.message = "root stream was cancelled";
+    return result;
+  }
+
+  const std::uint32_t words64 = (instance.n + 63U) / 64U;
+  const std::uint32_t words32 = (instance.n + 31U) / 32U;
+  result.record_bytes = words64 * 2U * 8U + words32 * 4U;
+  const std::uint64_t buffer_records =
+      std::max<std::uint64_t>(1U, buffer_request / result.record_bytes);
+  result.stream_buffer_bytes = buffer_records * result.record_bytes;
+
+  // Level-3 generation and its accounting, exactly as solve_full_ter does it.
+  auto generated = generate_level3_lists(parameters.value, config.execution_mode,
+                                         config.fixture_level3_limit, config.memory_limit_bytes);
+  if (generated.status != Status::Completed) {
+    result.status = generated.status;
+    result.message = generated.message;
+    return result;
+  }
+  std::uint64_t level3_vector_count = 0;
+  std::uint64_t scalar_level3_bytes = 0;
+  std::uint64_t coefficient_estimate = 0;
+  std::uint64_t entry_estimate = 0;
+  const std::uint64_t scalar_vector_bytes =
+      sizeof(ReferenceTernaryVector) + static_cast<std::uint64_t>(instance.n);
+  const std::uint64_t coefficient_bytes =
+      sizeof(BigInt) +
+      ((static_cast<std::uint64_t>(instance.n) + 31U) / 32U) * sizeof(std::uint32_t);
+  std::uint64_t preparation_peak = 0;
+  if (!checked_add(generated.value.first_half.size(), generated.value.second_half.size(),
+                   level3_vector_count) ||
+      !checked_multiply(level3_vector_count, scalar_vector_bytes, scalar_level3_bytes) ||
+      !checked_multiply(instance.n, coefficient_bytes, coefficient_estimate) ||
+      !checked_multiply(level3_vector_count, estimated_entry_bytes(instance.n),
+                        entry_estimate) ||
+      !checked_add(scalar_level3_bytes, coefficient_estimate, preparation_peak) ||
+      !checked_add(preparation_peak, entry_estimate, preparation_peak) ||
+      !limits::checked::fits_memory_budget(0U, preparation_peak, config.memory_limit_bytes)) {
+    result.status = Status::ResourceLimit;
+    result.message = "level-3 preparation exceeds the declared memory limit";
+    return result;
+  }
+  const auto coefficients = instance_coefficients(instance);
+  const BigInt full_mask = pow2_mask(instance.n);
+  const auto left_base =
+      materialize_entries(std::move(generated.value.first_half), coefficients, full_mask);
+  const auto right_base =
+      materialize_entries(std::move(generated.value.second_half), coefficients, full_mask);
+
+  const std::uint64_t attempt_seed = config.seed + attempt;
+  result.attempt_seed = attempt_seed;
+  const Targets targets = random_targets(instance, parameters.value, attempt_seed);
+  if (!targets_are_consistent(targets, instance, parameters.value)) {
+    result.status = Status::InvariantViolation;
+    result.message = "sampled TER targets violate the paper's sum relationships";
+    return result;
+  }
+  std::uint64_t base_resident = 0;
+  std::uint64_t level3_entries_bytes = 0;
+  if (!checked_add(estimated_entries_bytes(left_base), estimated_entries_bytes(right_base),
+                   level3_entries_bytes) ||
+      !checked_add(level3_entries_bytes, estimated_bigints_bytes(coefficients), base_resident) ||
+      !checked_add(base_resident, estimated_targets_bytes(targets), base_resident) ||
+      !checked_add(base_resident, result.stream_buffer_bytes, base_resident) ||
+      !limits::checked::fits_memory_budget(0U, base_resident, config.memory_limit_bytes)) {
+    result.status = Status::ResourceLimit;
+    result.message = "level-3 entries, targets and stream buffer exceed the declared limit";
+    return result;
+  }
+  result.base_resident_bytes = base_resident;
+  result.peak_working_bytes = std::max(preparation_peak, base_resident);
+  for (std::size_t group = 0; group < 3U; ++group) {
+    result.child_targets_words_le[group] = targets.level1[group].words();
+  }
+  result.root_target_words_le = instance_target(instance).words();
+
+  std::vector<std::uint8_t> buffer(static_cast<std::size_t>(result.stream_buffer_bytes));
+  for (std::uint32_t group = 0; group < 3U; ++group) {
+    std::array<std::vector<BigEntry>, 3> level2;
+    std::uint64_t resident = base_resident;
+    std::uint64_t group_peak = base_resident;
+    for (std::uint32_t child = 0; child < 3U; ++child) {
+      const std::uint32_t index = group * 3U + child;
+      if (config.cancellation != nullptr &&
+          config.cancellation->load(std::memory_order_relaxed)) {
+        result.status = Status::Cancelled;
+        result.message = "root stream was cancelled";
+        return result;
+      }
+      std::uint64_t merge_budget = 0U;
+      if (resident >= config.memory_limit_bytes ||
+          !limits::checked::remaining_memory(resident, config.memory_limit_bytes,
+                                              &merge_budget)) {
+        result.status = Status::ResourceLimit;
+        result.message = "group-staged level-2 residents leave no merge workspace";
+        return result;
+      }
+      std::uint64_t oracle_work = 0;
+      const bool audit_stage = config.audit &&
+                               checked_multiply(left_base.size(), right_base.size(), oracle_work) &&
+                               limits::oracle::cubic_work_supported(oracle_work);
+      std::vector<ProvenanceRecord> optimized_provenance;
+      FullTerStageTelemetry telemetry;
+      Status stage_status = Status::InvariantViolation;
+      level2[child] = binary_mitm(left_base, right_base, targets.level2[index],
+                                  parameters.value.r2, parameters.value.level2, merge_budget,
+                                  telemetry, audit_stage ? &optimized_provenance : nullptr,
+                                  stage_status, result.message);
+      if (stage_status != Status::Completed) {
+        result.status = stage_status;
+        return result;
+      }
+      if (audit_stage) {
+        std::vector<ProvenanceRecord> reference_provenance;
+        const auto reference =
+            binary_oracle(left_base, right_base, targets.level2[index], parameters.value.r2,
+                          parameters.value.level2, &reference_provenance);
+        if (!entries_equal(level2[child], reference) ||
+            optimized_provenance != reference_provenance) {
+          result.status = Status::InvariantViolation;
+          result.message = "optimized L3-to-L2 set or provenance disagrees with scalar oracle";
+          return result;
+        }
+      }
+      result.level2_sizes[index] = level2[child].size();
+      std::uint64_t stage_peak = 0;
+      if (!checked_add(resident, telemetry.allocated_bytes, stage_peak) ||
+          !checked_add(resident, estimated_entries_bytes(level2[child]), resident) ||
+          !limits::checked::fits_memory_budget(0U, resident, config.memory_limit_bytes) ||
+          !limits::checked::fits_memory_budget(0U, stage_peak, config.memory_limit_bytes)) {
+        result.status = Status::ResourceLimit;
+        result.message = "group-staged level-2 construction exceeds the declared limit";
+        return result;
+      }
+      group_peak = std::max({group_peak, stage_peak, resident});
+    }
+
+    std::uint64_t merge_budget = 0U;
+    if (resident >= config.memory_limit_bytes ||
+        !limits::checked::remaining_memory(resident, config.memory_limit_bytes, &merge_budget)) {
+      result.status = Status::ResourceLimit;
+      result.message = "group-staged level-2 residents leave no level-1 workspace";
+      return result;
+    }
+    std::uint64_t oracle_pairs = 0;
+    std::uint64_t oracle_work = 0;
+    const bool audit_stage =
+        config.audit &&
+        checked_multiply(level2[0].size(), level2[1].size(), oracle_pairs) &&
+        checked_multiply(oracle_pairs, level2[2].size(), oracle_work) &&
+        limits::oracle::cubic_work_supported(oracle_work);
+    std::vector<ProvenanceRecord> optimized_provenance;
+    FullTerStageTelemetry telemetry;
+    Status stage_status = Status::InvariantViolation;
+    std::vector<BigEntry> level1;
+    if (limits::tiled::bounded_full_ter_l2_l1_supported(parameters.value.n, parameters.value.r1,
+                                                        parameters.value.r2)) {
+      level1 = ternary_tiled_l2_to_l1_native(
+          level2[0], level2[1], level2[2], targets.level2[group * 3U],
+          targets.level2[group * 3U + 1U], targets.level2[group * 3U + 2U],
+          targets.level1[group], parameters.value, parameters.value.level1, merge_budget,
+          telemetry, audit_stage ? &optimized_provenance : nullptr, stage_status,
+          result.message);
+    } else {
+      level1 = ternary_mitm(level2[0], level2[1], level2[2], targets.level1[group],
+                            parameters.value.r1, parameters.value.level1, merge_budget,
+                            telemetry, audit_stage ? &optimized_provenance : nullptr,
+                            stage_status, result.message);
+    }
+    if (stage_status != Status::Completed) {
+      result.status = stage_status;
+      return result;
+    }
+    if (audit_stage) {
+      std::vector<ProvenanceRecord> reference_provenance;
+      const auto reference = ternary_oracle(level2[0], level2[1], level2[2],
+                                            targets.level1[group], parameters.value.r1,
+                                            parameters.value.level1, &reference_provenance);
+      if (!entries_equal(level1, reference) || optimized_provenance != reference_provenance) {
+        result.status = Status::InvariantViolation;
+        result.message = "optimized L2-to-L1 set or provenance disagrees with scalar oracle";
+        return result;
+      }
+    }
+    result.level1_sizes[group] = level1.size();
+    std::uint64_t stage_peak = 0;
+    if (!checked_add(resident, telemetry.allocated_bytes, stage_peak) ||
+        !checked_add(resident, estimated_entries_bytes(level1), resident) ||
+        !limits::checked::fits_memory_budget(0U, resident, config.memory_limit_bytes) ||
+        !limits::checked::fits_memory_budget(0U, stage_peak, config.memory_limit_bytes)) {
+      result.status = Status::ResourceLimit;
+      result.message = "group-staged level-1 construction exceeds the declared limit";
+      return result;
+    }
+    result.group_peak_bytes[group] = std::max({group_peak, stage_peak, resident});
+    result.peak_working_bytes = std::max(result.peak_working_bytes, result.group_peak_bytes[group]);
+
+    // The inputs of this group are dead once L1[g] exists.
+    for (auto& list : level2) {
+      release_entries(list);
+    }
+    if (!stream.begin_list(stream.context, group, level1.size(),
+                           result.child_targets_words_le[group])) {
+      result.status = Status::GenerationIncomplete;
+      result.message = "root stream sink rejected the list header";
+      return result;
+    }
+    std::size_t filled = 0U;
+    for (const BigEntry& entry : level1) {
+      if (entry.digits.n != instance.n || entry.digits.words.size() != words64 * 2U ||
+          entry.residue.words().size() > words32) {
+        result.status = Status::InvariantViolation;
+        result.message = "level-1 entry has malformed packed dimensions";
+        return result;
+      }
+      std::uint8_t* const record = buffer.data() + filled * result.record_bytes;
+      std::memcpy(record, entry.digits.words.data(), words64 * 2U * 8U);
+      std::uint8_t* const residue = record + words64 * 2U * 8U;
+      std::memset(residue, 0, words32 * 4U);
+      std::memcpy(residue, entry.residue.words().data(), entry.residue.words().size() * 4U);
+      if (++filled == buffer_records) {
+        if (!stream.write_records(stream.context, buffer.data(), filled)) {
+          result.status = Status::GenerationIncomplete;
+          result.message = "root stream sink rejected records";
+          return result;
+        }
+        filled = 0U;
+      }
+    }
+    if (filled != 0U && !stream.write_records(stream.context, buffer.data(), filled)) {
+      result.status = Status::GenerationIncomplete;
+      result.message = "root stream sink rejected records";
+      return result;
+    }
+    release_entries(level1);
+  }
+  result.status = Status::Completed;
+  result.elapsed_ns = elapsed_ns(start);
+  return result;
+}
+
+}  // namespace
+
+FullTerRootStreamResult stream_full_ter_root_lists(const Instance& instance,
+                                                   const FullTerConfig& config,
+                                                   const std::uint32_t attempt,
+                                                   const FullTerRootStream& stream,
+                                                   const std::uint64_t stream_buffer_bytes) {
+  try {
+    return stream_full_ter_root_lists_impl(instance, config, attempt, stream,
+                                           stream_buffer_bytes);
+  } catch (const std::bad_alloc&) {
+    FullTerRootStreamResult result;
+    result.status = Status::ResourceLimit;
+    result.message = "root stream allocation failed";
+    return result;
+  } catch (const std::length_error& error) {
+    FullTerRootStreamResult result;
+    result.status = Status::ResourceLimit;
+    result.message = error.what();
+    return result;
+  } catch (const std::invalid_argument& error) {
+    FullTerRootStreamResult result;
+    result.status = Status::InvariantViolation;
+    result.message = error.what();
+    return result;
   }
 }
 

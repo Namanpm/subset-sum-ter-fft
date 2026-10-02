@@ -269,4 +269,60 @@ struct Level3GenerationResult {
     const FullTerConfig& config,
     std::uint32_t group);
 
+// ---------------------------------------------------------------------------
+// Capture-only, group-staged extraction of one attempt's three genuine L1
+// root lists.  A research seam, never a solver: it performs no L1 -> L0 merge,
+// allocates no root output, and never reports Found, NoWitnessThisAttempt,
+// AttemptLimitReached or any SAT/UNSAT conclusion.  Completed means only
+// "all three L1 lists were streamed".
+//
+// It computes exactly the lists solve_full_ter() builds in the given attempt
+// (same level-3 generation, same targets random_targets(seed + attempt), same
+// binary and ternary merges, same audit gating), but in a different lifetime
+// order: group g builds its three L2 lists, merges them into L1[g], streams
+// L1[g] out as fixed-width packed records, then releases all four lists before
+// group g + 1 starts.  Peak live memory is therefore base + 3 L2 + 1 L1 +
+// merge workspace + one fixed stream buffer, instead of base + 9 L2 + 3 L1 +
+// an unpacked capture copy + root workspace.
+//
+// Record layout (little-endian, record_bytes each, EntryId = record index):
+//   uint64 positive[W64] | uint64 negative[W64] | uint32 residue[W32]
+// with W64 = ceil(n/64), W32 = ceil(n/32); residue words are zero-padded.
+// Only TerTargetMode::Random is supported.
+// ---------------------------------------------------------------------------
+struct FullTerRootStream {
+  void* context = nullptr;
+  // Once per group, before its records.
+  bool (*begin_list)(void* context, std::uint32_t group, std::uint64_t entries,
+                     const std::vector<std::uint32_t>& child_target_words_le) = nullptr;
+  // Consecutive records of the current group.
+  bool (*write_records)(void* context, const std::uint8_t* records,
+                        std::size_t count) = nullptr;
+};
+
+struct FullTerRootStreamResult {
+  Status status = Status::InvalidConfiguration;
+  FullTerParameters parameters{};
+  std::uint64_t attempt_seed = 0;
+  std::uint32_t record_bytes = 0;
+  std::array<std::uint64_t, 9> level2_sizes{};
+  std::array<std::uint64_t, 3> level1_sizes{};
+  std::array<std::vector<std::uint32_t>, 3> child_targets_words_le;
+  std::vector<std::uint32_t> root_target_words_le;
+  // Declared accounting, in the solver's own model.
+  std::uint64_t base_resident_bytes = 0;
+  std::uint64_t stream_buffer_bytes = 0;
+  std::array<std::uint64_t, 3> group_peak_bytes{};
+  std::uint64_t peak_working_bytes = 0;
+  std::uint64_t elapsed_ns = 0;
+  std::string message;
+};
+
+[[nodiscard]] FullTerRootStreamResult stream_full_ter_root_lists(
+    const Instance& instance,
+    const FullTerConfig& config,
+    std::uint32_t attempt,
+    const FullTerRootStream& stream,
+    std::uint64_t stream_buffer_bytes);
+
 }  // namespace ter

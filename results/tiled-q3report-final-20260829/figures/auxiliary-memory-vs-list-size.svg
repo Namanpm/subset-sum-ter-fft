@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="460" viewBox="0 0 780 460" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+<rect width="780" height="460" fill="#ffffff" />
+<text x="92" y="26" font-size="15" fill="#333333">Accounted comparator memory vs list size (declared budget, not RSS)</text>
+<line x1="92" y1="356.28" x2="610" y2="356.28" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="360.28" font-size="11" text-anchor="end" fill="#333333">0.01</text>
+<line x1="92" y1="290.79" x2="610" y2="290.79" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="294.79" font-size="11" text-anchor="end" fill="#333333">0.1</text>
+<line x1="92" y1="225.30" x2="610" y2="225.30" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="229.30" font-size="11" text-anchor="end" fill="#333333">1</text>
+<line x1="92" y1="159.82" x2="610" y2="159.82" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="163.82" font-size="11" text-anchor="end" fill="#333333">10</text>
+<line x1="92" y1="94.33" x2="610" y2="94.33" stroke="#d9d9d9" stroke-width="1" />
+<text x="84" y="98.33" font-size="11" text-anchor="end" fill="#333333">100</text>
+<line x1="119.75" y1="44" x2="119.75" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="119.75" y="404" font-size="11" text-anchor="middle" fill="#333333">64</text>
+<line x1="177.56" y1="44" x2="177.56" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="177.56" y="404" font-size="11" text-anchor="middle" fill="#333333">128</text>
+<line x1="235.38" y1="44" x2="235.38" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="235.38" y="404" font-size="11" text-anchor="middle" fill="#333333">256</text>
+<line x1="293.19" y1="44" x2="293.19" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="293.19" y="404" font-size="11" text-anchor="middle" fill="#333333">512</text>
+<line x1="351.00" y1="44" x2="351.00" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="351.00" y="404" font-size="11" text-anchor="middle" fill="#333333">1e3</text>
+<line x1="408.81" y1="44" x2="408.81" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="408.81" y="404" font-size="11" text-anchor="middle" fill="#333333">1e3</text>
+<line x1="466.62" y1="44" x2="466.62" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="466.62" y="404" font-size="11" text-anchor="middle" fill="#333333">1e4</text>
+<line x1="524.44" y1="44" x2="524.44" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="524.44" y="404" font-size="11" text-anchor="middle" fill="#333333">1e4</text>
+<line x1="582.25" y1="44" x2="582.25" y2="386" stroke="#d9d9d9" stroke-width="1" />
+<text x="582.25" y="404" font-size="11" text-anchor="middle" fill="#333333">1e4</text>
+<rect x="92" y="44" width="518" height="342" fill="none" stroke="#333333" stroke-width="1.2" />
+<text x="351" y="430" font-size="12" text-anchor="middle" fill="#333333">list size L (log2 scale)</text>
+<text x="22" y="215" font-size="12" text-anchor="middle" fill="#333333" transform="rotate(-90 22 215)">accounted peak (MiB, log scale)</text>
+<polyline points="119.75,362.41 177.56,323.43 235.38,284.22 293.19,244.91 351.00,205.54 408.81,166.14 466.62,126.72 524.44,107.01 582.25,67.59" fill="none" stroke="#1f4e79" stroke-width="1.9" />
+<circle cx="119.75" cy="362.41" r="3.4" fill="#1f4e79" />
+<circle cx="177.56" cy="323.43" r="3.4" fill="#1f4e79" />
+<circle cx="235.38" cy="284.22" r="3.4" fill="#1f4e79" />
+<circle cx="293.19" cy="244.91" r="3.4" fill="#1f4e79" />
+<circle cx="351.00" cy="205.54" r="3.4" fill="#1f4e79" />
+<circle cx="408.81" cy="166.14" r="3.4" fill="#1f4e79" />
+<circle cx="466.62" cy="126.72" r="3.4" fill="#1f4e79" />
+<circle cx="524.44" cy="107.01" r="3.4" fill="#1f4e79" />
+<circle cx="582.25" cy="67.59" r="3.4" fill="#1f4e79" />
+<polyline points="119.75,336.51 177.56,300.41 235.38,262.80 293.19,260.98 351.00,257.67 408.81,251.99 466.62,243.14 524.44,231.01 582.25,215.77" fill="none" stroke="#c0504d" stroke-width="1.9" />
+<rect x="116.55" y="333.31" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="174.36" y="297.21" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="232.18" y="259.60" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="289.99" y="257.78" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="347.80" y="254.47" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="405.61" y="248.79" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="463.43" y="239.94" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="521.24" y="227.81" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="579.05" y="212.57" width="6.4" height="6.4" fill="#c0504d" />
+<rect x="628" y="50.00" width="12" height="12" fill="#1f4e79" />
+<text x="646" y="60.50" font-size="11" fill="#333333">DIRECT_PRODUCTION</text>
+<rect x="628" y="69.00" width="12" height="12" fill="#c0504d" />
+<text x="646" y="79.50" font-size="11" fill="#333333">DIRECT_PRODUCTION_TILED</text>
+</svg>
