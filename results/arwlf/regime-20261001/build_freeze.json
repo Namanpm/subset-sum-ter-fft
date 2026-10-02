@@ -1,0 +1,17 @@
+{
+  "campaign": "regime-20261001",
+  "frozen_at": "2026-10-01T19:18:35.4365738+05:30",
+  "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_campaign.exe",
+  "executable_sha256": "932d2803a419aab313612861ce363a282c6f41630eb8255524cd8ecdc38ee7ef",
+  "source_manifest_sha256": "c1d134db224c69331b7acea96faf5035c911fb4e507ee8639edf84a3384562f3",
+  "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+  "git_dirty": true,
+  "cmake_cache": [
+    "CMAKE_CXX_FLAGS:STRING=/DWIN32 /D_WINDOWS /EHsc",
+    "CMAKE_CXX_FLAGS_RELEASE:STRING=/O2 /Ob2 /DNDEBUG",
+    "TER_NATIVE_OPT:BOOL=ON",
+    "CMAKE_GENERATOR:INTERNAL=Visual Studio 18 2026"
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+  "msvc": null
+}

@@ -330,3 +330,27 @@ Testing/
 # ARWLF regime campaign figure data (main paper results) stays versioned.
 !/results/arwlf/regime-20261001/speedup_vs_L.csv
 !/results/arwlf/regime-20261001/regret_vs_L.csv
+
+# ARWLF frozen-record documents and campaign provenance (preservation commit).
+!/TER_L1_to_L0_ARWLF_Architecture_v1.0.md
+!/FROZEN_ROOT_BACKENDS.md
+!/ARWLF_REGIME_CAMPAIGN.md
+!/docs/history/SUPERSEDED.md
+!/docs/history/TER_L1_to_L0_Radix_Refined_Root_Architecture_v2.1_CODEX.pdf
+!/results/arwlf/regime-20261001/RESULTS.md
+!/results/arwlf/regime-20261001/summary.md
+!/results/arwlf/regime-20261001/build_freeze.json
+!/results/arwlf/regime-20261001/build_flags.txt
+!/results/arwlf/regime-20261001/source_manifest.txt
+!/results/arwlf/regime-20261001/snapshots.json
+!/results/arwlf/regime-20261001/provenance.jsonl
+!/results/arwlf/regime-20261001/cases.csv
+!/results/arwlf/regime-20261001/samples.csv
+!/results/arwlf/regime-20261001/sentinel.csv
+!/results/arwlf/regime-20261001/*_census.csv
+!/results/arwlf/regime-20261001/pre-amendment/build_freeze.json
+!/results/arwlf/regime-20261001/pre-amendment/provenance.jsonl
+!/results/arwlf/regime-20261001/pre-amendment/source_manifest.txt
+!/results/arwlf/campaign-20261001-v3-0x3007/summary.csv
+!/results/arwlf/campaign-20261001-v3-0x3007/*_samples.csv
+!/results/arwlf/campaign-20261001-v3-0x3007/provenance.json

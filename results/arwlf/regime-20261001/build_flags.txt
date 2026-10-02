@@ -1,0 +1,25 @@
+# ARWLF regime campaign: compiler settings of ter_arwlf_campaign (Release|x64), extracted verbatim
+# from the generated build-full/ter_arwlf_campaign.vcxproj at campaign freeze. Per-file overrides
+# (the AVX2 / BMI2 translation units) follow.
+
+compiler (_MSC_FULL_VER from every campaign row): MSVC 195136257
+
+BufferSecurityCheck: 
+EnableEnhancedInstructionSet: AdvancedVectorExtensions2
+ExceptionHandling: Sync
+FloatingPointModel: 
+InlineFunctionExpansion: AnySuitable
+LanguageStandard: stdcpp20
+Optimization: MaxSpeed
+RuntimeLibrary: MultiThreadedDLL
+WarningLevel: Level4
+PreprocessorDefinitions: %(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;TER_CONFIGURE_TIME_COMMIT="53431a8e037bec94163d4d2a1c4fe0565a673423";TER_CONFIGURE_TIME_DIRTY=1;TER_NATIVE_OPT_ENABLED=1;CMAKE_INTDIR="Release"
+DebugInformationFormat: 
+PreprocessorDefinitions: %(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;TER_CONFIGURE_TIME_COMMIT=\"53431a8e037bec94163d4d2a1c4fe0565a673423\";TER_CONFIGURE_TIME_DIRTY=1;TER_NATIVE_OPT_ENABLED=1;CMAKE_INTDIR=\"Release\"
+AdditionalOptions: %(AdditionalOptions) /machine:x64
+
+ter_arwlf_avx2.cpp: EnableEnhancedInstructionSet=AdvancedVectorExtensions2
+ter_radix13_locator_avx2.cpp: EnableEnhancedInstructionSet=AdvancedVectorExtensions2
+ter_radix13_packed_bmi2.cpp: EnableEnhancedInstructionSet=AdvancedVectorExtensions2
+ter_translated_tag_locator_avx2.cpp: EnableEnhancedInstructionSet=AdvancedVectorExtensions2
+ter_microreport8_kernels_avx2.cpp: EnableEnhancedInstructionSet=AdvancedVectorExtensions2
