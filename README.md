@@ -1,6 +1,24 @@
 # subset-sum-ter-fft
 Experimental subset-sum solver exploring representation techniques (TER), FFT-based methods, exact pruning, and high-performance search.
 
+## Current research line: the TER² root (ARWLF)
+
+The L1 -> L0 root merge is TER's dominant cost. Four exact root backends live in
+[`ter2_root/`](ter2_root/README.md):
+- **K2**, the frozen baseline;
+- **K2_WIDE**;
+- **QUEUE_DENSE**, which wins on sparse n=72 roots;
+- **ARWLF**, the adaptive radix wide-leaf filter, with a probe-based dispatcher.
+
+On authentic n=108 root microproblems ARWLF is a geometric-mean **53.1x** faster than frozen K2 on the
+calibration roots and **52.9x** on unseen holdout roots, with every campaign case exact. This is a
+finite-n constant-factor result (ARWLF still tests every logical pair), not an exponent claim, and it is
+not yet integrated into `FullTer`.
+- Architecture: [`TER_L1_to_L0_ARWLF_Architecture_v1.0.md`](TER_L1_to_L0_ARWLF_Architecture_v1.0.md)
+- Results: [`results/arwlf/regime-20261001/RESULTS.md`](results/arwlf/regime-20261001/RESULTS.md)
+- Freeze contract: [`FROZEN_ROOT_BACKENDS.md`](FROZEN_ROOT_BACKENDS.md)
+- Superseded design: [`docs/history/`](docs/history/SUPERSEDED.md)
+
 ## Classical depth-3 TER
 
 The repository contains a single-threaded classical implementation of Yang

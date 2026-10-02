@@ -4,7 +4,7 @@ Reads <dir>/cases.csv, <dir>/*_census.csv and <dir>/sentinel.csv; writes
 <dir>/summary.md plus plot-ready speedup_vs_L.csv and regret_vs_L.csv, and
 prints the preregistered crossover confirmation cases.  Standard library only.
 
-    python scripts/summarize_arwlf_regime_campaign.py results/arwlf/regime-...
+    python ter2_root/scripts/summarize_arwlf_regime_campaign.py results/arwlf/regime-...
 """
 
 import csv

@@ -1,6 +1,6 @@
 # TER Root v2 / Stage-C P2 Baseline
 
-Recorded before source changes for `implementation_plan.md`.
+Recorded before source changes for `implementation_plan.md` (now `docs/history/implementation_plan.md`).
 
 ## Repository state
 

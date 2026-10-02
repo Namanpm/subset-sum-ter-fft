@@ -125,6 +125,11 @@ bench/ter_full_bench.cpp
 bench/ter_q3report_bench.cpp
 ```
 
+The TER² L1 -> L0 root-backend line (K2, K2_WIDE, QUEUE_DENSE, ARWLF, the regime
+campaign and their tests) is self-contained in `ter2_root/` (see
+`ter2_root/README.md`). Closed TER² experiments are kept unbuilt in
+`ter2_root/retired/`.
+
 Do not reorganize the repository without a concrete task requiring it.
 
 ---
@@ -567,7 +572,8 @@ Ask the user only when a genuinely blocking ambiguity cannot be resolved from th
 
 K2, K2_WIDE, QUEUE_DENSE and ARWLF (with its dispatcher) are frozen research
 baselines; see `FROZEN_ROOT_BACKENDS.md`. Their 29 source files are pinned by
-`bench/frozen_root_backends.sha256` and CTest `ter_frozen_root_backends`. Do
+`ter2_root/frozen_root_backends.sha256` and CTest `ter_frozen_root_backends`; the files live in
+`ter2_root/frozen/`. Do
 not edit them: new ideas become new backends in new files. Only a documented
 bug fix may change a frozen file, following the rules in that document.
 

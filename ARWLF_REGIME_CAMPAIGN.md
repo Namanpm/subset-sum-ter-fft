@@ -113,3 +113,9 @@ changed (the new phase only), the build was re-frozen and the census rerun
 No change to ARWLF, the dispatcher (including its preregistered
 packets-per-pair <= 1/16 applicability rule), K2, K2_WIDE or QUEUE_DENSE. No
 n=144. Distribution-matched widths are not part of this run.
+
+## Addendum (2026-10-02, after the campaign; no change to the protocol)
+
+The campaign sources were relocated with `git mv`, contents unchanged: `bench/ter_arwlf_campaign*` is now
+`ter2_root/campaign/`, the backends are in `ter2_root/frozen/`, the scripts in `ter2_root/scripts/`. See
+`ter2_root/README.md`.

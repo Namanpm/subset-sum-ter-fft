@@ -1,12 +1,17 @@
 # Verifies that every file of the frozen root backends (K2, K2_WIDE,
 # QUEUE_DENSE, ARWLF + dispatcher; see FROZEN_ROOT_BACKENDS.md) still has the
-# SHA-256 recorded in bench/frozen_root_backends.sha256.  Run by CTest:
-#   cmake -DROOT=<source dir> -P scripts/check_frozen_root_backends.cmake
+# SHA-256 recorded in ter2_root/frozen_root_backends.sha256.  Run by CTest:
+#   cmake -DROOT=<source dir> -P ter2_root/scripts/check_frozen_root_backends.cmake
+#
+# The digest is taken over the content with every CR byte removed, which equals
+# the SHA-256 of the committed (LF) git blob.  That makes the check independent
+# of core.autocrlf and of the checkout platform while still catching any change
+# to the code itself.
 
 if(NOT DEFINED ROOT)
     message(FATAL_ERROR "pass -DROOT=<source dir>")
 endif()
-set(manifest "${ROOT}/bench/frozen_root_backends.sha256")
+set(manifest "${ROOT}/ter2_root/frozen_root_backends.sha256")
 if(NOT EXISTS "${manifest}")
     message(FATAL_ERROR "missing ${manifest}")
 endif()
@@ -15,6 +20,7 @@ file(STRINGS "${manifest}" lines)
 set(checked 0)
 set(failures "")
 foreach(line IN LISTS lines)
+    string(STRIP "${line}" line)  # a CRLF checkout of the manifest leaves a trailing CR
     if(line STREQUAL "")
         continue()
     endif()
@@ -29,7 +35,9 @@ foreach(line IN LISTS lines)
         list(APPEND failures "${path}: missing")
         continue()
     endif()
-    file(SHA256 "${ROOT}/${path}" actual)
+    file(READ "${ROOT}/${path}" content)
+    string(REPLACE "\r" "" content "${content}")
+    string(SHA256 actual "${content}")
     if(NOT actual STREQUAL expected)
         list(APPEND failures "${path}: changed")
     endif()

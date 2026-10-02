@@ -2,7 +2,7 @@
 
 **Status:** CURRENT, normative for the TER² root-backend line (dated 2026-10-02).
 **Supersedes:** `docs/history/TER_L1_to_L0_Radix_Refined_Root_Architecture_v2.1_CODEX.pdf`. See `docs/history/SUPERSEDED.md`.
-**Implementation:** frozen; see `FROZEN_ROOT_BACKENDS.md` (29 files, SHA-256 pinned, CTest `ter_frozen_root_backends`).
+**Implementation:** `ter2_root/` (frozen sources in `ter2_root/frozen/`); see `FROZEN_ROOT_BACKENDS.md` (29 files, SHA-256 pinned, CTest `ter_frozen_root_backends`).
 **Evidence:** `ARWLF_REGIME_CAMPAIGN.md` (preregistration) and `results/arwlf/regime-20261001/summary.md`.
 
 **Scope boundary.** This architecture runs on the benchmark surface: captured authentic roots replayed from snapshots. The production `solve_full_ter` root is still design B (`docs/root_architecture_resolution.md`) until the integration gates in section 9 pass. Nothing here is an asymptotic claim. ARWLF is a finite-n, constant-factor result.

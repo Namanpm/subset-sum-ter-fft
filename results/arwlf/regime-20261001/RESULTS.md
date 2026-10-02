@@ -1,7 +1,7 @@
 # ARWLF regime campaign: frozen result record
 
 Campaign `regime-20261001`, run 2026-10-01/02. Preregistration and Amendment 1: `ARWLF_REGIME_CAMPAIGN.md`.
-Generated tables: `summary.md` (from `scripts/summarize_arwlf_regime_campaign.py`).
+Generated tables: `summary.md` (from `ter2_root/scripts/summarize_arwlf_regime_campaign.py`; before 2026-10-02 at `scripts/`).
 Figure data: `speedup_vs_L.csv`, `regret_vs_L.csv`.
 
 **Build:** `build_freeze.json` (executable SHA-256 `932d2803…e7ef`), `source_manifest.txt`, `build_flags.txt`.

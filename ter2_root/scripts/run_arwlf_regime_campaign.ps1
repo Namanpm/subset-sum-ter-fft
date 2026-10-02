@@ -8,7 +8,7 @@
 # state before and after, exit code).  Refuses to start a step on battery.
 # Stops at the first step that exits non-zero (an exactness failure is 4).
 #
-#   pwsh scripts/run_arwlf_regime_campaign.ps1 -Out results/arwlf/regime-X `
+#   pwsh ter2_root/scripts/run_arwlf_regime_campaign.ps1 -Out results/arwlf/regime-X `
 #        -Steps "snap.snap|census|calibration", "snap.snap|thin-qx|calibration"
 # A step is "snapshot|phase|role[|cases]" (cases: comma list for confirm).
 
@@ -36,13 +36,13 @@ function Get-PowerState {
 # --- build freeze (once per campaign directory) ------------------------------
 $manifest = Join-Path $Out "source_manifest.txt"
 if (-not (Test-Path $manifest)) {
-    $files = @(Get-ChildItem -Recurse -File bench, src, include, tests, scripts) + @(Get-Item CMakeLists.txt)
+    $files = @(Get-ChildItem -Recurse -File bench, src, include, tests, ter2_root) + @(Get-Item CMakeLists.txt)
     $lines = $files | Sort-Object FullName | ForEach-Object {
         $rel = Resolve-Path -Relative $_.FullName
         "{0}  {1}" -f (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant(), $rel
     }
     $lines | Set-Content -Encoding utf8 $manifest
-    $project = "build-full/ter_arwlf_campaign.vcxproj"
+    $project = "build-full/ter2_root/ter_arwlf_campaign.vcxproj"
     if (Test-Path $project) { Copy-Item $project (Join-Path $Out "ter_arwlf_campaign.vcxproj") }
     $cache = Get-Content build-full/CMakeCache.txt |
         Where-Object { $_ -match "^(CMAKE_CXX_FLAGS|CMAKE_CXX_FLAGS_RELEASE|CMAKE_CXX_COMPILER|TER_NATIVE_OPT|CMAKE_GENERATOR)[:=]" }

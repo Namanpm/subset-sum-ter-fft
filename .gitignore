@@ -354,3 +354,7 @@ Testing/
 !/results/arwlf/campaign-20261001-v3-0x3007/summary.csv
 !/results/arwlf/campaign-20261001-v3-0x3007/*_samples.csv
 !/results/arwlf/campaign-20261001-v3-0x3007/provenance.json
+
+# ter2_root/ documentation (README files of the TER^2 root line and its retired experiments).
+!/ter2_root/**/*.md
+!/docs/history/TER_Tiled_L2_L1_End_to_End_Implementation_Spec.pdf

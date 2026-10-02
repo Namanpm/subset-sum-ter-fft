@@ -74,4 +74,4 @@ Lineage, in design terms only:
 
 Architectural provenance; negative-results documentation; benchmark methodology; exactness and fail-closed requirements.
 
-Other documents that cite this PDF by name (`implementation_plan.md`, `docs/CLAUDE_HANDOFF_2026-08-25.md`) are themselves historical. It now lives here.
+Other documents that cite this PDF by name (`docs/history/implementation_plan.md`, `docs/history/CLAUDE_HANDOFF_2026-08-25.md`) are themselves historical. It now lives here.
