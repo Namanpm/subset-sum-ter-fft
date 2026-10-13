@@ -7,3 +7,16 @@
 # The manuscript uses exact-byte SHA-256 manifests for its frozen inputs too.
 # Preserve both LF and CRLF originals on every platform and checkout.
 /paper/data/** -text
+# These sources mix CRLF and LF line endings, and the three ARWLF campaign builds
+# recorded their SHA-256 in that exact form (results/arwlf/*/source_manifest.txt).
+# Storing them unconverted lets reviewer/check_build_sources.py recover them
+# byte-exactly from any clone.
+/bench/ter_q3report_bench.cpp -text
+/bench/ter_q3report_crossover_bench.cpp -text
+/bench/ter_q3report_paper_crossover_bench.cpp -text
+/include/ter/q3report_audit.hpp -text
+/include/ter/q3report_crossover.hpp -text
+/include/ter/q3report_paper_crossover.hpp -text
+/src/q3report_audit.cpp -text
+/src/q3report_crossover.cpp -text
+/src/q3report_paper_crossover.cpp -text
