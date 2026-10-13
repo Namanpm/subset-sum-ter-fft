@@ -4,3 +4,6 @@
 # digest for every raw campaign file. core.autocrlf must therefore never rewrite
 # their line endings, or the recorded digests stop verifying after a checkout.
 /results/** -text
+# The manuscript uses exact-byte SHA-256 manifests for its frozen inputs too.
+# Preserve both LF and CRLF originals on every platform and checkout.
+/paper/data/** -text

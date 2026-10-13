@@ -105,24 +105,29 @@ full_ter.*          complete depth-3 TER implementation
 q3report_audit.*    isolated count-only TER-Q3REPORT arithmetic/NTT experiment
 ```
 
-Current tests:
+Current tests (`tests/`, one CTest suite each):
 
 ```text
-tests/shape_tests.cpp
-tests/core_tests.cpp
-tests/generator_tests.cpp
-tests/merge_tests.cpp
-tests/packed_tests.cpp
-tests/full_ter_tests.cpp
-tests/q3report_audit_tests.cpp
+shape_tests  core_tests  generator_tests  stress_generator_tests  merge_tests
+packed_tests  full_ter_tests  limitations_tests
+q3report_audit_tests  q3report_crossover_tests  q3report_paper_crossover_tests
+tiled_q3report_tests  root_partition_tests
 ```
 
-Current benchmarks:
+The TER² root line has its own suites in `ter2_root/tests/` (see `ter2_root/README.md`).
+
+Current benchmarks (`bench/`):
 
 ```text
-bench/ter_baseline_bench.cpp
-bench/ter_full_bench.cpp
-bench/ter_q3report_bench.cpp
+ter_full_bench.cpp                       FullTer solves and attempt cost (used by the paper)
+ter_baseline_bench.cpp                   frozen T0 merge baseline
+ter_stress_bench.cpp                     stress-generator instances
+ter_q3report_bench.cpp                   Q3REPORT count-only NTT comparison
+ter_q3report_crossover_bench.cpp         Q3REPORT NTT crossover (closed)
+ter_q3report_paper_crossover_bench.cpp   paper-scaling dense-NTT crossover (closed)
+ter_tiled_complete_merge_bench.cpp       tiled vs direct complete merge
+ter_tiled_parameter_sweep.cpp            tile-width sweep
+ter_root_partition_bench.cpp             Stage C partition bake-off (closed)
 ```
 
 The TER² L1 -> L0 root-backend line (K2, K2_WIDE, QUEUE_DENSE, ARWLF, the regime
@@ -447,16 +452,14 @@ Existing experimental code may of course be maintained and tested.
 
 Material correctness changes must add or update tests.
 
-Current CMake tests:
+CTest registers 61 tests in `build-full` at the time of writing; `ctest --test-dir build-full -N` is the authoritative inventory. Groups:
 
 ```text
-ter_shape_tests
-ter_core_tests
-ter_generator_tests
-ter_merge_tests
-ter_packed_tests
-ter_full_tests
-ter_q3report_audit_tests
+core suites       ter_{shape,core,generator,stress_generator,merge,packed,full,limitations}_tests
+experiments       ter_{q3report_audit,q3report_crossover,q3report_paper_crossover,tiled_q3report,root_partition}_tests
+CLI regressions   ter_bench_cli_* (ter_full_bench), ter_tiled_sweep_cli_*
+TER² root line    ter_arwlf*, ter_a64_chqr, ter_root_*, ter_microreport8, ter_translated_tag,
+                  ter_radix13*, ter_hash_join*, ter_frozen_root_backends (fails if a frozen file changes)
 ```
 
 Run the narrowest relevant target during iteration, then all relevant regression tests before completion.
@@ -513,13 +516,7 @@ Do not hide mandatory algorithm costs or charge optional research telemetry as m
 
 Compare identical input, semantics, thread count, build mode, optimization policy, and warm-up policy.
 
-Current benchmark executables:
-
-```text
-ter_baseline_bench
-ter_full_bench
-ter_q3report_bench
-```
+Current benchmark executables: the nine `bench/` targets listed under Repository layout, plus the TER² root harnesses `ter_arwlf_campaign`, `ter_arwlf_bench`, `ter_root_snapshot_capture`, `ter_arwlf_whole_root`, `ter_arwlf_solve_attempt` and `ter_hash_join_bench` (`ter2_root/campaign/`).
 
 `ter_full_bench` measures FullTer where the chosen finite instance is actually feasible. `ter_q3report_bench` is an experimental comparison harness, not solver throughput.
 

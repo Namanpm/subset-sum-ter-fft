@@ -1,5 +1,12 @@
 # subset-sum-ter-fft
-Experimental subset-sum solver exploring representation techniques (TER), FFT-based methods, exact pruning, and high-performance search.
+Exact classical depth-3 TER (Ternary Representation Technique) solver for random density-one Subset Sum,
+and the ARWLF root-merge research line reported in `paper/`. The solver contains no FFT or NTT; exact
+NTT appears only in closed, count-only experiments (see `LEGACY_MAP.md`).
+
+**Start here:** [`LEGACY_MAP.md`](LEGACY_MAP.md) says what every file and folder is, which of them
+support the paper, and which older numbers and documents must not be read as current results.
+[`reviewer/`](reviewer/README.md) holds the PowerShell scripts that check the paper's claims: evidence
+integrity, build and tests, the tables and DOCX, snapshot recapture and an anchor-cell rerun.
 
 ## Current research line: the TER² root (ARWLF)
 
@@ -12,8 +19,9 @@ The L1 -> L0 root merge is TER's dominant cost. Four exact root backends live in
 
 On authentic n=108 root microproblems ARWLF is a geometric-mean **53.1x** faster than frozen K2 on the
 calibration roots and **52.9x** on unseen holdout roots, with every campaign case exact. This is a
-finite-n constant-factor result (ARWLF still tests every logical pair), not an exponent claim, and it is
-not yet integrated into `FullTer`.
+finite-n constant-factor result (ARWLF still tests every logical pair), not an exponent claim. The
+production `solve_full_ter` root is still design B; a staged integration
+([`ARWLF_FULL_SOLVE.md`](ARWLF_FULL_SOLVE.md)) runs the frozen dispatcher as the root of solver attempts.
 - Architecture: [`TER_L1_to_L0_ARWLF_Architecture_v1.0.md`](TER_L1_to_L0_ARWLF_Architecture_v1.0.md)
 - Results: [`results/arwlf/regime-20261001/RESULTS.md`](results/arwlf/regime-20261001/RESULTS.md)
 - Freeze contract: [`FROZEN_ROOT_BACKENDS.md`](FROZEN_ROOT_BACKENDS.md)
@@ -135,7 +143,7 @@ The exact cache-tiled modular three-list reporter (`src/tiled_q3report.cpp`) is
 integrated into the Q3REPORT comparator, both public merges and the FullTer
 L2→L1 and root stages. Its measured evidence package lives in
 `results/tiled-q3report-final-20260829/`, and
-[tiling_implementation_idea.md](tiling_implementation_idea.md) Sections 16-17
+[tiling_implementation_idea.md](docs/history/tiling_implementation_idea.md) Sections 16-17
 carry the current numbers. In short: it preserves exact outputs and the same
 worst-case `O(|A||B|)` pair bound, is **slower** than the `Q`-wide direct
 comparator below `L = 512`, and reaches a geometric-mean 12.93x over it at

@@ -8,6 +8,7 @@ Recorded before source changes for `implementation_plan.md` (now `docs/history/i
 - Branch: `main...origin/main`.
 - Pre-existing staged file preserved without modification: `ssp_oracle.cpp`.
 - Unique local radix donor: `C:\Users\naman\Desktop\subset-sum-ter-fft\ssp_oracle.cpp` (687,834 bytes).
+  *(2026-10-12: moved unchanged to `docs/history/donors/ssp_oracle.cpp`; also committed at 53431a8. Not part of any build.)*
 - Read-only IPS2Ra donor: `C:\Users\naman\Desktop\ips2ra`, HEAD `ef3407632348f58a6ab75832a749cde99f3b9ad8`.
 
 ## Pre-edit validation

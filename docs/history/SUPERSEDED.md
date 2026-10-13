@@ -51,7 +51,7 @@ ARWLF (adaptive radix wide-leaf filter) took the opposite route.
 - **Each pair test is made very cheap.** Exact 13-bit leaf routing plus a 32-bit byte-table filter evaluates 16 pairs per AVX2 row.
 - **Almost no candidate survivors reach the expensive stages.**
 
-On authentic n=108 roots it is a geometric-mean **52.9x** faster than frozen K2 on three unseen holdout roots (95 % CI 51.2-55.0), and 53.1x on the calibration roots, with 221/221 campaign cases exact (`results/arwlf/regime-20261001/summary.md`).
+On authentic n=108 roots it is a geometric-mean **52.9x** faster than frozen K2 on three unseen holdout roots (95 % case-level bootstrap 51.2-55.0; the root-block interval reported in the paper is 51.8-53.8), and 53.1x on the calibration roots, with 221/221 campaign cases exact (`results/arwlf/regime-20261001/summary.md`).
 
 What this **does** show: at the finite dimensions that can be run here, a fast exact root does not require reducing opened pair mass. Making each pair test cheap and suppressing survivors was enough for a 53x wall-time gain.
 
