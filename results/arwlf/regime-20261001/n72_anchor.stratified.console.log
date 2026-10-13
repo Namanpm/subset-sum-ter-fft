@@ -1,0 +1,60 @@
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=stratified role=calibration
+# sentinel start 76.658 ms
+# case cell:c19 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=148200 : k2=0.08 k2_wide=0.10 queue_dense=2.89 arwlf=0.72 dispatch=11.76 ms | K2/ARWLF=0.11 regret=147.393 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# case cell:c81 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=154521 : k2=0.08 k2_wide=0.09 queue_dense=2.40 arwlf=0.73 dispatch=8.18 ms | K2/ARWLF=0.11 regret=104.832 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# case cell:c226 [AUTHENTIC_FULLTER, discovery] L=1.06 pairs=164951 : k2=0.09 k2_wide=0.11 queue_dense=4.49 arwlf=0.75 dispatch=14.07 ms | K2/ARWLF=0.12 regret=150.840 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c328 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=147864 : k2=0.08 k2_wide=0.09 queue_dense=3.00 arwlf=0.78 dispatch=12.05 ms | K2/ARWLF=0.10 regret=160.491 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c746 [AUTHENTIC_FULLTER, discovery] L=1.06 pairs=155928 : k2=0.08 k2_wide=0.10 queue_dense=2.51 arwlf=0.78 dispatch=9.09 ms | K2/ARWLF=0.10 regret=113.506 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c996 [AUTHENTIC_FULLTER, discovery] L=1.05 pairs=139932 : k2=0.07 k2_wide=0.08 queue_dense=2.42 arwlf=0.67 dispatch=10.28 ms | K2/ARWLF=0.10 regret=152.975 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# case cell:c1038 [AUTHENTIC_FULLTER, discovery] L=1.05 pairs=147840 : k2=0.08 k2_wide=0.10 queue_dense=3.06 arwlf=0.74 dispatch=11.76 ms | K2/ARWLF=0.11 regret=147.790 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=2 | COMPLETED
+# case cell:c1533 [AUTHENTIC_FULLTER, discovery] L=1.05 pairs=162966 : k2=0.08 k2_wide=0.11 queue_dense=2.47 arwlf=0.77 dispatch=9.79 ms | K2/ARWLF=0.10 regret=121.933 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# case cell:c1672 [AUTHENTIC_FULLTER, discovery] L=1.06 pairs=140056 : k2=0.08 k2_wide=0.09 queue_dense=3.15 arwlf=0.76 dispatch=12.28 ms | K2/ARWLF=0.10 regret=162.851 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c2488 [AUTHENTIC_FULLTER, discovery] L=1.05 pairs=155142 : k2=0.08 k2_wide=0.10 queue_dense=2.98 arwlf=0.72 dispatch=12.16 ms | K2/ARWLF=0.11 regret=146.685 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=2 | COMPLETED
+# case cell:c2737 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=138266 : k2=0.07 k2_wide=0.10 queue_dense=2.37 arwlf=0.72 dispatch=9.70 ms | K2/ARWLF=0.10 regret=137.542 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# case cell:c2894 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=139200 : k2=0.07 k2_wide=0.10 queue_dense=3.09 arwlf=0.72 dispatch=12.09 ms | K2/ARWLF=0.10 regret=163.631 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c2976 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=163800 : k2=0.09 k2_wide=0.11 queue_dense=2.25 arwlf=0.72 dispatch=10.26 ms | K2/ARWLF=0.12 regret=113.857 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c3465 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=155170 : k2=0.08 k2_wide=0.10 queue_dense=2.42 arwlf=0.72 dispatch=9.14 ms | K2/ARWLF=0.11 regret=112.715 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c3652 [AUTHENTIC_FULLTER, discovery] L=1.06 pairs=148720 : k2=0.09 k2_wide=0.10 queue_dense=2.95 arwlf=0.71 dispatch=11.21 ms | K2/ARWLF=0.12 regret=130.545 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=0 | COMPLETED
+# case cell:c3883 [AUTHENTIC_FULLTER, discovery] L=1.04 pairs=162846 : k2=0.08 k2_wide=0.10 queue_dense=2.52 arwlf=0.77 dispatch=9.60 ms | K2/ARWLF=0.11 regret=113.229 best=k2 dispatch ran K2_WIDE | witnesses=0 k32=1 | COMPLETED
+# sentinel end 80.280 ms
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=stratified role=calibration
+# sentinel start 65.582 ms
+# skip (already written) cell:c19
+# skip (already written) cell:c81
+# skip (already written) cell:c226
+# skip (already written) cell:c328
+# skip (already written) cell:c746
+# skip (already written) cell:c996
+# skip (already written) cell:c1038
+# skip (already written) cell:c1533
+# skip (already written) cell:c1672
+# skip (already written) cell:c2488
+# skip (already written) cell:c2737
+# skip (already written) cell:c2894
+# skip (already written) cell:c2976
+# skip (already written) cell:c3465
+# skip (already written) cell:c3652
+# skip (already written) cell:c3883
+# sentinel end 65.807 ms
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=stratified role=calibration
+# sentinel start 83.093 ms
+# skip (already written) cell:c19
+# skip (already written) cell:c81
+# skip (already written) cell:c226
+# skip (already written) cell:c328
+# skip (already written) cell:c746
+# skip (already written) cell:c996
+# skip (already written) cell:c1038
+# skip (already written) cell:c1533
+# skip (already written) cell:c1672
+# skip (already written) cell:c2488
+# skip (already written) cell:c2737
+# skip (already written) cell:c2894
+# skip (already written) cell:c2976
+# skip (already written) cell:c3465
+# skip (already written) cell:c3652
+# skip (already written) cell:c3883
+# sentinel end 84.261 ms

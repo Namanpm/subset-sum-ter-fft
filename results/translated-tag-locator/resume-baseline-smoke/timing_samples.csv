@@ -1,0 +1,9 @@
+entity,sample_index,milliseconds
+scalar_matched,0,608.9267
+k2_matched,0,366.9586
+translated_tag_matched,0,1000.1431
+translated_tag_group_only,0,974.5757
+tile_build_control,0,17.2071
+sink_expansion,0,6.4724
+sink_quotient_prefilter,0,7.1718
+sink_full,0,7.8754

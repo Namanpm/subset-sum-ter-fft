@@ -1,0 +1,5 @@
+# snapshot results/arwlf/holdout-snapshots/n108_s0x5003_a0.snap : Completed
+# root n108_s0x5003_a0 n=108 seed=0x5003 Q=69 W=58 anchor cell=2730 (L=126.13) strata=16 phase=anchor role=holdout
+# sentinel start 66.101 ms
+# case anchor:c2730 [AUTHENTIC_FULLTER, final] L=126.13 pairs=12281623144 : k2=85657.81 k2_wide=54272.77 arwlf=1654.93 dispatch=1671.65 ms | K2/ARWLF=51.76 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20290753 | COMPLETED
+# sentinel end 65.991 ms

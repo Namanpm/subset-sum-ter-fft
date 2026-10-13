@@ -1,0 +1,4 @@
+campaign,attempt,root,role,phase,n,root_seed,Q,W,git_commit,git_dirty_at_configure,compiler,build,pin,pinned_cpu,when,cases_run,sentinel_ms,checksum,cpu
+positive-20261003,0x3fa119bea6d97a,n108_s0x1001_a0,calibration,plant,108,0x1001,69,58,8e9fe7fdda447088738b5e682ba6aea4cf83a121,1,MSVC 195136257,Release,p-core,23,start,0,66.9998,4971650,23
+positive-20261003,0x3fa119bea6d97a,n108_s0x1001_a0,calibration,plant,108,0x1001,69,58,8e9fe7fdda447088738b5e682ba6aea4cf83a121,1,MSVC 195136257,Release,p-core,23,end,10,67.4714,4971650,23
+positive-20261003,0x3fa12d908af549,n108_s0x3007_a0,calibration,plant,108,0x3007,69,58,8e9fe7fdda447088738b5e682ba6aea4cf83a121,1,MSVC 195136257,Release,p-core,23,start,0,65.5539,4971650,23

@@ -1,0 +1,178 @@
+{
+  "regime": {
+    "completed_cases": 221,
+    "backend_summaries": 956,
+    "accepted_timings": 3220,
+    "orphan_timings": 9,
+    "all_recorded_exactness_gates_pass": true,
+    "case_output_counts": {
+      "full_key_triples": {
+        "0": 221
+      },
+      "residue_exact": {
+        "0": 221
+      },
+      "structural": {
+        "0": 221
+      },
+      "witnesses": {
+        "0": 221
+      }
+    }
+  },
+  "positive": {
+    "completed_cases": 10,
+    "backend_summaries": 40,
+    "accepted_timings": 120,
+    "orphan_timings": 0,
+    "all_recorded_exactness_gates_pass": true,
+    "case_output_counts": {
+      "full_key_triples": {
+        "100": 1,
+        "0": 5,
+        "1000": 1,
+        "10000": 1,
+        "100000": 1,
+        "1000000": 1
+      },
+      "residue_exact": {
+        "100": 1,
+        "0": 5,
+        "1000": 1,
+        "10000": 1,
+        "100000": 1,
+        "1000000": 1
+      },
+      "structural": {
+        "100": 1,
+        "0": 5,
+        "1000": 1,
+        "10000": 1,
+        "100000": 1,
+        "1000000": 1
+      },
+      "witnesses": {
+        "100": 1,
+        "0": 5,
+        "1000": 1,
+        "10000": 1,
+        "100000": 1,
+        "1000000": 1
+      }
+    }
+  },
+  "aggregates": {
+    "calibration": {
+      "pooled:k2_over_arwlf": {
+        "estimate": 53.087513918697326,
+        "ci95": [
+          48.174628605265184,
+          57.60577726005109
+        ],
+        "roots": 3,
+        "cases": 14
+      },
+      "balanced:k2_over_arwlf": {
+        "estimate": 52.74493810380932,
+        "ci95": [
+          48.174628605265184,
+          57.60577726005109
+        ],
+        "roots": 3,
+        "cases": 14
+      },
+      "pooled:k2wide_over_arwlf": {
+        "estimate": 32.77686622547223,
+        "ci95": [
+          32.13201530776898,
+          33.23850721620393
+        ],
+        "roots": 3,
+        "cases": 14
+      },
+      "balanced:k2wide_over_arwlf": {
+        "estimate": 32.733476387000394,
+        "ci95": [
+          32.13201530776898,
+          33.23850721620393
+        ],
+        "roots": 3,
+        "cases": 14
+      },
+      "pooled:k2_over_dispatch": {
+        "estimate": 52.3648807732152,
+        "ci95": [
+          47.17843433093539,
+          57.08419932071078
+        ],
+        "roots": 3,
+        "cases": 14
+      },
+      "balanced:k2_over_dispatch": {
+        "estimate": 52.002035815691016,
+        "ci95": [
+          47.17843433093539,
+          57.08419932071078
+        ],
+        "roots": 3,
+        "cases": 14
+      }
+    },
+    "holdout": {
+      "pooled:k2_over_arwlf": {
+        "estimate": 52.89332432760878,
+        "ci95": [
+          51.81066772385077,
+          53.81492726897213
+        ],
+        "roots": 3,
+        "cases": 15
+      },
+      "balanced:k2_over_arwlf": {
+        "estimate": 52.89332432760878,
+        "ci95": [
+          51.81066772385077,
+          53.81492726897213
+        ],
+        "roots": 3,
+        "cases": 15
+      },
+      "pooled:k2wide_over_arwlf": {
+        "estimate": 32.43778226744015,
+        "ci95": [
+          31.967035119183844,
+          32.85611121019644
+        ],
+        "roots": 3,
+        "cases": 15
+      },
+      "balanced:k2wide_over_arwlf": {
+        "estimate": 32.43778226744016,
+        "ci95": [
+          31.967035119183844,
+          32.85611121019644
+        ],
+        "roots": 3,
+        "cases": 15
+      },
+      "pooled:k2_over_dispatch": {
+        "estimate": 52.381928764648,
+        "ci95": [
+          51.311999603078014,
+          53.25689549334939
+        ],
+        "roots": 3,
+        "cases": 15
+      },
+      "balanced:k2_over_dispatch": {
+        "estimate": 52.381928764648,
+        "ci95": [
+          51.311999603078014,
+          53.25689549334939
+        ],
+        "roots": 3,
+        "cases": 15
+      }
+    }
+  }
+}

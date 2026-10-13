@@ -1,0 +1,3 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap : Completed (7.3 s)
+# root n108_s0x1001_a0 n=108 Q=69 anchor cell 2730 (u=20) planted (1753507, 754371, 6896564) run dispatch-2 backend dispatch, 1 of 1 chunks to run
+# dispatch-2 all : 3436.05 s, 4096 cells, 1 outputs (ran ARWLF)

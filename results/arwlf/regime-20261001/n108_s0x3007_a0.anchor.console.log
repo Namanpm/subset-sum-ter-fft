@@ -1,0 +1,5 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap : Completed
+# root n108_s0x3007_a0 n=108 seed=0x3007 Q=69 W=58 anchor cell=2730 (L=127.33) strata=16 phase=anchor role=calibration
+# sentinel start 65.944 ms
+# case anchor:c2730 [AUTHENTIC_FULLTER, final] L=127.33 pairs=12273266941 : k2=86389.76 k2_wide=54579.33 arwlf=1637.61 dispatch=1653.72 ms | K2/ARWLF=52.75 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20456148 | COMPLETED
+# sentinel end 65.767 ms

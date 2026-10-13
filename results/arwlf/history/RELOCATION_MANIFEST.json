@@ -1,0 +1,286 @@
+{
+  "relocated_on": "2026-10-13",
+  "reason": "Archive development and invalid first-run evidence without changing recorded bytes or historical commands.",
+  "files": [
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "sha256": "6e1ae1db447e6437ad58e9343d015cad912f4e64330e0960a0ab287daca319e8"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x1001_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x1001_a0.console.log",
+      "sha256": "dc3bd51842a1c24ae353ce1a69bab8e97261b948001c3ee0636c5287c215e069"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "sha256": "1a775b66d6f726b17460dab6a47eeef603051bfeba95d4160e623e665ffb4f3c"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x2003_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x2003_a0.console.log",
+      "sha256": "4d3d4dd2182ab0e28689b616993f2a6ff1e25860aa2daadaa8e972c296dcf10c"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "sha256": "83e6b4861c19479f5e15ffec91d882513bdbf40a32cb04390c3b1be8d6792644"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/n108_s0x3007_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929/n108/n108_s0x3007_a0.console.log",
+      "sha256": "fe2e5719dee216a1554566fe8fa5486cbad98dc305a9e27e52af6afe363011fb"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929/n108/provenance.json",
+      "sha256": "df26d69fa8e2544fe807edbb2d765fd89d8105c69aa723c3ff7a6bd55b4d6601"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n108/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929/n108/summary.csv",
+      "sha256": "92a98816da8d2e620375aab6e2f8f0feb15750cc667ab7d56740e7f9297f285f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n72/n72_anchor_mp4096_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929/n72/n72_anchor_mp4096_samples.csv",
+      "sha256": "464b9ce7a28696707714a359a766751650ffd5d2ee0ee382077b32074068111f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n72/n72_anchor.console.log",
+      "current": "results/arwlf/history/campaign-20260929/n72/n72_anchor.console.log",
+      "sha256": "f0e575eb62e4450d98fe1d57743493cbe9446c36533c96d74dfb1fe8c8134b2b"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n72/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929/n72/provenance.json",
+      "sha256": "3fe41a30e9c4ccdb2fa31fcce1caa8bd35c32a1e9d61ea6067d118493be7366f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929/n72/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929/n72/summary.csv",
+      "sha256": "4bc240fadcc83833b40f0907edea8365925ad3d2e1b89d779b6e0b0c9f019c0b"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "sha256": "271ea15f3ee1edf18c78782e8f8fe7ef96a1fd492ddd76bf71b64eb76d851e79"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x1001_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x1001_a0.console.log",
+      "sha256": "256d66b579447df03ef437723405afe732cfbd7c2788f07fee6bd4b0293a4c0f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "sha256": "78b0b993e30768493d4a960b8d6247b009d78c1dc6b671312f6d7dc19b64e848"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x2003_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x2003_a0.console.log",
+      "sha256": "951c8bd68a546bfa444f5cde3d715fcc5c506e9f6d9423fe73fbdb0063bde7d2"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "sha256": "22834b88f267eb8bdf9d904ac83cab5eb3cbd45f2c2863416fbc57cefc733f27"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/n108_s0x3007_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/n108_s0x3007_a0.console.log",
+      "sha256": "5b3f7b46daa8c850d8c114de4c01ed6eae205ec96a3a4a8e12296a146b8a2dc6"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/provenance.json",
+      "sha256": "c1b05602d8a9186c3c71f06db91191fd200679519f7f2ce71bc4250abc463b9d"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n108/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n108/summary.csv",
+      "sha256": "9cdfae31f0b0272542d4ffd5791fdd18989a105b31a714b6593527677f28a784"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n72/n72_anchor_mp4096_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n72/n72_anchor_mp4096_samples.csv",
+      "sha256": "68007fdc4bd6b76e529eae7e81e6c84e49827f563fe24d507eb5c8f1e950aeb7"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n72/n72_anchor.console.log",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n72/n72_anchor.console.log",
+      "sha256": "97775d2bbfe9dbaeee5ffb2ecdfba1274b5f31e7a6d77d12847e6257add3ba5f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n72/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n72/provenance.json",
+      "sha256": "e2eecea7fae70dc85efdce87237b26351e7e60e2243d0273bf76f430db8b6961"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-pinned-inline/n72/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929-pinned-inline/n72/summary.csv",
+      "sha256": "1cc2ca5cef2e8945147d429d2f4c01db5b10713ca9ba81a0195a04d481784c56"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x1001_a0_mp1_samples.csv",
+      "sha256": "2dd3236130c6d9f3cdadef60a0841f39afbc11255f454f1fdbaf1864e7b0b96d"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x1001_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x1001_a0.console.log",
+      "sha256": "862bbc2c188d804eb75a58b2be0617bdce0056d6346963c541d6b98a1821a65d"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x2003_a0_mp1_samples.csv",
+      "sha256": "18fd2ab76f85ea1f3c02ed2dd659e06de8200a5f9e119aa31afe04e34b399e82"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x2003_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x2003_a0.console.log",
+      "sha256": "91c3aef0977e2d0e4bcdbbfcea799bab10b0159369ebce7354fd1665c5c6a1f1"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x3007_a0_mp1_samples.csv",
+      "sha256": "9bb62514166c2b9e1b200b05ecaefd58f55189d4487faea4a931f7d76f35d9ef"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/n108_s0x3007_a0.console.log",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/n108_s0x3007_a0.console.log",
+      "sha256": "7556711c8fae2c3cab1c84b33925167b1e47c7748de835432b71dec6f4e256eb"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/provenance.json",
+      "sha256": "b31e440043ab3bf78e7f636c9d0d075c7d52a2783150fa313c51fd9f04a19eb2"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n108/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n108/summary.csv",
+      "sha256": "ff21cf04757a9548628931c32a4b01c6a5825fe98958f1700235355be78b9cd2"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n72/n72_anchor_mp4096_samples.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n72/n72_anchor_mp4096_samples.csv",
+      "sha256": "e39cba8658c27bacf39e31300123dba81270d92fd34bb6b7120663b878900aa1"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n72/n72_anchor.console.log",
+      "current": "results/arwlf/history/campaign-20260929-v3/n72/n72_anchor.console.log",
+      "sha256": "f756f8e2bfb8d907c806ecf4126e89ef83e7a98d73926bdcbda15a82ecdb598f"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n72/provenance.json",
+      "current": "results/arwlf/history/campaign-20260929-v3/n72/provenance.json",
+      "sha256": "acd10bbe60d1aee8876f484e15138a9d9ba5118d636c60efaf06b315a1f5844d"
+    },
+    {
+      "original": "results/arwlf/campaign-20260929-v3/n72/summary.csv",
+      "current": "results/arwlf/history/campaign-20260929-v3/n72/summary.csv",
+      "sha256": "126d33b86da5c9a9fd68208791da40e3961571b9fb5f8424f2c31763eb1a8001"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/NOTE.txt",
+      "current": "results/arwlf/history/design-b-n72-compare/NOTE.txt",
+      "sha256": "09614f23e8f0c10fa8c6eb7317f842cd403fa741101c68f99bb3d228527bbe71"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/provenance.json",
+      "current": "results/arwlf/history/design-b-n72-compare/provenance.json",
+      "sha256": "3a9c8dca6c371d5754fccb09d56dd96c7636ff20acea8709724cc0920a2c98c7"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a0.arwlf.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a0.arwlf.jsonl",
+      "sha256": "aba976c82b57c7e3f077ed009ee92d588ebd5dec61dbe6424adad607635e5bd9"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a0.dispatch.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a0.dispatch.jsonl",
+      "sha256": "1678b1b69328a17f0443e0056a679235e2f6e4e7c76a1583064de8693f899635"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a0.k2_wide.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a0.k2_wide.jsonl",
+      "sha256": "4a951516be0ac7f9008b6a1c4738c1b261a238eca9e30461f6a06b3fafde7f96"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a0.k2.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a0.k2.jsonl",
+      "sha256": "6cba6e0388a06cb43baa3f1e883546852cd4d156bfa155b16061ca1c0f142d96"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a10.arwlf.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a10.arwlf.jsonl",
+      "sha256": "84897470f9c428ae8ca433eabda6c558b663b575a8ae3fb1ba8b409825532d3c"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a10.dispatch.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a10.dispatch.jsonl",
+      "sha256": "b346e663819969d3cb5d8caad130532af43ab783b63e357d70c4c42ddb580be6"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a10.k2_wide.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a10.k2_wide.jsonl",
+      "sha256": "f3ea9a4396a8df7f682f6ed0b4349598a4bdbf9580234c98cbd5eaccabaf09de"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a10.k2.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a10.k2.jsonl",
+      "sha256": "96e575c10a27874f9e5058821fbc36db61eee200fcee748c9cb98300ee1caab0"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a21.arwlf.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a21.arwlf.jsonl",
+      "sha256": "043847b8fcd4ae4bcd77532ea6b7732a3e580a45efe6df9cd45b9e36a2702103"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a21.dispatch.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a21.dispatch.jsonl",
+      "sha256": "c44f0fb16745c2dd8a8b9d305633ceb76ad699f145919a95fe4e7e4237e30a8d"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a21.k2_wide.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a21.k2_wide.jsonl",
+      "sha256": "fb5a0177d5cb9b6f8b78e9de015a665d850480ba2dc53da5a0fdc325d60497fe"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7201_a21.k2.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7201_a21.k2.jsonl",
+      "sha256": "f141b7f7ae61d774c266898136976ef6f4489291a0747bcd1c085fd2698187e1"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7203_a0.arwlf.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7203_a0.arwlf.jsonl",
+      "sha256": "8d84c668af44020f3643872f18a33c9b84e9beaeb25379357197d11d77e114cb"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7203_a0.dispatch.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7203_a0.dispatch.jsonl",
+      "sha256": "c7674269fa2046210832b04cca1b309fecfe522cfa1171301a7a62c00f2d7875"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7203_a0.k2_wide.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7203_a0.k2_wide.jsonl",
+      "sha256": "928b29be1176d67f97bca5d0deb61f4575ccac037e05e35ac614e809e65874ac"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/s0x7203_a0.k2.jsonl",
+      "current": "results/arwlf/history/design-b-n72-compare/s0x7203_a0.k2.jsonl",
+      "sha256": "dc30cb4f57167e76bfa864709907c7a7f36fd18c5e8afc3754953a03ff3c5f5a"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/summary.csv",
+      "current": "results/arwlf/history/design-b-n72-compare/summary.csv",
+      "sha256": "c55540189e2529401f1cb592a18a390b5e3b3a71fb74029bccb3457995814668"
+    },
+    {
+      "original": "results/arwlf/design-b-n72-compare/summary.txt",
+      "current": "results/arwlf/history/design-b-n72-compare/summary.txt",
+      "sha256": "6cfb7e28af4ec834f3a0f4b989d25d9cc80c678f70ea4342bdb9cf1b8117c799"
+    }
+  ]
+}

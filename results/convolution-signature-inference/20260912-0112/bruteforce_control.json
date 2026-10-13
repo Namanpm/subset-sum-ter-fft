@@ -1,0 +1,51 @@
+{
+ "kind": "DIAGNOSTIC CONTROL -- exact GPU source-pair enumeration; never verdict-eligible",
+ "gpu": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+ "compile": {
+  "compile_ms": 49.624000006588176,
+  "module_load_ms": 0.13210000179242343,
+  "options": [
+   "-arch=sm_120",
+   "-std=c++17"
+  ],
+  "image_bytes": 6656
+ },
+ "pairs_enumerated": 620490266,
+ "hit_flags": 618857,
+ "expected_distinct_residual_pair_hits": 618857,
+ "hits_match_authenticated_truth": true,
+ "mismatched_classes_vs_numpy": 0,
+ "verify_seconds": 12.783431099989684,
+ "device_bytes": 15314932,
+ "launches_per_run": 64,
+ "device_ms": {
+  "median": 26.07975,
+  "p25": 14.23785,
+  "p75": 26.374825,
+  "p95": 27.27524,
+  "iqr": 12.136975000000001,
+  "min": 13.128,
+  "max": 27.3047,
+  "samples": 30
+ },
+ "upload_ms": {
+  "median": 0.60445,
+  "p25": 0.451025,
+  "p75": 0.65305,
+  "p95": 1.6399149999999998,
+  "iqr": 0.202025,
+  "min": 0.2621,
+  "max": 1.7107,
+  "samples": 30
+ },
+ "total_ms": {
+  "median": 26.73245,
+  "p25": 14.631925,
+  "p75": 26.9823,
+  "p95": 28.92096,
+  "iqr": 12.350374999999998,
+  "min": 13.5166,
+  "max": 28.9855,
+  "samples": 30
+ }
+}

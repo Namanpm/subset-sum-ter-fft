@@ -1,0 +1,351 @@
+{
+ "schema": "ter_convsig_transform_benchmark",
+ "schema_version": 1,
+ "phase": "B (transform-only kill test)",
+ "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+ "git_status_at_run": "M CMakeLists.txt\n M FULL_TER_COMPLIANCE.md\n M README.md\n M bench/ter_tiled_parameter_sweep.cpp\n M tiling_implementation_idea.md\n?? bench/analyse_tiled_q3report.py\n?? bench/convsig_cuda.py\n?? bench/convsig_kernels.py\n?? bench/convsig_reference.py\n?? bench/convsig_transform_bench.py\n?? bench/run_tiled_publication_campaign.ps1\n?? bench/run_windowing_spike.ps1\n?? bench/ter_convsig_dataset_export.cpp\n?? bench/ter_microreport8_dataset.cpp\n?? bench/ter_microreport8_dataset.hpp\n?? bench/ter_microreport8_kernels.hpp\n?? bench/ter_microreport8_kernels_avx2.cpp\n?? bench/ter_microreport8_probe.cpp\n?? bench/ter_tiled_complete_merge_bench.cpp\n?? bench/ter_translated_tag_bench.cpp\n?? bench/ter_translated_tag_dataset.cpp\n?? bench/ter_translated_tag_dataset.hpp\n?? bench/ter_translated_tag_locator.cpp\n?? bench/ter_translated_tag_locator.hpp\n?? bench/ter_translated_tag_locator_avx2.cpp\n?? bench/ter_windowing_geometry.hpp\n?? bench/ter_windowing_probe.cpp\n?? results/microreport8-20260902/\n?? results/ter2-windowing-20260903/\n?? results/ter2-windowing-20260905/\n?? results/tiled-q3report-final-20260829/\n?? results/translated-tag-locator/\n?? stage_d_bitset_join.c\n?? tests/convsig_tests.py\n?? tests/microreport8_tests.cpp\n?? tests/translated_tag_locator_tests.cpp\n?? tests/windowing_tests.cpp",
+ "capture_hash_sha256": "edd3d6c6badccfd80e35e7455ef5e9acf96a89c311d55d6c8ad7971c95a253fc",
+ "baseline_hash_sha256": "825b25cfb53d775de5b7e8bc90adf337f659a5c01c1dd38c0d10db6a25b00c7c",
+ "baseline_source": "TER_L1_to_L0_Inference_Problem.pdf (historical matched medians)",
+ "implementation_hash_sha256": "b1802e9c43898c474307e709836b25e986f6eda54163fd270de25010bd9ee4c8",
+ "cpu": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+ "python": "3.12.10",
+ "numpy": "2.4.6",
+ "gpu": {
+  "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+  "compute_capability": "12.0",
+  "arch_flag": "sm_120",
+  "total_memory_bytes": 12820480000,
+  "free_memory_bytes_at_open": 11561598976,
+  "driver_api_version": 13010,
+  "driver_dll": "C:\\WINDOWS\\System32\\nvcuda.dll",
+  "context_strategy": "primary",
+  "memory_api": "cuMemGetInfo_v2",
+  "nvrtc_version": "13.1",
+  "nvrtc_dll": "C:\\Users\\naman\\AppData\\Local\\Temp\\claude\\C--Users-naman-Desktop-subset-sum-ter-fft\\9e70fd58-3ab1-4717-a53f-94dc8b47d669\\scratchpad\\convsig\\pylib\\nvidia\\cu13\\bin\\x86_64\\nvrtc64_130_0.dll",
+  "block_size": 1024,
+  "context_open_ms": 2492.212600001949,
+  "open_attempts": [
+   [
+    "C:\\WINDOWS\\System32\\nvcuda.dll",
+    "primary",
+    "ok"
+   ]
+  ]
+ },
+ "compile": {
+  "compile_ms": 28.130699996836483,
+  "module_load_ms": 0.5120999994687736,
+  "options": [
+   "-arch=sm_120",
+   "-std=c++17"
+  ],
+  "image_bytes": 31168
+ },
+ "device_limits_probe": {
+  "shared_mem_bytes_result_by_kib": {
+   "16": 0,
+   "32": 0,
+   "48": 0,
+   "49": 1,
+   "64": 1,
+   "128": 1,
+   "1024": 1
+  },
+  "threads_per_block_result": {
+   "512": 0,
+   "1024": 0,
+   "2048": 1
+  }
+ },
+ "frozen": {
+  "g": 64,
+  "M": 16384,
+  "p": 65537,
+  "d": 4,
+  "omega": 81,
+  "M_inverse": 65533,
+  "label_seed": "0x7e2c516ea70c0001"
+ },
+ "fixture": {
+  "n": 72,
+  "seed": 19797034556212562,
+  "size_A": 19109,
+  "size_B": 32496,
+  "size_C": 33505,
+  "P0": 620966064,
+  "decomposition_crosscheck": 619579,
+  "production_low25": 619579,
+  "tau_low25": 5005954
+ },
+ "H_actual": 542,
+ "H_upper_bound_proposal": 570,
+ "H_upper_64_ceil_max": 576,
+ "jobs": 34688,
+ "forward_transforms": 1148,
+ "inverse_transforms": 69376,
+ "forward_butterflies": 131661824,
+ "inverse_butterflies": 7956594688,
+ "butterflies_per_transform": 114688,
+ "max_count_bound_64_times_max_Q": 21248,
+ "host_build_ms": 54.867500002728775,
+ "device_cap_bytes": 134217728,
+ "capped_batch_jobs": 447,
+ "capped_batches": 78,
+ "device_allocated_bytes_capped": 134167548,
+ "device_peak_bytes_tracked": 4622203900,
+ "host_polynomial_bytes": 75235328,
+ "cold_start": {
+  "context_open_ms": 2497.878700000001,
+  "nvrtc_compile_ms": 28.130699996836483,
+  "module_load_ms": 0.5120999994687736,
+  "twiddle_build_upload_ms": 1.2721999955829233,
+  "pipeline_alloc_ms": 0.3077000001212582,
+  "first_run_total_ms": 185.0644,
+  "cold_total_ms": 2831.0264
+ },
+ "host_launch_overhead_us_per_launch": 15.751900001002166,
+ "verification": [
+  {
+   "variant": "stage",
+   "jobs_verified": 34688,
+   "mismatched_jobs": 0,
+   "count_conservation_failures": 0,
+   "unique_pairs_enumerated": 620490266,
+   "seconds": 8.582374100005836
+  },
+  {
+   "variant": "pair",
+   "jobs_verified": 34688,
+   "mismatched_jobs": 0,
+   "count_conservation_failures": 0,
+   "unique_pairs_enumerated": 620490266,
+   "seconds": 8.30563859999529
+  }
+ ],
+ "timed_sample_output_check_failures": 0,
+ "results": {
+  "stage": {
+   "device_ms": {
+    "median": 355.38665000000003,
+    "p25": 355.37125,
+    "p75": 355.413175,
+    "p95": 355.607085,
+    "iqr": 0.04192500000004884,
+    "min": 314.3421,
+    "max": 360.5685,
+    "samples": 30
+   },
+   "upload_ms": {
+    "median": 14.160250000000001,
+    "p25": 14.091899999999999,
+    "p75": 14.287625,
+    "p95": 14.510385,
+    "iqr": 0.19572500000000126,
+    "min": 11.0984,
+    "max": 14.7761,
+    "samples": 30
+   },
+   "total_ms": {
+    "median": 369.5647,
+    "p25": 369.472075,
+    "p75": 369.675525,
+    "p95": 370.237205,
+    "iqr": 0.20344999999997526,
+    "min": 328.5029,
+    "max": 374.9599,
+    "samples": 30
+   },
+   "launches": 1199,
+   "instrumented": {
+    "forward_ms": {
+     "median": 4.3129,
+     "p25": 4.2947,
+     "p75": 4.3155,
+     "p95": 4.32294,
+     "iqr": 0.020800000000000374,
+     "min": 4.2901,
+     "max": 4.3248,
+     "samples": 5
+    },
+    "multiply_ms": {
+     "median": 12.0192,
+     "p25": 11.9582,
+     "p75": 12.1119,
+     "p95": 12.33758,
+     "iqr": 0.15370000000000061,
+     "min": 11.9417,
+     "max": 12.394,
+     "samples": 5
+    },
+    "inverse_ms": {
+     "median": 260.8318,
+     "p25": 260.8129,
+     "p75": 261.0906,
+     "p95": 261.65308,
+     "iqr": 0.27769999999998163,
+     "min": 260.7755,
+     "max": 261.7937,
+     "samples": 5
+    },
+    "instrumented_total_ms": {
+     "median": 285.671,
+     "p25": 285.6445,
+     "p75": 285.9499,
+     "p95": 286.8811,
+     "iqr": 0.3054000000000201,
+     "min": 285.5435,
+     "max": 287.1139,
+     "samples": 5
+    }
+   },
+   "uncapped_diagnostic_device_ms": {
+    "median": 281.3164,
+    "p25": 280.937775,
+    "p75": 315.71255,
+    "p95": 339.7387,
+    "iqr": 34.774775000000034,
+    "min": 279.1292,
+    "max": 339.9313,
+    "samples": 10
+   }
+  },
+  "pair": {
+   "device_ms": {
+    "median": 186.8909,
+    "p25": 186.87640000000002,
+    "p75": 186.9344,
+    "p95": 187.06815,
+    "iqr": 0.057999999999992724,
+    "min": 186.8228,
+    "max": 187.1592,
+    "samples": 30
+   },
+   "upload_ms": {
+    "median": 14.1984,
+    "p25": 14.11175,
+    "p75": 14.402825,
+    "p95": 14.65511,
+    "iqr": 0.2910749999999993,
+    "min": 13.9313,
+    "max": 14.8668,
+    "samples": 30
+   },
+   "total_ms": {
+    "median": 201.1184,
+    "p25": 201.014925,
+    "p75": 201.36945,
+    "p95": 201.645445,
+    "iqr": 0.3545249999999953,
+    "min": 200.8425,
+    "max": 202.026,
+    "samples": 30
+   },
+   "launches": 639,
+   "instrumented": {
+    "forward_ms": {
+     "median": 2.2368,
+     "p25": 2.2257,
+     "p75": 2.2614,
+     "p95": 2.26844,
+     "iqr": 0.03570000000000029,
+     "min": 2.2161,
+     "max": 2.2702,
+     "samples": 5
+    },
+    "multiply_ms": {
+     "median": 12.9812,
+     "p25": 12.3863,
+     "p75": 13.2284,
+     "p95": 13.2472,
+     "iqr": 0.8421000000000003,
+     "min": 12.2466,
+     "max": 13.2519,
+     "samples": 5
+    },
+    "inverse_ms": {
+     "median": 133.9384,
+     "p25": 133.9032,
+     "p75": 133.9887,
+     "p95": 134.14038000000002,
+     "iqr": 0.08549999999999613,
+     "min": 133.7252,
+     "max": 134.1783,
+     "samples": 5
+    },
+    "instrumented_total_ms": {
+     "median": 156.9649,
+     "p25": 156.7602,
+     "p75": 157.0112,
+     "p95": 157.35144,
+     "iqr": 0.2510000000000048,
+     "min": 156.5681,
+     "max": 157.4365,
+     "samples": 5
+    }
+   },
+   "uncapped_diagnostic_device_ms": {
+    "median": 146.11725,
+    "p25": 145.79809999999998,
+    "p75": 169.137675,
+    "p95": 176.158105,
+    "iqr": 23.339575000000025,
+    "min": 145.5849,
+    "max": 176.1667,
+    "samples": 10
+   }
+  }
+ },
+ "best_variant": "pair",
+ "transform_ms": 186.8909,
+ "transform_with_upload_ms": 201.1184,
+ "transforms_per_second": 377353.8465489759,
+ "butterflies_per_second": 43277957953.00895,
+ "inverse_butterflies_per_second_instrumented": 59404880810.88022,
+ "required_butterflies_per_second_105ms": 75777092266.66667,
+ "required_butterflies_per_second_145ms": 54873066813.793106,
+ "logical_bytes": {
+  "LOGICAL_NOT_MEASURED": true,
+  "stage_inverse_per_transform": 1835008,
+  "pair_inverse_per_transform": 917504,
+  "multiply_per_job": 327680,
+  "run_total_stage": 140778668032,
+  "run_total_pair": 76072615936
+ },
+ "not_measured": [
+  "occupancy",
+  "registers per thread",
+  "shared memory per block usage (kernels use none)",
+  "DRAM bytes (no CUPTI/Nsight)",
+  "L2 hit rate",
+  "thread divergence stalls",
+  "local-memory spills",
+  "device clock"
+ ],
+ "gates": {
+  "strong_pass_ms": 105.0,
+  "no_go_ms": 145.0,
+  "meaningful_total_ms": 225.558,
+  "beat_k2_ms": 338.337,
+  "ten_x_scalar_ms": 55.875099999999996
+ },
+ "transform_classification": "TRANSFORM_NO_GO",
+ "host_overhead_ms_estimate": 10.065464100640384,
+ "classification_if_host_launch_overhead_removed": "TRANSFORM_NO_GO",
+ "max_plausible_speedup_vs_k2": 1.8103449659667754,
+ "max_plausible_speedup_vs_scalar": 2.98971753038805,
+ "proposal": {
+  "H_bound": 570,
+  "inverse_butterflies": 8367636480,
+  "transform_expected_ms": 105.0,
+  "butterflies_per_second_required": 79690000000.0,
+  "nonzero_masks": 13149000.0,
+  "candidate_probes": 46935000.0,
+  "count_gt4_probes": 8438000.0,
+  "candidate_stage_ms": 10.0,
+  "cpu_authority_ms": 22.0,
+  "total_ms": 163.0,
+  "device_memory_mib": 110.0
+ },
+ "verdict": "TRANSFORM_NO_GO"
+}

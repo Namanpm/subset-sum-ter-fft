@@ -1,0 +1,13 @@
+# Radix sweep: MEASURED, 31 interleaved samples, one executable, one run.
+# Every radix runs the same templated kernel source; only the position width differs.
+# Reference medians this run: scalar 452.7953 ms, K2 273.5535 ms, translated tag 737.4701 ms.
+#
+# The 'projected' column is the calibrated model from the previous campaign, which
+# held the per-bucket cost constant at its R=8192 measured value.  It is exact at the
+# radix it was calibrated on and diverges monotonically away from it, because the
+# per-bucket cost is not constant in R: it roughly doubles per doubling of R.
+R,H,guard_vectors_per_query,buckets,buckets_per_query,guard_ms,guard_ns_per_vector,tag_ms_dense,tag_ns_per_bucket_dense,best_ms,best_leaf_ns_per_bucket,best_kernel,p95_ms,speedup_vs_k2,projected_ms,projection_error_pct,aux_MiB,hot_KiB_dense
+8192,64,32,37370795,30.5685,22.8273,0.58351,74.2852,1.9878,359.7639,8.6801,lane-skip,376.2613,0.76037,360.9,-0.3,20.50,196.0
+16384,32,64,19251148,15.7470,44.8562,0.57330,59.5124,3.0914,294.7181,12.0490,lane-skip,317.4280,0.92819,226.8,+29.9,38.67,390.0
+32768,16,128,9763118,7.9860,100.2712,0.64078,113.7490,11.6509,294.5544,16.8509,lane-skip,339.2856,0.92870,190.7,+54.5,74.99,778.0
+65536,8,256,4919260,4.0238,266.9583,0.85299,283.5542,57.6416,486.3466,37.4792,lane-skip,513.0743,0.56247,241.1,+101.7,147.62,1554.0

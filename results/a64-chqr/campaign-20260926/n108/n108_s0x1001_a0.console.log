@@ -1,0 +1,5 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap : Completed
+# n=108 seed=0x1001 |A|=3650689 |B|=6900048 |C|=6896564 Q=69 F=64 W=58 hi=5 microproblems=1 load_s=8.7
+# exactness EXACT | frozen K2: triples(25-bit)=1261846123 fullQ32=9856289 residue=0 structural=0 | K2_WIDE: triples=0 | A64: triples=0 residue=0 structural=0 | K2_WIDE hits25=1261846123 A64(k=32) hits32=9856289
+# single-shot ms: K2 57397.9 | K2_WIDE 33034.0 | A64 48597.4
+# A64 k=64 digits=13-13-13-13-6 threshold=1024 tasks/level=1/67051520/0/0/0/0 digit_pairs=67051520 direct_pairs=6143192070 logical_pairs=6143192070 refine/logical=1.0109 projected=0 fast=0 full=0 index_MiB=6.2

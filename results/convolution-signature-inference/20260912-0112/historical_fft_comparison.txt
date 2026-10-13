@@ -1,0 +1,38 @@
+PREVIOUS FFT / NTT EXPERIMENTS IN THIS REPOSITORY (recovered from evidence, not memory)
+
+1. Exact count-only Q3REPORT NTT experiment
+   commits: 788046a (2026-08-17) and 8ee990a (TER-faithful crossover), plan
+   TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md
+   raw data: .claude/worktrees/ntt-crossover-bench/crossover_full.csv (182 rows)
+   what it did: one dense exact cyclic count convolution over the whole quotient
+     modulus Q (single prime 998244353), counts only, no witness recovery
+   hardware: CPU, single thread; no GPU, no transfers
+   transform sizes: Q = 256 ... 4,194,304 (L = 64 ... 8192)
+   measured (median per Q/L group): NTT amortized total was slower than direct
+     arithmetic at EVERY tested point, by 2.42x (Q=4,194,304, L=8192) up to
+     313x (Q=65,536, L=128); at Q=16,384 the transform alone took 1.09-1.16 ms
+     against 0.03-0.12 ms for direct arithmetic (9.6x-39.9x slower)
+   verdict recorded: fails the cheap kill gate in every family; witness recovery
+     never authorized, so candidate-recovery cost was never measured
+
+2. Paper-scaling dense NTT crossover (commit 7e25779)
+   raw data: results/tiled-q3report-final-20260829/raw/paper-crossover-tiled.csv
+   hardware: CPU, single thread; primes 998244353 / 2013265921
+   transform sizes: Q = 2^23 ... 2^26 (L = 4096 ... 16384)
+   measured at L = 16384, Q = 2^26 (5 seeds): NTT transform 5.83-15.63 s;
+     warm total 5.94-15.87 s; DIRECT_PRODUCTION 3.96-5.48 s (NTT 1.42x-3.16x
+     slower); tiled direct 0.255-0.561 s (NTT 19.3x-49.8x slower);
+     NTT run bytes 512 MiB, peak 768 MiB
+   recorded verdict: DENSE NTT NO-GO
+
+MEASURED ROOT CAUSE
+   Both experiments lost on TRANSFORM COST ITSELF: a dense transform over the
+   whole modular universe (Theta(Q log Q) field operations and full-array memory
+   passes) cost more than direct arithmetic that visits the same universe in
+   Theta(L^2) = Theta(Q).  Candidate recovery and host/device transfer were never
+   implemented or measured (CPU-only, count-only), so no conclusion about those
+   costs exists: RECOVERY_COST = UNKNOWN, TRANSFER_COST = NOT APPLICABLE.
+
+THIS PROPOSAL, MEASURED
+   70524 length-16384 transforms (8,088,256,512 butterflies) replace a 620,966,064-pair universe: 13.0 field butterflies per source pair
+   best kernel pair: 186.9 ms median device time (gate 145.0 ms) -> TRANSFORM_NO_GO

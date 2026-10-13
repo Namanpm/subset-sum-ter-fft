@@ -1,0 +1,3 @@
+# snapshot results/arwlf/holdout-snapshots/n108_s0x5003_a0.snap : Completed
+# root n108_s0x5003_a0 n=108 seed=0x5003 Q=69 W=58 anchor cell=2730 (L=126.13) strata=16 phase=census role=holdout
+# census written: 4096 microproblems, 16 strata, queue legal=0 (max groups X 99883, Y 100807)

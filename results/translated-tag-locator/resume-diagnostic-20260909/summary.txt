@@ -1,0 +1,18 @@
+TER^2 translated-tag locator spike -- matched-scope summary
+verdict: CORRECT_BUT_SLOWER_THAN_K2
+
+MEASURED, this executable, matched scope (median of 11 full authentic sweeps):
+  scalar          558.7514 ms
+  K2 (frozen)     338.3372 ms
+  translated tag  874.2068 ms
+  speedup vs scalar 0.6391524294x
+  speedup vs K2     0.3870219266x
+
+PRIOR_MEASURED (MicroReport8, projections, different executable):
+  scalar 410.175 ms, K2 138.524 ms
+
+controls: tile build 15.7742 ms, sink (full authority) 7.2635 ms
+diagnostic-only locality control (family-zero tables) 639.1094 ms; it is not a valid TER sweep or a verdict candidate
+locator routing (instrumented) 910.8818 ms, gate 66.749 ms
+locator auxiliary bytes 42609416, gate 50331648 (pass)
+timing stability acceptable, worst relative IQR 0.0563158257

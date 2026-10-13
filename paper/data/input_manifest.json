@@ -1,0 +1,116 @@
+{
+  "cutoff_utc": "2026-10-04T11:55:51Z",
+  "inputs": [
+    {
+      "file": "regime_cases.csv",
+      "origin": "results/arwlf/regime-20261001/cases.csv",
+      "sha256": "167bf59b1d725e37c35fe8c46520b648ea87e97a36d4d204de0d5fec462ca5e2"
+    },
+    {
+      "file": "regime_samples.csv",
+      "origin": "results/arwlf/regime-20261001/samples.csv",
+      "sha256": "f1e67b00aba68f501e8df713b024afff96adbbdbcb8f0b04f58f0702454ea92e"
+    },
+    {
+      "file": "positive_cases.csv",
+      "origin": "results/arwlf/positive-20261003/cases.csv",
+      "sha256": "34b9372b30c74588de58c0289df74d313ab3b094517ab71287ecc78c4cd44d0a"
+    },
+    {
+      "file": "positive_samples.csv",
+      "origin": "results/arwlf/positive-20261003/samples.csv",
+      "sha256": "2ff811ac786fc4fbef8a5960536efe8b05d86fc0d3c5180452682bffc3cbf643"
+    },
+    {
+      "file": "results_review.json",
+      "origin": "paper/working/results_review.json",
+      "sha256": "3c884aafcb88cd27926c1dc5f7153375fa444d558656ecfd3d810f3a198c4e0d"
+    },
+    {
+      "file": "whole_root_cutoff.jsonl",
+      "origin": "reviewed whole-root records only",
+      "sha256": "bdaaf765f33f52158593cb71fe35fb531a98e8606d225d110748a0e835e47b7b"
+    },
+    {
+      "file": "snapshot_manifest.json",
+      "origin": "reviewed snapshot identity metadata",
+      "sha256": "1d9cffc839ce8e6186fd7cd750c50a774784726b07852295c22cb43244721f54"
+    },
+    {
+      "file": "whole_root_complete.jsonl",
+      "origin": "results/arwlf/whole-root-20261003/runs.jsonl (complete: arwlf-1, dispatch-1, k2-1 x64, arwlf-2, dispatch-2)",
+      "sha256": "6478769d739c15a83ac2174523308bb7746d98c1cc789d21216d5e2aa7708d12"
+    },
+    {
+      "file": "full_solve_n72_attempts.jsonl",
+      "origin": "results/arwlf/full-solve-n72-s0x7201/attempts.jsonl (Gate 2 end-to-end, n=72)",
+      "sha256": "d0a5fa94d92508a494ba9411f84f7353d0ff5821c7f6bc9e00fa68e8bc96c409"
+    },
+    {
+      "file": "scaling_inputs.json",
+      "origin": "paper/scaling_model.py --freeze-inputs (preflight, captures, census, campaign, whole root)",
+      "sha256": "982153a9becc4a0d649e76dcf28cd7dae457a249246d3b4c23176b177d73963e"
+    },
+    {
+      "file": "full_solve_n72_arwlf_attempts.jsonl",
+      "origin": "results/arwlf/full-solve-n72-s0x7201-arwlf/attempts.jsonl (forced-ARWLF staged solve, unpinned)",
+      "sha256": "d38728a41f6232fb5b9ed319a77e11668861e6553d26e8792b0e52001d3bf8e8"
+    },
+    {
+      "file": "provenance_hashes.json",
+      "origin": "results/arwlf/*/build_freeze.json (frozen build records); hash-join entry recorded 2026-10-12 from the Release executable and snapshot used for that run; design-B entry recorded 2026-10-12 from the run's provenance.json",
+      "sha256": "6a6dbd5ca9a1969120b12ac006397950a76caac2b361c314303e6d10a288844d"
+    },
+    {
+      "file": "full_solve_n108_attempts.jsonl",
+      "origin": "results/arwlf/full-solve-n108-s0x8001/attempts.jsonl (staged solve, n=108, 32 attempts, byte copy)",
+      "sha256": "91d867341e20de9ffd7c795c4cb7a7e0589e10a9fff1a7d23857b9cb7a83b6aa"
+    },
+    {
+      "file": "full_solve_n108_captures.jsonl",
+      "origin": "results/arwlf/full-solve-n108-s0x8001/attempt_<k>.capture.json, k=0..31, one JSON object per line",
+      "sha256": "25d85848d734e703e2950d46a9ee595f624234829ea485a10808b13dbc712f68"
+    },
+    {
+      "file": "asan_differential_record.json",
+      "origin": "results/arwlf/asan-differential-20261011/record.json (recorded ASan differential run)",
+      "sha256": "331157545eaaebec0fd38b24a5065fa393ad5f6a1a785edc3faefd8cbbd15144"
+    },
+    {
+      "file": "asan_differential_output.log",
+      "origin": "results/arwlf/asan-differential-20261011/output.log (complete test output)",
+      "sha256": "6564e470079605187a321f6d4fd9556a575724dd39810ffe209265ae9304f501"
+    },
+    {
+      "file": "hash_join_n108_anchor.csv",
+      "origin": "results/arwlf/hash-join-n108-anchor.log (ter_hash_join_bench stdout CSV, n=108 anchor cell of root 0x1001, 1 warmup + 3 timed rounds, byte copy)",
+      "sha256": "9e822dca8f1615565e6df7849825a4c1ce86872ce0ee535508c4b95243790bed"
+    },
+    {
+      "file": "design_b_n72_classic.jsonl",
+      "origin": "results/arwlf/design-b-n72-compare-v2/<case>.classic.csv, one JSON object per case: ter_full_bench output lines (metadata, header, one median row) and the source file SHA-256",
+      "sha256": "dc8448496f22cb4345317ef246f3bbd526099935402c9d8f18816458215e0df9"
+    },
+    {
+      "file": "design_b_n72_staged.jsonl",
+      "origin": "results/arwlf/design-b-n72-compare-v2/<case>.<backend>.jsonl, one JSON object per ter_arwlf_solve_attempt run (run 0 is the warmup), record unchanged",
+      "sha256": "e65396d148393c65eb0d898740cd0e5fd7eae7b413aed3e608d92c51233d1a24"
+    },
+    {
+      "file": "design_b_n72_summary.csv",
+      "origin": "results/arwlf/design-b-n72-compare-v2/summary.csv (byte copy)",
+      "sha256": "efb8d820caa8b128cab230b1c85ea4738bc6766eaf794c9c5bc40cd4c2ffcbbf"
+    },
+    {
+      "file": "design_b_n72_provenance.json",
+      "origin": "results/arwlf/design-b-n72-compare-v2/provenance.json (byte copy)",
+      "sha256": "7237c17e246b2f8b439b1d8b11586a9f07691e81ea4141fee14c7c8c4eb705f1"
+    }
+  ],
+  "semantics": "Completed prepared-root measurements including all 64 K2 chunks; independently verified n=72 staged solve; completed n=108 staged solve ending AttemptLimitReached after 32 attempts (not UNSAT); no matched full-solver speedup. Dimension-144 numbers are hypothetical wider-key cost scenarios.",
+  "evidence_update_2026_10_08": "Whole-root K2 complete (64/64 chunks); arwlf-2/dispatch-2 added; n=72 end-to-end solve; scaling model. The original whole_root_cutoff.jsonl is retained unchanged.",
+  "docx_update_2026_10_09": "Source/model and DOCX continuation only; all existing PDF/TeX files retained unchanged. Captures: n72 22; n108 seven size captures, six completed root timings.",
+  "evidence_update_2026_10_11": "n=108 staged solve (seed 0x8001) frozen: 32 attempts, all NoWitnessThisAttempt, AttemptLimitReached; attempt and capture records added. Recorded ASan differential run added: 341 checks, 0 failures, exit 0, no sanitizer report.",
+  "evidence_update_2026_10_12": "Hash-join comparison frozen: n=108 anchor cell of root 0x1001 (6,143,192,070 pairs), K2, K2-WIDE, ARWLF and an untuned scalar exact hash join, 1 warmup and 3 timed rounds each, all rounds exact; separate run from the final-protocol anchors of Table 1.",
+  "evidence_update_2026_10_12_design_b": "Design-B comparison frozen (second, corrected run; the first run's classic rows for attempts 10 and 21 timed other instances and are not used): classic solver root (ter_full_bench, 3 warmups + 7 timed, median only) against K2, K2-WIDE, ARWLF and the dispatcher (staged, 1 warmup + 7 timed, pinned) on attempts 0, 10, 21 of seed 0x7201 and attempt 0 of seed 0x7203 at n=72; identical level-one lists checked by the run script."
+}

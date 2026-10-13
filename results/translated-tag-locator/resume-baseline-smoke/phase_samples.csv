@@ -1,0 +1,12 @@
+phase,milliseconds,note
+target_class_build,0.5795,instrumented pass
+shifted_view_build,3.5069,instrumented pass
+source_class_build,0.6516,instrumented pass
+translation_build,2.468,instrumented pass; 64 builds
+primary_route_extract_sink,1023.7057,instrumented pass; includes candidate extraction and the sink
+overflow,71.3573,instrumented pass
+sink_expansion_only,6.4724,timed replay median
+sink_with_quotient_prefilter,7.1718,timed replay median
+sink_full_authority,7.8754,timed replay median
+translated_tag_group_only,974.5757,timed median; locator with the sink stopped at residual equality
+tile_build_control,17.2071,timed median; K2's tile materialization cost

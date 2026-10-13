@@ -1,0 +1,34 @@
+# ter_root_queue_generalization_bench
+# configure_time_commit=53431a8e037bec94163d4d2a1c4fe0565a673423 configure_time_dirty=yes
+# compiler=MSVC 195136257
+# cpu=Intel(R) Core(TM) Ultra 9 275HX avx2+bmi2 executable=yes
+# thread_affinity=cpu0 + high priority ac_line_status=1 memory_limit_mib=4096 warmups=3 samples=31
+# capturing the n=72 reference anchor root...
+# cell authentic_n72_s0x46554c4c544552_anchor : Completed
+#   exactness EXACT (sorted pair keys + digests) anchor-identity=PASS pairs=619303 groups=618857 triples=619579 fullQ=4718
+#   K2 310.025 ms | QUEUE 179.568 ms | S = 1.727x | rho_q = 0.2129
+# cell authentic_n72_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=650578 groups=650174 triples=650915 fullQ=5175
+#   K2 317.427 ms | QUEUE 211.231 ms | S = 1.503x | rho_q = 0.1346
+# cell authentic_n72_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1142379 groups=1141568 triples=1142776 fullQ=8924
+#   K2 579.056 ms | QUEUE 301.198 ms | S = 1.923x | rho_q = 0.2187
+# cell authentic_n72_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1407075 groups=1405854 triples=1408180 fullQ=10992
+#   K2 694.985 ms | QUEUE 396.156 ms | S = 1.754x | rho_q = 0.2446
+# cell authentic_n72_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1196088 groups=1194734 triples=1196969 fullQ=9424
+#   K2 613.123 ms | QUEUE 324.687 ms | S = 1.888x | rho_q = 0.2229
+# cell authentic_n72_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=658451 groups=657749 triples=658911 fullQ=5099
+#   K2 353.543 ms | QUEUE 206.663 ms | S = 1.711x | rho_q = 0.2240
+# cell authentic_n72_s0x600d : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1217041 groups=1215953 triples=1217575 fullQ=9548
+#   K2 623.111 ms | QUEUE 357.959 ms | S = 1.741x | rho_q = 0.2288
+# cell authentic_n72_s0x700f : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1193985 groups=1192685 triples=1194667 fullQ=9215
+#   K2 606.508 ms | QUEUE 313.944 ms | S = 1.932x | rho_q = 0.2235
+
+# cells=8 timed_valid_ac=8 queue_wins=8 geometric_mean_speedup=1.7671 campaign_minutes=10.46
+# checksum sink = 11386831822947033412
+# artifacts: results/root-queue-generalization/paper-authentic-20260925

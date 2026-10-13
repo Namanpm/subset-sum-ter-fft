@@ -1,0 +1,117 @@
+{
+  "release_build_passed": true,
+  "release_build_evidence": "Release configure and build completed before the campaign; the exact compiler, generator and executable SHA-256 values are in environment.json.",
+  "focused_tests_passed": true,
+  "focused_tests_counts": {
+    "passed": 11,
+    "failed": 0,
+    "found": true
+  },
+  "full_ctest_passed": true,
+  "full_ctest_counts": {
+    "passed": 45,
+    "failed": 0,
+    "found": true
+  },
+  "sanitizer_run_completed": true,
+  "sanitizer_passed": true,
+  "sanitizer_counts": {
+    "passed": 45,
+    "failed": 0,
+    "found": true
+  },
+  "sanitizer_unavailable_with_reason": "",
+  "main_matrix_complete": true,
+  "main_expected_rows": 45,
+  "main_actual_rows": 45,
+  "main_missing_cells": [],
+  "main_unexpected_cells": [],
+  "main_duplicate_cell_count": 0,
+  "main_non_completed_rows": [],
+  "all_completed_main_rows_exact": true,
+  "main_exactness_failures": [],
+  "tile_sweep_complete": true,
+  "tile_sweep_expected_rows": 189,
+  "tile_sweep_actual_rows": 189,
+  "tile_sweep_missing_cells": [],
+  "all_completed_tile_rows_exact": true,
+  "tile_exactness_failures": [],
+  "tile_sweep_files": [
+    "tile-sweep-seed-4097.csv",
+    "tile-sweep-seed-8195.csv",
+    "tile-sweep-seed-12295.csv"
+  ],
+  "authentic_anchor_rows": 3,
+  "authentic_anchor_families": [
+    "AUTHENTIC_FULLTER"
+  ],
+  "authentic_anchors_exact": true,
+  "complete_merge_rows": 15,
+  "complete_merge_comparable_rows": 15,
+  "complete_merge_outputs_identical": true,
+  "complete_merge_comparator_label": "existing pair-materializing public baseline vs tiled public merge",
+  "withdrawn_runs": [
+    {
+      "file": "raw/complete-merge-WITHDRAWN-degenerate-lambda.csv",
+      "withdrawn_before_any_number_was_reported": true,
+      "reasons": [
+        "Held b2=8, b1=18 fixed for every list size, so Q stayed at 2^10 while L grew: lambda = L^2/Q reached about 1024 against the declared TER paper scaling's 2-4.",
+        "At Q = 2^10 the tile policy gives tile_bits = min(15, 10) = 10, so S = Q, P = 1 bucket and 1 window. The tiled path degenerated to a single window and the comparison could not measure tiling at all.",
+        "Its memory columns were not comparable: src/merge.cpp gives the tiled path working_set_budget_bytes = fixed_bytes + a candidate ceiling absorbing the whole remaining budget, while the baseline reports a measured peak.",
+        "The L=2048 point returned ResourceLimit as a consequence of the first item."
+      ],
+      "replaced_by": "raw/complete-merge.csv (lambda = 2 held at every point)"
+    }
+  ],
+  "complete_merge_is_not_the_headline_comparator": true,
+  "historical_paper_crossover_untouched": true,
+  "root_partition_results_untouched": true,
+  "frozen_experiment_plan_untouched": true,
+  "frozen_artifact_status": {
+    "paper_crossover.csv": "unchanged",
+    "TER_Q3REPORT_COUNT_ONLY_NTT_EXPERIMENT_PLAN.md": "unchanged",
+    "results/partition": "unchanged"
+  },
+  "production_tile_default_untouched": true,
+  "production_tile_defaults_observed": {
+    "kDefaultPreferredTileBits": 15,
+    "kDefaultRootPreferredTileBits": 15,
+    "kDefaultRootPrefilterBits": 24
+  },
+  "fullter_default_semantics_untouched": true,
+  "core_algorithm_files_untouched": true,
+  "core_algorithm_files_changed": [],
+  "changed_tracked_files": [
+    "CMakeLists.txt",
+    "FULL_TER_COMPLIANCE.md",
+    "README.md",
+    "bench/ter_tiled_parameter_sweep.cpp",
+    "tiling_implementation_idea.md"
+  ],
+  "unexpected_changed_files": [],
+  "no_unexplained_scope_creep": true,
+  "frozen_artifact_note": "Verified mechanically, not asserted: the frozen-artifact rows come from `git diff --quiet HEAD -- <path>`, the tile defaults are parsed out of include/ter/limitations.hpp, and the scope row compares `git diff --name-only HEAD` against the campaign allowlist.",
+  "all_failed_seeds_preserved": true,
+  "failed_seed_policy": "Every executed (L, seed) row is written to the raw CSV regardless of status or timing, and non-Completed rows are retained and flagged rather than dropped.",
+  "analysis_self_test_passed": null,
+  "sanitizer_gate_passed": true,
+  "analysis_regeneration_passed": true,
+  "figures_generated": [
+    "runtime-vs-list-size.svg",
+    "speedup-vs-list-size.svg",
+    "auxiliary-memory-vs-list-size.svg",
+    "setup-scan-breakdown.svg",
+    "tile-sensitivity.svg"
+  ],
+  "figures_from_measured_data_only": true,
+  "hardware_cache_counters_collected": false,
+  "matplotlib_available": false,
+  "plot_backend": "self-contained deterministic SVG writer",
+  "documentation_stale_claims_remaining": [],
+  "documentation_required_statements_missing": [],
+  "documentation_reconciled": true,
+  "no_asymptotic_claim_supported": true,
+  "asymptotic_claim_note": "Worst-case pair work remains O(|A||B|). Nothing in this campaign supports a subquadratic or exponent claim; the measured effects are finite-machine constant-factor and memory-footprint effects.",
+  "evidence_package_complete": true,
+  "ready_for_manuscript_drafting": true
+}

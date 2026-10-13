@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "started": "2026-09-05T13:03:18.6566295+05:30",
+  "ended": "2026-09-05T13:05:04.1635313+05:30",
+  "repository": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft",
+  "commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+  "initial_status": [
+    " M CMakeLists.txt",
+    " M FULL_TER_COMPLIANCE.md",
+    " M README.md",
+    " M bench/ter_tiled_parameter_sweep.cpp",
+    " M tiling_implementation_idea.md",
+    "?? bench/analyse_tiled_q3report.py",
+    "?? bench/run_tiled_publication_campaign.ps1",
+    "?? bench/run_windowing_spike.ps1",
+    "?? bench/ter_microreport8_dataset.cpp",
+    "?? bench/ter_microreport8_dataset.hpp",
+    "?? bench/ter_microreport8_kernels.hpp",
+    "?? bench/ter_microreport8_kernels_avx2.cpp",
+    "?? bench/ter_microreport8_probe.cpp",
+    "?? bench/ter_tiled_complete_merge_bench.cpp",
+    "?? bench/ter_windowing_geometry.hpp",
+    "?? bench/ter_windowing_probe.cpp",
+    "?? results/microreport8-20260902/",
+    "?? results/ter2-windowing-20260903/",
+    "?? results/tiled-q3report-final-20260829/",
+    "?? stage_d_bitset_join.c",
+    "?? tests/microreport8_tests.cpp",
+    "?? tests/windowing_tests.cpp"
+  ],
+  "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-mr8\\Release\\ter_windowing_probe.exe",
+  "executable_sha256": "265F5B85E921EE45D633DD18A5269D344DBAA72C328CD5A9247E573E31BF9B12",
+  "arguments": [
+    "--root-n=72",
+    "--root-seed=19797034556212562",
+    "--samples=51",
+    "--out=C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260905\\raw"
+  ],
+  "exit_code": 0,
+  "protected_identity_passed": true,
+  "protected_files_before": [
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_microreport8_dataset.cpp",
+      "Hash": "5A258EED27A44ECCE43C16FDCFEB69227FD1F9CAB93907F18A9EEB21B60F0521"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_microreport8_dataset.hpp",
+      "Hash": "3F28E61EDB9DD1ABAA233E92CAFAAAD28A580CDB0044B4D7CEE503AFD88A0FCF"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_microreport8_kernels_avx2.cpp",
+      "Hash": "D0E6C5FB7EB0ACB7943EFE561AB70E9ACC89F409F4F653AA5D859B884A53925F"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_microreport8_kernels.hpp",
+      "Hash": "B0E385348049AF69B22B769066139ECABE997F5337D7E2DC0DAAFBBE08DE1753"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_microreport8_probe.cpp",
+      "Hash": "3463FCEA8887EA29701D517B3A7EBCD9A865607B8CDB532BB5972DC8CE4CD6EE"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\tests\\microreport8_tests.cpp",
+      "Hash": "AADC18414A158EFE0A5F4C76C421AFA1BECE6A4BE0C466B76CDF647D4D6E2EA8"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_root_capture_adapter.cpp",
+      "Hash": "879B326D3437366751DBE41EBC99FA7DB07E976CC3A2E5CF271A8F4A8CCFF666"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\bench\\ter_root_capture_adapter.hpp",
+      "Hash": "E03814EB8FE9BA5EA387A3E374E57AC158E5654BFA03BD2C3BF8B6898C5010BD"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\arithmetic.cpp",
+      "Hash": "9BD609C9B8D3CCAA27ECEB23EB30B4C2770654250C67F51508E51CDF585A7103"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\full_ter.cpp",
+      "Hash": "A2D5C4135867E07611FBF80AD6B5D16B121B433DA611A97C7E188CDE42E6A3E7"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\generator.cpp",
+      "Hash": "2E12CF5A4AB84C3E6AF6B422570D2BA326DF69170AEA38BAB83ED67A7C938DF0"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\instance.cpp",
+      "Hash": "47D63D88500F0D7BB675A8F90224CD72BAFE4B5A0005A934FA9EB8528128904F"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\merge.cpp",
+      "Hash": "751136143B3CDEFF54FC28AF61999995F078623A6C4E5A3369BA33F23951D2BB"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\packed.cpp",
+      "Hash": "D877ABFBDD36F626A170E15314CDD47F5FCCE7CBCB7B684A3E3F1EF39F33E212"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\q3report_audit.cpp",
+      "Hash": "4D15D6BDA6064AA68AF88E9EAD8F9889A3E9AAA577BB67CB4AC427467DBD13E1"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\q3report_crossover.cpp",
+      "Hash": "74F0192D9B71AEBA41BED0D7DFEA09D4F3191E9B58BE1ABF3F7008034FA9D546"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\q3report_paper_crossover.cpp",
+      "Hash": "A7EB0DE2E10C63CE18F658323429EDECE5D55B8472BAA49AE6EDDCC8B0FB1EF2"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\reference_vector.cpp",
+      "Hash": "144A169A17F7829A1CF4A05D25CE9CF31556A110C99B060C0DF807ED6F2063B6"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\root_partition_block_inplace.cpp",
+      "Hash": "D243E7B0F2460DABC5BE66B3CB5FFFEBB567D400071E7E2B43CCFB552AA9BA1E"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\root_partition_current_scatter.cpp",
+      "Hash": "795641BC545C28C719AA07CD34D4A61AA07BF5267094E7AD719ACB6543C8D7C2"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\root_partition_internal.hpp",
+      "Hash": "600EDEB49B4051D42C5F2F3EBDDEBA60C3AE84D87CC8ECEBA2F7DB7FD00D8214"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\root_partition.cpp",
+      "Hash": "A51500C0429AAF74E713DFBAE0FBF3AC9D246D8A8E8B7B14CC8EEF6D50D749F1"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\shape.cpp",
+      "Hash": "F26B03FC3C8B6037AA4BD58349F7C670F7A2D380E6F4DE75287B21A814DE030C"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\stress_generator.cpp",
+      "Hash": "3BAF74FBF8428B3A32C93742D37B852935B66A80F087BC8F567F6837E70B8142"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\tiled_q3report.cpp",
+      "Hash": "1A5FC80147D8BCCDFDBACF285A9376FDF4E5ACE49F3C3522A49929F1EB58762D"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\src\\validator.cpp",
+      "Hash": "C2CE187AB7A2D4BE3219985CFA5C0C3494BAAF40B147CF1AFCF3D9A8FCD48DA8"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\arithmetic.hpp",
+      "Hash": "887C374AC3658EBA23670E7A5F2F5FE15BD6421D1BBCA58246523D15DBC3A3CD"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\full_ter.hpp",
+      "Hash": "2FBD7FD7E554EE3058483574B266F57C97379679FEA0134AA307BACFF058B0AB"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\generator.hpp",
+      "Hash": "05D613ED3F048C096E6A18565AC81EB8A23CD5EF3789DDBC0541FFC0EF7D6B66"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\instance.hpp",
+      "Hash": "7CCCC6E4C6CD3DC70619F4B980B3201BD21201C5174BA975D6ADA7E944C3F990"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\limitations.hpp",
+      "Hash": "DCB339278CD9E7B86EE4108D6C5B5F83B01FE0D6844BF341B8B9FB35AD42D5F1"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\merge.hpp",
+      "Hash": "B78BDA515BD36169DF27B7B8ED5581A50B358F3710BC8A6C3412C860C9BC908B"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\model.hpp",
+      "Hash": "3E20E58C395B2530D1E01E0F22AF93BE1D5E6395219B7C54AF6736DA8C45DEDB"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\packed.hpp",
+      "Hash": "01B4CF086BF4B59BB5BFF8303625D6A205FCB97FE9BF7FBA3BD77C2B1A85977C"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\q3report_audit.hpp",
+      "Hash": "9C742C1E7867F99B7C364441BA8833738A522C999E601C84B748704035BC707D"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\q3report_crossover.hpp",
+      "Hash": "3EF0E3F0A730411107D916E8264D7A4822DADA3E1A6A72BB1CE128C0433EBF2C"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\q3report_paper_crossover.hpp",
+      "Hash": "D17B665B383455A0D27594199036F3297A78EFCB1815C8C128706D7A5EE16362"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\reference_vector.hpp",
+      "Hash": "B225BCA4CA89A7A8297F420604F6F3B0A84D314B6113C1D462BB5E0C862E49D7"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\root_partition.hpp",
+      "Hash": "F828D445CE43D50F5509F37E8C13F56B3661DD18DC92A279A67617939C388433"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\shape.hpp",
+      "Hash": "4D22297B9B9BB04CB172DD39379D0BC4B573D74FF735D08B39D7333A8AAA933E"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\stress_generator.hpp",
+      "Hash": "FAE9EB71C501F47E714B62839CDFCDE22612A5C0247A1A5C74076120DD49D41B"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\telemetry.hpp",
+      "Hash": "DB5FCF1C1E8B0D6F390066FC2A501C7F7C7ED808D49560C2375E34D7E2A417AA"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\tiled_q3report.hpp",
+      "Hash": "D1B5CFA886BE2DA2B321A7AA53FBF6938190B531BF5DFBFE965EC3754A9970CC"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\types.hpp",
+      "Hash": "18DBF5344C664DC0260C6C1022418339B643F430F23DA94B8AAA53A1E6965840"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\include\\ter\\validator.hpp",
+      "Hash": "D080287B650A1894960285F49DCB12B7A4BE34678EB8BA4DAC9027592A6EA5C9"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\microreport8-20260902\\raw\\microreport8_kernels.csv",
+      "Hash": "BAAC10CB635FBB18D1917CE806EF346AC55ABC1633D15B869E5EAD0199A43CC9"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\microreport8-20260902\\raw\\microreport8.json",
+      "Hash": "ED3206B2996D979EAD5243BE908449365BA02F839E179B0ADA710589A635C616"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\analysis\\windowing_analysis.md",
+      "Hash": "5A7D70DA0203599AAE16BF1DA09E42CEC1BCCBE9B822836FDBC5D9988DD0E82F"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\raw\\probe_stdout.txt",
+      "Hash": "A06898F4C3A989DE2A610CB869B624ED0AF00E6A387696AF5A16D6A94AD6D03B"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\raw\\summary.txt",
+      "Hash": "F35D56B6BD7479CFC97AC1102D1368A340D2D0F1357D026A62F6699608D5426D"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\raw\\value_tiling_sweep.csv",
+      "Hash": "E711AA2B10777E5A8CF0D7F3EB2D6BB48FB5C9014A5CCFF9B59D13CC303AD36F"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\raw\\window_geometry.csv",
+      "Hash": "06EB2BEC9F940D0391CD0EE754DE0F5A6577DA490E83384FC24B7E9C384BB73B"
+    },
+    {
+      "Path": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\ter2-windowing-20260903\\raw\\window_geometry.json",
+      "Hash": "1C040076D4B7D76E9A8F43581880509CE3F00B00ED1767F4F450AA67A6E2143E"
+    }
+  ],
+  "scope": "Exhaustive authentic n=72 geometry; sampled source-order query timing; isolated experiment"
+}

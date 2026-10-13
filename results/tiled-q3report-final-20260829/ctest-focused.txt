@@ -1,0 +1,27 @@
+Test project C:/Users/naman/Desktop/subset-sum-ter-fft/build-full
+      Start  5: ter_merge_tests
+ 1/11 Test  #5: ter_merge_tests ......................................   Passed    0.05 sec
+      Start  6: ter_packed_tests
+ 2/11 Test  #6: ter_packed_tests .....................................   Passed    0.07 sec
+      Start  7: ter_full_tests
+ 3/11 Test  #7: ter_full_tests .......................................   Passed    0.29 sec
+      Start 10: ter_q3report_paper_crossover_tests
+ 4/11 Test #10: ter_q3report_paper_crossover_tests ...................   Passed    0.51 sec
+      Start 11: ter_tiled_q3report_tests
+ 5/11 Test #11: ter_tiled_q3report_tests .............................   Passed    0.06 sec
+      Start 12: ter_limitations_tests
+ 6/11 Test #12: ter_limitations_tests ................................   Passed    1.01 sec
+      Start 41: ter_tiled_sweep_cli_seed_override
+ 7/11 Test #41: ter_tiled_sweep_cli_seed_override ....................   Passed    0.81 sec
+      Start 42: ter_tiled_sweep_cli_default_seed_base
+ 8/11 Test #42: ter_tiled_sweep_cli_default_seed_base ................   Passed    0.81 sec
+      Start 43: ter_tiled_sweep_cli_repetitions_zero_rejected
+ 9/11 Test #43: ter_tiled_sweep_cli_repetitions_zero_rejected ........   Passed    0.01 sec
+      Start 44: ter_tiled_sweep_cli_repetitions_malformed_rejected
+10/11 Test #44: ter_tiled_sweep_cli_repetitions_malformed_rejected ...   Passed    0.01 sec
+      Start 45: ter_tiled_sweep_cli_seed_base_malformed_rejected
+11/11 Test #45: ter_tiled_sweep_cli_seed_base_malformed_rejected .....   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =   3.87 sec

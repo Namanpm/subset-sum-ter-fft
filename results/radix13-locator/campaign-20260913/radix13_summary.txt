@@ -1,0 +1,56 @@
+TER^2 radix-13 occupancy locator -- matched-scope summary
+verdict: NO_GO_SLOWER_THAN_K2
+note: matched median is at or above the matched K2 median
+
+MEASURED, this executable, matched scope (median of 31 full authentic sweeps):
+  scalar                 458.2101 ms
+  K2 (frozen)            278.6532 ms
+  translated tag (11+8)  737.6489 ms
+  radix-13 dense  (13+6) 494.3091 ms
+  radix-13 compact(13+6) 522.8381 ms
+  radix-13 batched(13+6) 472.3384 ms
+  radix-13 skip   (13+6) 362.1437 ms
+  radix-13 best          362.1437 ms (lane-skip), p95 392.6141 ms
+  speedup vs scalar      1.265271493x
+  speedup vs K2          0.7694547772x
+
+MEASURED phase decomposition (differences of matched medians, not a sum of
+independently timed regions):
+  build (classes + shifted views) 2.5286 ms, gate 8 ms
+  guard phase                     23.1604 ms, gate 70 ms
+  bucket resolution               458.2151 ms, gate 105 ms
+    of which bit extraction       396.3845 ms (10.6067987 ns/bucket)
+    of which tag load+rotate+AND  61.8306 ms (1.654516582 ns/bucket)
+  reporting + authority + output  10.405 ms
+  guard cost                      0.5920212052 ns/vector
+  bucket resolution cost          12.26131529 ns/bucket
+
+MEASURED geometry:
+  queries                         1222528
+  guard vectors                   39120896
+  guard zero vectors              14990454 (38.3182788%)
+  compatible bucket interactions  37370795, gate 40000000
+  nonempty bucket interactions    618846
+  exact residual witnesses        618857
+  auxiliary bytes                 18350564, gate 16777216 (FAIL)
+  scalar reference agreement      exact over 273 sampled witnesses
+
+guard population histogram (256-bit vectors):
+  0         14990454
+  1         14438597
+  2         6894857
+  3         2175697
+  4         510100
+  5-8       111161
+  9-16      30
+  17-32     0
+  33-64     0
+  65-128    0
+  129-256   0
+  >256      0
+
+failed gates:
+  bucket resolution > 105 ms
+  auxiliary memory > 16 MiB
+  matched median >= 225.558 ms
+  p95 >= matched K2 median

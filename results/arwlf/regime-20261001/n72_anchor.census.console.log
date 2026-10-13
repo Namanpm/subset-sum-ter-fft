@@ -1,0 +1,3 @@
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=census role=calibration
+# census written: 4096 microproblems, 16 strata, queue legal=1 (max groups X 549, Y 578)

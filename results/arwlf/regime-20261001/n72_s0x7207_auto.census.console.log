@@ -1,0 +1,3 @@
+# snapshot results/arwlf/holdout-snapshots/n72_s0x7207_auto.snap : Completed
+# root n72_s0x7207_auto n=72 seed=0x7207 Q=47 W=41 anchor cell=2730 (L=1.07) strata=16 phase=census role=holdout
+# census written: 4096 microproblems, 16 strata, queue legal=1 (max groups X 579, Y 583)

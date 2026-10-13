@@ -1,0 +1,779 @@
+[
+  {
+    "purpose": "authentic FullTer anchors",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--anchors-only"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\authentic-anchors.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\authentic-anchors.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=64 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=64",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=64 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=64",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=64 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=64",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=64 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=64",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L64-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=128 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=128",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=128 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=128",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=128 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=128",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=128 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=128",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=128 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=128",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L128-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=256 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=256",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=256 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=256",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=256 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=256",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=256 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=256",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=256 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=256",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L256-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=512 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=512",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=512 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=512",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=512 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=512",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=512 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=512",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=512 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=512",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L512-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=1024 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=1024",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=1024 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=1024",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=1024 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=1024",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=1024 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=1024",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=1024 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=1024",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L1024-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=2048 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=2048",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=2048 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=2048",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=2048 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=2048",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=2048 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=2048",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=2048 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=2048",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L2048-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=4096 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=4096",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=4096 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=4096",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=4096 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=4096",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=4096 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=4096",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=4096 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=4096",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L4096-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=8192 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=8192",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=8192 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=8192",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=8192 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=8192",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=8192 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=8192",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=8192 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=8192",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L8192-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=16384 seed-index=0",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=16384",
+      "--seed-index=0",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s0.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s0.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=16384 seed-index=1",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=16384",
+      "--seed-index=1",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s1.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s1.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=16384 seed-index=2",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=16384",
+      "--seed-index=2",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s2.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s2.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=16384 seed-index=3",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=16384",
+      "--seed-index=3",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s3.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s3.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "paper-scaling L=16384 seed-index=4",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+    "arguments": [
+      "--extend-16384",
+      "--only=16384",
+      "--seed-index=4",
+      "--no-header"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s4.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\paper-crossover-L16384-s4.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "tile sweep seed-base=4097 repetitions=5",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_tiled_parameter_sweep.exe",
+    "arguments": [
+      "--seed-base=4097",
+      "--repetitions=5"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-4097.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-4097.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "tile sweep seed-base=8195 repetitions=5",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_tiled_parameter_sweep.exe",
+    "arguments": [
+      "--seed-base=8195",
+      "--repetitions=5"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-8195.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-8195.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "tile sweep seed-base=12295 repetitions=5",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_tiled_parameter_sweep.exe",
+    "arguments": [
+      "--seed-base=12295",
+      "--repetitions=5"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-12295.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\tile-sweep-seed-12295.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "FullTer n=36 attempt-cost",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_full_bench.exe",
+    "arguments": [
+      "--n=36",
+      "--attempt-limit=1",
+      "--warmup=1",
+      "--repeat=5"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-36-attempt-cost.txt",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-36-attempt-cost.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "FullTer n=72 preflight",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_full_bench.exe",
+    "arguments": [
+      "--n=72",
+      "--preflight"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-72-preflight.txt",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-72-preflight.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "FullTer n=108 preflight",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_full_bench.exe",
+    "arguments": [
+      "--n=108",
+      "--preflight"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-108-preflight.txt",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-108-preflight.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "FullTer n=144 preflight",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_full_bench.exe",
+    "arguments": [
+      "--n=144",
+      "--preflight"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-144-preflight.txt",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\per-process\\fullter-n-144-preflight.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  },
+  {
+    "purpose": "complete merge: pair-materializing public baseline vs tiled public merge",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_tiled_complete_merge_bench.exe",
+    "arguments": [
+      "--repetitions=5"
+    ],
+    "stdout_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\complete-merge.csv",
+    "stderr_file": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\tiled-q3report-final-20260829\\raw\\complete-merge.stderr",
+    "exit_code": 0,
+    "elapsed_s": 0.0,
+    "reused_cache": true
+  }
+]

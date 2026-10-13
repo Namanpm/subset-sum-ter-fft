@@ -1,0 +1,13 @@
+{
+  "command": "build-full-asan/Debug/ter_arwlf_solve_tests.exe results\\arwlf\\asan-differential-20261011\\scratch",
+  "executable_sha256": "2de61373087dbb4d5fa34a5b4ac4393b3376aad79de43feb294bc22587a57d55",
+  "asan_runtime": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\clang_rt.asan_dynamic-x86_64.dll",
+  "started_utc": "2026-10-11T12:40:25.7473097Z",
+  "ended_utc": "2026-10-11T16:51:38.5857129Z",
+  "elapsed_s": 15072.8,
+  "exit_code": 0,
+  "sanitizer_report": false,
+  "summary_line": "ter_arwlf_solve_tests: 341 checks, 0 failures\r",
+  "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+  "git_dirty": true
+}

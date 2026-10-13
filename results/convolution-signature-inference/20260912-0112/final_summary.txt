@@ -1,0 +1,37 @@
+TER^2 GPU CONVOLUTION + SOURCE-SIGNATURE INFERENCE SPIKE -- FINAL SUMMARY
+(supersedes summary.txt, which was written before the pre-registered confirmation)
+
+VERDICT: TRANSFORM_NO_GO  (CONVOLUTION_DIRECTION_REJECTED_ON_TRANSFORM_COST)
+
+Frozen gate: transform workload median > 145 ms is NO-GO.
+Pre-registered rule: pooled median of ALL verdict-eligible capped end-to-end
+samples of the faster kernel (original 30 + confirmation 90).
+
+PAIR kernel (faster)   pooled median 145.010 ms (120 samples)  -> NO-GO by 0.010 ms
+                       first block   186.891 ms (30)  confirmation 144.945 ms (90)
+STAGE kernel           pooled median 274.098 ms (120 samples)
+Upload (H->D)          7.6-8.0 ms steady; 14.2 ms in the first block
+Proposal expectation   105 ms -> actual/projected 1.38 (best steady state)
+
+The margin to the gate is 0.01 ms, so the classification alone is not the
+evidence the recommendation rests on.  The decisive measurement is the control:
+
+GPU exact brute force  620,490,266 authentic pairs, exact hit flags,
+                       618,857 hits == truth, 26.73 ms median total
+                       -> 5.42x faster than the convolution TRANSFORM PHASE
+                          alone, while already delivering the pair-level answer
+                          the convolution path has not yet decoded.
+
+Work: H=542, jobs 34,688, 70,524 length-16384 transforms, 8,088,256,512
+butterflies = 13.0 butterflies per unique source pair replaced.
+
+Device: NVIDIA GeForce RTX 5070 Ti Laptop GPU, compute capability 12.0,
+driver API 13010 (driver 592.02), NVRTC 13.1, on AC power, Balanced plan,
+enforced power limit 105 W.  Device performance state varied during the run
+(pstates P2-P5, PCIe gen 2-5); the sync-cadence diagnostic ruled out queued
+launches as the cause of the 186.9 ms block.
+
+Maximum plausible speedup (DERIVED upper bound, every post-transform stage free):
+  vs historical matched K2 338.337 ms: 338.337 / (145.010 + 7.7) = 2.22x
+  vs historical matched scalar 558.751 ms: 3.66x
+No same-run matched K2 or scalar was executed: the spike stopped at Phase B.

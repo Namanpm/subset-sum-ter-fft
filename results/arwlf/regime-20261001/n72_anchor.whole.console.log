@@ -1,0 +1,15 @@
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=whole role=calibration
+# sentinel start 78.535 ms
+# case whole:all [AUTHENTIC_FULLTER, final] L=1.05 pairs=620966064 : k2=301.50 k2_wide=298.37 queue_dense=167.55 arwlf=1137.44 dispatch=178.18 ms | K2/ARWLF=0.27 regret=1.063 best=queue_dense dispatch ran QUEUE_DENSE | witnesses=0 k32=4718 | COMPLETED
+# sentinel end 74.101 ms
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=whole role=calibration
+# sentinel start 65.561 ms
+# skip (already written) whole:all
+# sentinel end 65.717 ms
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# root n72_anchor n=72 seed=0x46554c4c544552 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=whole role=calibration
+# sentinel start 81.881 ms
+# skip (already written) whole:all
+# sentinel end 82.974 ms

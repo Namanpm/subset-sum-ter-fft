@@ -1,0 +1,267 @@
+# ter_translated_tag_bench -- TER^2 translated-tag locator spike
+# configure_time_commit=53431a8e037bec94163d4d2a1c4fe0565a673423 configure_time_dirty=yes
+# cpu=Intel(R) Core(TM) Ultra 9 275HX
+# isa_compiled=AVX2 isa_available=AVX2 isa_executed=AVX2
+# thread_affinity=cpu0 + high priority
+# capturing authentic root (n=72, seed=19797034556212562)...
+# |A|=19109 |B|=32496 |C|=33505 Q=47 r1=25 P0=620966064 capture_ms=1447.7631
+# tau_low32=1917608578 tau_low25=5005954 tau_derivation_verified=true
+# running independent tiled_q3report_count cross-check...
+# decomposition_crosscheck=619579 production_low25=619579 (Completed)
+# building authority tables (independent capture)...
+# authority_capture_ms=824.3338 low25_projection_mismatches=0 residue_words=3 expected_parent=(2,56,14)
+# fixture gate: all authenticated invariants hold
+# shared_index_ms=1.6153 distinct Q/X/Y=19102/32483/33490 widest_family=578 shared_bytes=1489464
+# building VALIDATION-ONLY exhaustive truth over 620966064 source pairs...
+# truth_ms=565.5658 pair_hits=619303 triples=619579 distinct_group_triples=618857
+# validating scalar path...
+# validating frozen K2 path...
+# validating translated-tag path (portable router)...
+# validating translated-tag path (AVX2 router)...
+# instrumented counting pass...
+# validating radix8192 (portable, dense tags)...
+# validating radix8192_portable_compact...
+# validating radix8192_avx2_dense...
+# validating radix8192_avx2_compact...
+# validating radix8192_avx2_batched...
+# validating radix8192_avx2_skip...
+# radix8192 instrumented counting pass...
+# validating radix16384 (portable, dense tags)...
+# validating radix16384_portable_compact...
+# validating radix16384_avx2_dense...
+# validating radix16384_avx2_compact...
+# validating radix16384_avx2_batched...
+# validating radix16384_avx2_skip...
+# radix16384 instrumented counting pass...
+# validating radix32768 (portable, dense tags)...
+# validating radix32768_portable_compact...
+# validating radix32768_avx2_dense...
+# validating radix32768_avx2_compact...
+# validating radix32768_avx2_batched...
+# validating radix32768_avx2_skip...
+# radix32768 instrumented counting pass...
+# validating radix65536 (portable, dense tags)...
+# validating radix65536_portable_compact...
+# validating radix65536_avx2_dense...
+# validating radix65536_avx2_compact...
+# validating radix65536_avx2_batched...
+# validating radix65536_avx2_skip...
+# radix65536 instrumented counting pass...
+# packed13 bmi2: compiled=yes cpu=yes executed=yes
+# validating packed13_portable_onedeck...
+# validating packed13_portable_twodeck...
+# validating packed13_bmi2_onedeck...
+# validating packed13_bmi2_twodeck...
+# validating packed13_bmi2_queued_onedeck...
+# validating packed13_bmi2_queued_twodeck...
+# validating packed13_queued_dense_control...
+# packed13 whole-stream identity against the plain radix-13 dense kernel...
+# packed13 instrumented counting passes...
+# correctness:
+#   scalar                     pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   k2_frozen                  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   translated_tag_portable    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   translated_tag_avx2        pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_portable_dense   pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_portable_compact pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_avx2_dense       pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_avx2_compact     pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_avx2_batched     pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix8192_avx2_skip        pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_portable_dense  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_portable_compact pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_avx2_dense      pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_avx2_compact    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_avx2_batched    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix16384_avx2_skip       pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_portable_dense  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_portable_compact pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_avx2_dense      pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_avx2_compact    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_avx2_batched    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix32768_avx2_skip       pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_portable_dense  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_portable_compact pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_avx2_dense      pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_avx2_compact    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_avx2_batched    pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   radix65536_avx2_skip       pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_portable_onedeck  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_portable_twodeck  pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_bmi2_onedeck      pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_bmi2_twodeck      pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_bmi2_queued_onedeck pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_bmi2_queued_twodeck pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+#   packed13_queued_dense_control pairs=619303 triples=619579 groups=618857 FN=0 FP=0 residual_mismatch=0 fullQ=4718 residue=0 structural=0 outputs=0 EXACT
+# timing (31 samples, rotated order, clock resolution 100 ns, median call overhead 0 ns)...
+#   round 10/31
+#   round 20/31
+#   round 30/31
+
+=== MATCHED-SCOPE TIMING (median of 31 full sweeps) ===
+entity                           median_ms           p25           p75           min    iqr/median
+scalar_matched                    462.8574     457.18365     469.32905      455.1863 0.02624004715
+k2_matched                        286.8439      284.8185     290.87665      281.9922 0.02112002382
+k2_kernel_only                    219.2493     217.21655     222.23805      216.5946  0.0229031518
+k2_survivor_only                   265.884     263.73525     268.94125      261.9789  0.0195799672
+translated_tag_matched            730.0115     721.12475     736.38065       711.769 0.02089816393
+translated_tag_group_only         709.4928     706.05795      720.6123      696.3361 0.02051373883
+locality_control                   538.875      536.0124     548.12735      532.0854 0.02248192995
+radix8192_dense_matched           502.6899     499.54635     511.50225      493.5273 0.02378384766
+radix8192_compact_matched         524.8996     520.17965      535.0317      514.9379 0.02829503014
+radix8192_batched_matched         441.1478     436.79365     444.02795      428.2305 0.01639881237
+radix8192_skip_matched            361.2019      359.1124      369.0937      355.7612 0.02763357557
+radix8192_guard_only               25.8113       25.5933      26.14505       25.3476 0.02137629643
+radix8192_dense_group_only        496.1236     491.36295      503.6582      487.2355 0.02478263481
+radix8192_extract_only            417.8189     414.21115     422.88245      411.4098 0.02075372847
+radix16384_dense_matched          403.7843     399.05675       410.172      393.7394 0.02752769238
+radix16384_compact_matched         425.733      419.7772       431.647      415.3908  0.0278808549
+radix16384_batched_matched        370.3064     367.33325      377.0837      361.5006 0.02633076285
+radix16384_skip_matched           299.0752     294.34145      302.9259      291.8549 0.02870331609
+radix16384_guard_only              50.3736        49.871      51.19665        49.324 0.02631636413
+radix16384_dense_group_only       395.1581      392.5071      400.3577      384.9489 0.01986698489
+radix16384_extract_only           329.5832     326.06245      333.0939      322.9296  0.0213343702
+radix32768_dense_matched          373.5384     368.06625      381.9005      365.0678 0.03703568361
+radix32768_compact_matched        380.8342     375.06535     392.68355      368.7663 0.04626212667
+radix32768_batched_matched        398.6868      395.4437     409.80625      381.9699 0.03602464391
+radix32768_skip_matched           284.5352      280.3055      291.2401      275.4686 0.03842969165
+radix32768_guard_only             109.3074     108.49695     110.64425      106.8079 0.01964459863
+radix32768_dense_group_only       358.1712      352.8439      363.6488      348.9592 0.03016685875
+radix32768_extract_only           250.0919      247.9613      254.6141      244.9523 0.02660142132
+radix65536_dense_matched          612.1874      609.2442     614.91615       602.4110.009265055112
+radix65536_compact_matched        579.4396     577.71965     583.18885      558.83350.009438774982
+radix65536_batched_matched        630.2597      624.2778     644.25515      621.7359 0.03169701315
+radix65536_skip_matched           455.7715     454.22485     459.84795      450.2343 0.01233754195
+radix65536_guard_only             274.8559     269.85685      283.3782      262.5941 0.04919432328
+radix65536_dense_group_only       591.6778      589.0877      594.6382      563.4918 0.00938095024
+radix65536_extract_only           319.2022     316.63605     322.65975      313.1697 0.01887111054
+packed13_matched                  444.6222      437.5189      451.1701      430.4765 0.03070292037
+packed13_onedeck_matched          417.5672      412.2675      427.3833       409.977 0.03619968235
+packed13_group_only                432.476     425.76025      440.4017      422.2231 0.03385494224
+packed13_front_only               333.9301       329.711     339.04195      327.2601 0.02794282396
+packed13_guard_only               178.1165      176.4309     180.77915      174.6599 0.02441239301
+packed13_queued_matched           211.1151      209.4454      216.5438      206.0357  0.0336233647
+packed13_queued_onedeck_matched      197.2873      194.2834       200.035      192.2275 0.02915342245
+packed13_queued_group_only        197.8482      194.5814      201.5947      191.2837 0.03544788378
+packed13_queued_front_only        168.5316      167.1345     170.98745      165.1267 0.02286188466
+packed13_queued_guard_only         44.1186       43.7201       44.8814       43.2049 0.02632223144
+packed13_queued_dense_control      154.1885       151.651     156.28525      149.6223 0.03005574346
+packed13_build_only                 5.9802       5.91215       6.19555        5.7418 0.04738971941
+tile_build_control                 12.1938      12.04045      12.34755       11.8594 0.02518493005
+sink_expansion                      4.7797        4.7179        4.9035        4.6465 0.03883088897
+sink_quotient_prefilter             5.7222       5.64655       5.79265        5.4893 0.02553213799
+sink_full                           6.0888        6.0051         6.239        5.8546 0.03841479438
+
+speedup vs scalar = 0.6340412446x, speedup vs K2 = 0.3929306593x
+routing (instrumented) = 773.8892 ms
+locator auxiliary bytes = 42609416 (40.63550568 MiB), gate 48 MiB -> pass
+logical routing load bytes = 8261656256 (8.261656256 GB)
+shifted views = 37748736 bytes (36 MiB); translation table = 1048576 bytes
+diagnostic-only locality control = 538.875 ms (family-zero replay; not a valid TER sweep or verdict candidate)
+timing_stability=acceptable worst_relative_iqr=0.04919432328
+
+=== K2 RUNTIME BREAKDOWN ===
+K2 total (matched):                 286.8439 ms
+  kernel/sweep (scan):            219.2493 ms (76.43505753%)
+  survivor handling (filter):     46.6347 ms (16.25786708%)
+  overhead (tile build/misc):     20.9599 ms (7.307075381%)
+
+K2 ANALYSIS: KERNEL-BOUND — scan cost dominates by > 1.5×
+
+=== RADIX OCCUPANCY LOCATOR SWEEP ===
+R        H     guards/q        dense    compact    batched  lane-skip       best    vs K2   best kernel
+8192     64    32           502.6899   524.8996   441.1478   361.2019   361.20190.7941372955x   lane-skip
+16384    32    64           403.7843    425.733   370.3064   299.0752   299.07520.959102928x   lane-skip
+32768    16    128          373.5384   380.8342   398.6868   284.5352   284.53521.008113935x   lane-skip
+65536    8     256          612.1874   579.4396   630.2597   455.7715   455.77150.6293590099x   lane-skip
+
+phase decomposition (ms; extraction/tag rows measured on the dense kernel)
+  R=8192    build 2.6438 | guard 23.1675 (0.5922026939 ns/vec) | extract 392.0076 | tag 78.3047 | report 6.5663
+           buckets 37370795 (gate 40000000), best leaf 8.798964539 ns/bucket, aux 20.50046158 MiB, hot/block 111.109375 KiB compact / 196 KiB dense
+           failed gates: bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=16384   build 4.6206 | guard 45.753 (0.584764214 ns/vec) | extract 279.2096 | tag 65.5749 | report 8.6262
+           buckets 19251148 (gate 40000000), best leaf 12.47070564 ns/bucket, aux 38.67298508 MiB, hot/block 209.109375 KiB compact / 390 KiB dense
+           failed gates: bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=32768   build 9.2809 | guard 100.0265 (0.6392140149 ns/vec) | extract 140.7845 | tag 108.0793 | report 15.3672
+           buckets 9763118 (gate 40000000), best leaf 16.3739289 ns/bucket, aux 74.98729324 MiB, hot/block 405.109375 KiB compact / 778 KiB dense
+           failed gates: build > 8 ms; guard phase > 70 ms; bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=65536   build 17.1776 | guard 257.6783 (0.8233397185 ns/vec) | extract 44.3463 | tag 272.4756 | report 20.5096
+           buckets 4919260 (gate 40000000), best leaf 32.60774995 ns/bucket, aux 147.6159096 MiB, hot/block 797.109375 KiB compact / 1554 KiB dense
+           failed gates: build > 8 ms; guard phase > 70 ms; bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+
+auxiliary memory is reported, not gated: the 16 MiB cap conflated capacity
+with locality, so the per-block hot working set is the number that matters.
+RADIX SWEEP VERDICT: MODEST_WIN_BELOW_GATE  (faster than matched K2 but at least one pre-registered gate failed)
+
+=== RADIX-13 PACKED-TAG MASK CONSUMER ===
+TER^2 Radix-13 occupancy guard + packed-tag mask consumer -- matched scope
+verdict: IMPROVEMENT_BELOW_1_5X  (faster than same-run K2 but short of the 1.5x runtime gate)
+best packed variant: queued schedule, one deck
+
+MEASURED, this executable, one interleaved run, median of 31 full authentic sweeps (p95 in brackets):
+  scalar pair baseline                   462.8574 ms  [472.2603]
+  K2 frozen (matched)                    286.8439 ms  [292.15415]
+  plain radix-13 lane-skip               361.2019 ms  [377.01685]
+  plain radix-13 dense                   502.6899 ms  [521.0502]
+  packed, lane-skip schedule, 2 decks    444.6222 ms  [470.19515]
+  packed, lane-skip schedule, 1 deck     417.5672 ms  [441.01415]
+  packed, queued schedule, 2 decks       211.1151 ms  [225.02425]
+  packed, queued schedule, 1 deck        197.2873 ms  [203.79125]
+  CONTROL queued, dense leaf, no PEXT    154.1885 ms  [157.88315]
+
+speedup of best packed variant:
+  vs same-run K2 median         1.453940015x   (1.5x gate at 191.2292667 ms)
+  vs spec K2 figure 271.75 ms   1.37743281x   (spec gate 181.17 ms, spec projection 176 ms: PROJECTED, not measured)
+  vs plain radix-13 lane-skip   1.830842127x
+  vs CONTROL (same queue, dense leaf, no packed tags) 0.7815429579x   <- the part of the win attributable to packed-tag consumption
+  vs scalar                     2.346108442x
+
+MEASURED phase decomposition of the best schedule (queued, two-deck controls; differences of matched medians in this run):
+  index/deck build                5.9802 ms   (spec budget 12)
+  occupancy guard scan            38.1384 ms   (spec budget 28)
+  packed consumer common path     124.413 ms   (spec budget 88; 3.73492153 ns/nonzero word, 3.329150477 ns/candidate bit)
+  exact resolver + group mapping  29.3166 ms   (spec budget 28; 10.83710446 ns/explicit resolution)
+  full-Q authority + sink         13.2669 ms   (spec budget 13 + 7)
+  instrumented build breakdown    target classes 1.3199, shifted views 0.2532, source classes 0.995, decks 3.9628 ms
+  both schedules (ms, two-deck controls):
+    lane-skip: guard+skip 172.1363 | consumer 155.8136 | resolver+groups 98.5459 | authority+sink 12.1462 ms
+    queued   : guard+skip 38.1384 | consumer 124.413 | resolver+groups 29.3166 | authority+sink 13.2669 ms
+  plain radix-13: guard 25.8113 ms incl. build; mask->location->tag path (lane-skip - guard) 335.3906 ms over 37.370795 M buckets = 8.974671264 ns/bucket
+  packed: consumer + resolver + report over the same buckets = 7.131389632 ns/bucket
+
+MEASURED geometry and counters (instrumented passes, authentic fixture):
+  queries                         1222528
+  guard vectors                   39120896 (zero 38.3182788%)
+  nonzero 64-bit words            33310740 (33.31074 M; spec model 33.245 M)
+  candidate bits                  37370795 (37.370795 M; plain radix measured 37.371 M)
+  rank 0-7 / 8-15 / 16+ bits      36949914 / 420881 / 0
+  words needing deck 1            409905
+  words with > 8 candidate lanes  0
+  multi-tag candidate bits        2155204 (2.155204 M; spec model 2.29 M)
+  representation-exception bits   two-deck 0 (0 words), one-deck 616630 (409905 words)
+  exception stream (kill gate)    2.155204 M (gate < 3.0 M; multi-tag + representation, may double-count overlap)
+  carry-seam words                250585
+  exact packed singleton survivors 550002
+  explicit resolver inputs        two-deck 2705206 (2.705206 M; spec projection 2.91 M), one-deck 3276221
+  resolver inputs with no witness 2086360
+  exact residual witnesses        618857
+  packed/scalar disagreements     two-deck 0, one-deck 0 (must be 0)
+  whole-stream identity vs plain radix-13 dense kernel: 1222528 queries, 618857 witnesses, mismatching queries 0 (two-deck) / 0 (one-deck) / 0 (queued, both)
+  scalar reference                exact over 273 sampled witnesses
+  directory faults                0
+  deck bytes                      8781824 (8.375 MiB); total auxiliary 28.87546158 MiB
+  common-path hot bytes per block 137216
+
+LOGICAL work (NOT runtime; section 29 of the specification):
+  pair universe / candidate bits  16.61634611x
+  candidate bits / resolver inputs 13.81439898x (spec projection 12.84x)
+  pair universe / resolver inputs 229.5448347x (spec projection 213.4x)
+
+PRE-REGISTERED gates failed: matched median >= 181.17 ms (spec 1.5x gate); matched median >= same-run K2 median / 1.5; packed common path >= 3.05 ns per nonzero word; resolver >= 9.62 ns per explicit resolution
+
+spec reference values (PROJECTED / MODEL, never measured): total 176 ms, nonzero words 33.245 M, resolver inputs 2.91 M, common path 2.65 ns/word central
+PACKED VERDICT: IMPROVEMENT_BELOW_1_5X  (faster than same-run K2 but short of the 1.5x runtime gate)
+
+VERDICT: CORRECT_BUT_SLOWER_THAN_K2  (matched median is at or above the matched K2 median)
+checksum sink = 4696638616139040028
+artifacts written to results/radix13-packed-tag/raw-20260923-ac

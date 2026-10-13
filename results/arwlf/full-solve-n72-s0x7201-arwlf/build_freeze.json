@@ -1,0 +1,12 @@
+{
+  "frozen_at": "2026-10-09T02:26:37.9725598+05:30",
+  "n": 72,
+  "seed": "0x7201",
+  "max_attempts": 32,
+  "backend": "arwlf",
+  "capture_sha256": "2f7aab60b7d60a75d7c029a51ef394fbdbe71a595c98c1d7f5927584c46bc202",
+  "solve_sha256": "1355f45fc6e8ac33587426fdcb568fed3a3164ab5308f9d7eae7a6260a54924d",
+  "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+  "git_dirty": true,
+  "cpu": "Intel(R) Core(TM) Ultra 9 275HX"
+}

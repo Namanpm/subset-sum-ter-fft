@@ -1,0 +1,42 @@
+{
+  "topology": {
+    "caption": "Complete native TER list construction and the isolated prepared reporting boundary used in Sections 7–8.6. The production binary-root branch is untimed in those prepared-reporter experiments; Section 8.7 evaluates the staged solver integration separately. Captured native L1 lists provide arithmetic keys, stored residues, coordinate data and EntryIds. The prepared reporter outputs alone do not certify a solver solution.",
+    "description": "Flow diagram: 18 logical L3 lists merge to 9 L2 lists and then 3 L1 lists. A dashed, untimed production L0 branch is separate. A downward capture branch supplies an isolated prepared arithmetic reporter, which produces a residue-exact identity multiset and separate finite-predicate count.",
+    "png": "figures/topology.png",
+    "pdf": "figures/topology.pdf",
+    "width_inches": 6.5,
+    "dpi": 360
+  },
+  "pipeline": {
+    "caption": "ARWLF's routing, necessary byte predicates and exact survivor resolution. The arithmetic reporter retains every full quotient equality and original posting multiplicity. Residue-exact identities are collected before the attached finite test-parent predicate of Section 2.3, which differs from the production binary-root rule.",
+    "description": "Five sequential boxes show family carry calculation, 13-bit leaf routing, one-row-by-16-lane byte tests, exact full-key resolution, and stored-residue checking. Output branches separately to the residue-exact multiset and the finite-predicate counter; n=108 finite counts are negative 2, zero 86, positive 20.",
+    "png": "figures/pipeline.png",
+    "pdf": "figures/pipeline.pdf",
+    "width_inches": 6.5,
+    "dpi": 360
+  },
+  "dense": {
+    "caption": "All 29 declared authentic dimension-108 cell speedups, grouped by captured root and calibration role. Diamonds use the final protocol (seven timed rounds) and circles discovery (three); dashed segments show each root's geometric mean. Aggregate labels are case-pooled geometric means. Repeated cells share their root and are not independent instances.",
+    "description": "Scatterplot of all 29 K2/ARWLF median ratios across six root-seed groups. Calibration points are teal; holdout points orange. Diamonds indicate seven-round final anchors and circles three-round discovery cases. Per-root geometric means are dashed. Most ratios lie near 47 to 54; the 0x2003 final anchor is about 78, with holdout discovery points near 62 to 63 and one near 47.",
+    "png": "figures/dense.png",
+    "pdf": "figures/dense.pdf",
+    "width_inches": 6.5,
+    "dpi": 360
+  },
+  "crossover": {
+    "caption": "Controlled source-thinning crossover for three calibration dimension-108 roots. Discovery lines use geometric means over three thinning seeds; plotted L is their geometric-mean observed census occupancy. Open diamonds are separate final-protocol confirmations using seed 0xA11CE001. Ratios below one favor ARWLF. Lines connect measured points, not a fitted or universal threshold. Target L=96 is unreachable for root 0x1001.",
+    "description": "Log-log plot of ARWLF/rival time ratio against observed packet occupancy L for three source-thinned roots. Discovery averages over three thinning seeds are colored connected circles; final confirmations are open diamonds. Ratios exceed one at L=1 and fall below one near L=2, approaching about 0.03 at the densest tested controls.",
+    "png": "figures/crossover.png",
+    "pdf": "figures/crossover.pdf",
+    "width_inches": 6.5,
+    "dpi": 360
+  },
+  "target": {
+    "caption": "Absolute median times under target-only thinning with fixed source-pair mass on three calibration roots. Filled points use discovery (one warmup, three timed rounds); open full-density references use final anchors (three warmups, seven timed rounds). Dashed connections mark the protocol change. Target thinning is a controlled sensitivity experiment, not a smaller-dimension authentic benchmark.",
+    "description": "Three side-by-side panels show absolute median times for K2, K2-WIDE and ARWLF as target retention increases from one-eighth to one. K2 and K2-WIDE become much slower with denser targets, while ARWLF changes more modestly. Open full-density points use seven-round final anchors; filled thinned points use three-round discovery cases, with dashed segments separating the protocols.",
+    "png": "figures/target.png",
+    "pdf": "figures/target.pdf",
+    "width_inches": 6.5,
+    "dpi": 360
+  }
+}

@@ -1,0 +1,8 @@
+# ter_root_snapshot_capture n=108 seed=0x5003 memory_limit_mib=4096 buffer_mib=4 commit=53431a8e037bec94163d4d2a1c4fe0565a673423
+# stream status=Completed
+# n=108 r1=39 r2=12 Q=69 attempt=0 attempt_seed=0x5003 record_bytes=48
+# level2 sizes: 150728 149611 150894 150121 149729 149765 149695 150118 150248
+# level1 sizes: A=7112819 B=7049278 C=7111646
+# declared accounting (MiB): base=8.92461 group peaks=1027.07/1024.08/1026.96 peak=1027.07 (limit 4096)
+# elapsed_s=138.743
+# snapshot results/arwlf/holdout-snapshots/n108_s0x5003_a0.snap bytes=1021140088 process_peak_working_set_mib=1552.64 (measured by the OS in this capture process)

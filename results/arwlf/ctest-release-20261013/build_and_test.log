@@ -1,0 +1,186 @@
+date: 2026-10-13T22:35:46.6264812+05:30
+git HEAD: 8e9fe7fdda447088738b5e682ba6aea4cf83a121
+git dirty: True
+command: pwsh -NoProfile -File reviewer/build_and_test.ps1
+
+> cmake -S . -B build-full -DTER_NATIVE_OPT=ON
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26300.
+-- Configuring done (1.6s)
+-- Generating done (1.2s)
+-- Build files have been written to: C:/Users/naman/Desktop/subset-sum-ter-fft/build-full
+> cmake --build build-full --config Release --parallel
+MSBuild version 18.9.1+a81b43525 for .NET Framework
+
+  ter_t0.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_t0.lib
+  ter2_frozen.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\ter2_root\Release\ter2_frozen.lib
+  ter_generator_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_generator_tests.exe
+  ter_root_partition_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_root_partition_tests.exe
+  ter_limitations_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_limitations_tests.exe
+  ter_q3report_crossover_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_crossover_bench.exe
+  ter_tiled_q3report_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_tiled_q3report_tests.exe
+  ter_merge_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_merge_tests.exe
+  ter_tiled_parameter_sweep.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_tiled_parameter_sweep.exe
+  ter_tiled_complete_merge_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_tiled_complete_merge_bench.exe
+  ter_baseline_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_baseline_bench.exe
+  ter_full_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_full_bench.exe
+  ter_a64_chqr_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_a64_chqr_tests.exe
+  ter_stress_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_stress_bench.exe
+  ter_radix13_packed_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_radix13_packed_tests.exe
+  ter_root_snapshot_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_root_snapshot_tests.exe
+  ter_microreport8_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_microreport8_tests.exe
+  ter_translated_tag_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_translated_tag_tests.exe
+  ter_radix13_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_radix13_tests.exe
+  ter_arwlf_solve_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_solve_tests.exe
+  ter_full_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_full_tests.exe
+  ter_arwlf_whole_root_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_whole_root_tests.exe
+  ter_stress_generator_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_stress_generator_tests.exe
+  ter_shape_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_shape_tests.exe
+  ter_packed_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_packed_tests.exe
+  ter_q3report_audit_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_audit_tests.exe
+  ter_root_queue_generalization_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_root_queue_generalization_tests.exe
+  ter_root_snapshot_capture.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_root_snapshot_capture.exe
+  ter_arwlf_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_tests.exe
+  ter_q3report_paper_crossover_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_paper_crossover_bench.exe
+  ter_q3report_paper_crossover_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_paper_crossover_tests.exe
+  ter_core_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_core_tests.exe
+  ter_root_partition_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_root_partition_bench.exe
+  ter_arwlf_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_bench.exe
+  ter_arwlf_planted_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_planted_tests.exe
+  ter_arwlf_campaign_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_campaign_tests.exe
+  ter_arwlf_solve_attempt.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_solve_attempt.exe
+  ter_arwlf_campaign.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_campaign.exe
+  ter_hash_join_root.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\ter2_root\Release\ter_hash_join_root.lib
+  ter_q3report_crossover_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_crossover_tests.exe
+  ter_hash_join_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_hash_join_bench.exe
+  ter_q3report_bench.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_q3report_bench.exe
+  ter_arwlf_whole_root.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_arwlf_whole_root.exe
+  ter_hash_join_tests.vcxproj -> C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_hash_join_tests.exe
+> ctest --test-dir build-full -C Release --output-on-failure
+Test project C:/Users/naman/Desktop/subset-sum-ter-fft/build-full
+      Start  1: ter_shape_tests
+ 1/61 Test  #1: ter_shape_tests ......................................   Passed    0.02 sec
+      Start  2: ter_core_tests
+ 2/61 Test  #2: ter_core_tests .......................................   Passed    0.02 sec
+      Start  3: ter_generator_tests
+ 3/61 Test  #3: ter_generator_tests ..................................   Passed    0.04 sec
+      Start  4: ter_stress_generator_tests
+ 4/61 Test  #4: ter_stress_generator_tests ...........................   Passed    0.03 sec
+      Start  5: ter_merge_tests
+ 5/61 Test  #5: ter_merge_tests ......................................   Passed    0.02 sec
+      Start  6: ter_packed_tests
+ 6/61 Test  #6: ter_packed_tests .....................................   Passed    0.03 sec
+      Start  7: ter_full_tests
+ 7/61 Test  #7: ter_full_tests .......................................   Passed    0.15 sec
+      Start  8: ter_q3report_audit_tests
+ 8/61 Test  #8: ter_q3report_audit_tests .............................   Passed    0.03 sec
+      Start  9: ter_q3report_crossover_tests
+ 9/61 Test  #9: ter_q3report_crossover_tests .........................   Passed    0.03 sec
+      Start 10: ter_q3report_paper_crossover_tests
+10/61 Test #10: ter_q3report_paper_crossover_tests ...................   Passed    0.32 sec
+      Start 11: ter_tiled_q3report_tests
+11/61 Test #11: ter_tiled_q3report_tests .............................   Passed    0.02 sec
+      Start 12: ter_limitations_tests
+12/61 Test #12: ter_limitations_tests ................................   Passed    0.79 sec
+      Start 13: ter_root_partition_tests
+13/61 Test #13: ter_root_partition_tests .............................   Passed    4.93 sec
+      Start 14: ter_bench_cli_attempt_limit_zero
+14/61 Test #14: ter_bench_cli_attempt_limit_zero .....................   Passed    0.03 sec
+      Start 15: ter_bench_cli_attempt_limit_malformed
+15/61 Test #15: ter_bench_cli_attempt_limit_malformed ................   Passed    0.01 sec
+      Start 16: ter_bench_cli_attempt_limit_overflow
+16/61 Test #16: ter_bench_cli_attempt_limit_overflow .................   Passed    0.01 sec
+      Start 17: ter_bench_cli_attempt_limit_one
+17/61 Test #17: ter_bench_cli_attempt_limit_one ......................   Passed    0.01 sec
+      Start 18: ter_bench_cli_attempt_limit_many
+18/61 Test #18: ter_bench_cli_attempt_limit_many .....................   Passed    0.01 sec
+      Start 19: ter_bench_cli_require_found_rejects_exhausted
+19/61 Test #19: ter_bench_cli_require_found_rejects_exhausted ........   Passed    0.01 sec
+      Start 20: ter_bench_cli_timeout_is_cancelled
+20/61 Test #20: ter_bench_cli_timeout_is_cancelled ...................   Passed    0.14 sec
+      Start 21: ter_bench_cli_tiny_memory_cap
+21/61 Test #21: ter_bench_cli_tiny_memory_cap ........................   Passed    0.01 sec
+      Start 22: ter_bench_cli_memory_limit_zero
+22/61 Test #22: ter_bench_cli_memory_limit_zero ......................   Passed    0.01 sec
+      Start 23: ter_bench_cli_preflight_n72
+23/61 Test #23: ter_bench_cli_preflight_n72 ..........................   Passed    0.01 sec
+      Start 24: ter_bench_cli_preflight_n72_bounded
+24/61 Test #24: ter_bench_cli_preflight_n72_bounded ..................   Passed    0.01 sec
+      Start 25: ter_bench_cli_preflight_n108
+25/61 Test #25: ter_bench_cli_preflight_n108 .........................   Passed    0.01 sec
+      Start 26: ter_bench_cli_preflight_n108_bounded
+26/61 Test #26: ter_bench_cli_preflight_n108_bounded .................   Passed    0.01 sec
+      Start 27: ter_bench_cli_preflight_n108_wide_authority
+27/61 Test #27: ter_bench_cli_preflight_n108_wide_authority ..........   Passed    0.01 sec
+      Start 28: ter_bench_cli_preflight_n144_bounded
+28/61 Test #28: ter_bench_cli_preflight_n144_bounded .................   Passed    0.01 sec
+      Start 29: ter_bench_cli_preflight_n144_wide_l2_l1
+29/61 Test #29: ter_bench_cli_preflight_n144_wide_l2_l1 ..............   Passed    0.01 sec
+      Start 30: ter_bench_cli_preflight_n144_wide_root
+30/61 Test #30: ter_bench_cli_preflight_n144_wide_root ...............   Passed    0.01 sec
+      Start 31: ter_bench_cli_preflight_n100_unsupported
+31/61 Test #31: ter_bench_cli_preflight_n100_unsupported .............   Passed    0.01 sec
+      Start 32: ter_bench_cli_family_invalid
+32/61 Test #32: ter_bench_cli_family_invalid .........................   Passed    0.01 sec
+      Start 33: ter_bench_cli_mode_invalid
+33/61 Test #33: ter_bench_cli_mode_invalid ...........................   Passed    0.01 sec
+      Start 34: ter_bench_cli_unknown_option
+34/61 Test #34: ter_bench_cli_unknown_option .........................   Passed    0.01 sec
+      Start 35: ter_bench_cli_family_finite_sanity
+35/61 Test #35: ter_bench_cli_family_finite_sanity ...................   Passed    0.01 sec
+      Start 36: ter_bench_cli_repeat_zero_rejected
+36/61 Test #36: ter_bench_cli_repeat_zero_rejected ...................   Passed    0.01 sec
+      Start 37: ter_bench_cli_warmup_zero_repeat_one
+37/61 Test #37: ter_bench_cli_warmup_zero_repeat_one .................   Passed    0.01 sec
+      Start 38: ter_bench_cli_provenance_metadata
+38/61 Test #38: ter_bench_cli_provenance_metadata ....................   Passed    0.01 sec
+      Start 39: ter_bench_cli_success_curve
+39/61 Test #39: ter_bench_cli_success_curve ..........................   Passed    0.01 sec
+      Start 40: ter_bench_cli_success_curve_rejects_repeat
+40/61 Test #40: ter_bench_cli_success_curve_rejects_repeat ...........   Passed    0.01 sec
+      Start 41: ter_tiled_sweep_cli_seed_override
+41/61 Test #41: ter_tiled_sweep_cli_seed_override ....................   Passed    0.82 sec
+      Start 42: ter_tiled_sweep_cli_default_seed_base
+42/61 Test #42: ter_tiled_sweep_cli_default_seed_base ................   Passed    0.79 sec
+      Start 43: ter_tiled_sweep_cli_repetitions_zero_rejected
+43/61 Test #43: ter_tiled_sweep_cli_repetitions_zero_rejected ........   Passed    0.01 sec
+      Start 44: ter_tiled_sweep_cli_repetitions_malformed_rejected
+44/61 Test #44: ter_tiled_sweep_cli_repetitions_malformed_rejected ...   Passed    0.01 sec
+      Start 45: ter_tiled_sweep_cli_seed_base_malformed_rejected
+45/61 Test #45: ter_tiled_sweep_cli_seed_base_malformed_rejected .....   Passed    0.01 sec
+      Start 46: ter_arwlf_tests
+46/61 Test #46: ter_arwlf_tests ......................................   Passed   11.31 sec
+      Start 47: ter_arwlf_campaign_tests
+47/61 Test #47: ter_arwlf_campaign_tests .............................   Passed    2.42 sec
+      Start 48: ter_a64_chqr_tests
+48/61 Test #48: ter_a64_chqr_tests ...................................   Passed   15.43 sec
+      Start 49: ter_root_queue_generalization_tests
+49/61 Test #49: ter_root_queue_generalization_tests ..................   Passed    0.31 sec
+      Start 50: ter_root_snapshot_tests
+50/61 Test #50: ter_root_snapshot_tests ..............................   Passed    4.16 sec
+      Start 51: ter_microreport8_tests
+51/61 Test #51: ter_microreport8_tests ...............................   Passed    0.19 sec
+      Start 52: ter_translated_tag_tests
+52/61 Test #52: ter_translated_tag_tests .............................   Passed    2.81 sec
+      Start 53: ter_radix13_tests
+53/61 Test #53: ter_radix13_tests ....................................   Passed    0.25 sec
+      Start 54: ter_radix13_packed_tests
+54/61 Test #54: ter_radix13_packed_tests .............................   Passed    0.22 sec
+      Start 55: ter_arwlf_planted_tests
+55/61 Test #55: ter_arwlf_planted_tests ..............................   Passed  312.00 sec
+      Start 56: ter_arwlf_planted_tests_n72
+56/61 Test #56: ter_arwlf_planted_tests_n72 ..........................   Passed    0.10 sec
+      Start 57: ter_arwlf_whole_root_tests
+57/61 Test #57: ter_arwlf_whole_root_tests ...........................   Passed    5.10 sec
+      Start 58: ter_arwlf_solve_tests
+58/61 Test #58: ter_arwlf_solve_tests ................................   Passed  202.37 sec
+      Start 59: ter_hash_join_tests
+59/61 Test #59: ter_hash_join_tests ..................................   Passed    0.31 sec
+      Start 60: ter_hash_join_cli_tests
+60/61 Test #60: ter_hash_join_cli_tests ..............................   Passed    0.06 sec
+      Start 61: ter_frozen_root_backends
+61/61 Test #61: ter_frozen_root_backends .............................   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 61
+
+Total Test time (real) = 565.95 sec
+exit: 0

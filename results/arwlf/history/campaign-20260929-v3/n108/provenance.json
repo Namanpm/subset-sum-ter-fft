@@ -1,0 +1,60 @@
+[
+  {
+    "snapshot": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\root-queue-generalization\\snapshots\\n108_s0x1001_a0.snap",
+    "snapshot_sha256": "63fc31e837f8d8d9b0385ad111e69c4902198e46fd9e5f4beadd41f4af3ac161",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_bench.exe",
+    "executable_sha256": "136eb12608d05b33d5f46e42770734d5213b8ab8e5b3114f45ce4bd09b2d8ab7",
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true,
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "arguments": [
+      "--snapshot=results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap",
+      "--out-dir=results/arwlf/campaign-20260929-v3/n108",
+      "--label=n108_s0x1001_a0",
+      "--pin=p-core",
+      "--microproblems=1",
+      "--warmups=3",
+      "--samples=7"
+    ],
+    "power_before": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T23:44:59.9874143+05:30"
+    },
+    "exit_code": 0,
+    "power_after": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-30T00:02:18.7118087+05:30"
+    }
+  },
+  {
+    "snapshot": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\root-queue-generalization\\snapshots\\n108_s0x2003_a0.snap",
+    "snapshot_sha256": "3789645fa5de26f4a60f11ebe88c1d4d02a2ec9bbbba50aa5fbee41dea19d1f5",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_bench.exe",
+    "executable_sha256": "136eb12608d05b33d5f46e42770734d5213b8ab8e5b3114f45ce4bd09b2d8ab7",
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true,
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "arguments": [
+      "--snapshot=results/root-queue-generalization/snapshots/n108_s0x2003_a0.snap",
+      "--out-dir=results/arwlf/campaign-20260929-v3/n108",
+      "--label=n108_s0x2003_a0",
+      "--pin=p-core",
+      "--microproblems=1",
+      "--warmups=3",
+      "--samples=7"
+    ],
+    "power_before": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-30T00:02:18.7449880+05:30"
+    },
+    "exit_code": 0,
+    "power_after": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-30T00:35:30.7507001+05:30"
+    }
+  }
+]

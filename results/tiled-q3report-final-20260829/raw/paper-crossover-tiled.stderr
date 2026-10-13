@@ -1,0 +1,225 @@
+=== paper-scaling header + L=64 seed-index=0 ===
+L=64 seed=4097 -> Completed direct_prod=8500ns direct_tiled=8500ns direct_full=2000ns ntt_amort=113833ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=64 completed_seeds=1 amortized_wins=0 best_speedup=0.0747
+=== L=64 seed-index=1 ===
+L=64 seed=8195 -> Completed direct_prod=9900ns direct_tiled=10200ns direct_full=3000ns ntt_amort=152800ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=64 completed_seeds=1 amortized_wins=0 best_speedup=0.0648
+=== L=64 seed-index=2 ===
+L=64 seed=12295 -> Completed direct_prod=7700ns direct_tiled=8300ns direct_full=2200ns ntt_amort=122500ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=64 completed_seeds=1 amortized_wins=0 best_speedup=0.0629
+=== L=64 seed-index=3 ===
+L=64 seed=16393 -> Completed direct_prod=10400ns direct_tiled=9900ns direct_full=1800ns ntt_amort=103233ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=64 completed_seeds=1 amortized_wins=0 best_speedup=0.1007
+=== L=64 seed-index=4 ===
+L=64 seed=20491 -> Completed direct_prod=7400ns direct_tiled=7900ns direct_full=3600ns ntt_amort=99233ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=64 completed_seeds=1 amortized_wins=0 best_speedup=0.0746
+=== L=128 seed-index=0 ===
+L=128 seed=4097 -> Completed direct_prod=30500ns direct_tiled=47200ns direct_full=16500ns ntt_amort=369433ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=128 completed_seeds=1 amortized_wins=0 best_speedup=0.0826
+=== L=128 seed-index=1 ===
+L=128 seed=8195 -> Completed direct_prod=17500ns direct_tiled=48700ns direct_full=4900ns ntt_amort=372533ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=128 completed_seeds=1 amortized_wins=0 best_speedup=0.0470
+=== L=128 seed-index=2 ===
+L=128 seed=12295 -> Completed direct_prod=17500ns direct_tiled=42100ns direct_full=4700ns ntt_amort=371233ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=128 completed_seeds=1 amortized_wins=0 best_speedup=0.0471
+=== L=128 seed-index=3 ===
+L=128 seed=16393 -> Completed direct_prod=17400ns direct_tiled=40600ns direct_full=4700ns ntt_amort=368733ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=128 completed_seeds=1 amortized_wins=0 best_speedup=0.0472
+=== L=128 seed-index=4 ===
+L=128 seed=20491 -> Completed direct_prod=17400ns direct_tiled=40200ns direct_full=5300ns ntt_amort=369666ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=128 completed_seeds=1 amortized_wins=0 best_speedup=0.0471
+=== L=256 seed-index=0 ===
+L=256 seed=4097 -> Completed direct_prod=124000ns direct_tiled=70700ns direct_full=26900ns ntt_amort=1681100ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0738
+=== L=256 seed-index=1 ===
+L=256 seed=8195 -> Completed direct_prod=74400ns direct_tiled=104100ns direct_full=69600ns ntt_amort=1659600ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0448
+=== L=256 seed-index=2 ===
+L=256 seed=12295 -> Completed direct_prod=74100ns direct_tiled=97100ns direct_full=65100ns ntt_amort=1662033ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0446
+=== L=256 seed-index=3 ===
+L=256 seed=16393 -> Completed direct_prod=83800ns direct_tiled=111000ns direct_full=73700ns ntt_amort=2002333ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0419
+=== L=256 seed-index=4 ===
+L=256 seed=20491 -> Completed direct_prod=97700ns direct_tiled=132400ns direct_full=81700ns ntt_amort=2143933ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0456
+=== L=512 seed-index=0 ===
+L=512 seed=4097 -> Completed direct_prod=460400ns direct_tiled=154800ns direct_full=177500ns ntt_amort=7807133ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=512 completed_seeds=1 amortized_wins=0 best_speedup=0.0590
+=== L=512 seed-index=1 ===
+L=512 seed=8195 -> Completed direct_prod=457600ns direct_tiled=165300ns direct_full=180100ns ntt_amort=7973100ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=512 completed_seeds=1 amortized_wins=0 best_speedup=0.0574
+=== L=512 seed-index=2 ===
+L=512 seed=12295 -> Completed direct_prod=338400ns direct_tiled=182500ns direct_full=282100ns ntt_amort=7863166ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=512 completed_seeds=1 amortized_wins=0 best_speedup=0.0430
+=== L=512 seed-index=3 ===
+L=512 seed=16393 -> Completed direct_prod=340200ns direct_tiled=149200ns direct_full=177900ns ntt_amort=7578100ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=512 completed_seeds=1 amortized_wins=0 best_speedup=0.0449
+=== L=512 seed-index=4 ===
+L=512 seed=20491 -> Completed direct_prod=338800ns direct_tiled=147100ns direct_full=181000ns ntt_amort=7487633ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=512 completed_seeds=1 amortized_wins=0 best_speedup=0.0452
+=== L=1024 seed-index=0 ===
+L=1024 seed=4097 -> Completed direct_prod=2052300ns direct_tiled=498500ns direct_full=1546600ns ntt_amort=33768600ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=1024 completed_seeds=1 amortized_wins=0 best_speedup=0.0608
+=== L=1024 seed-index=1 ===
+L=1024 seed=8195 -> Completed direct_prod=2052700ns direct_tiled=615100ns direct_full=1366000ns ntt_amort=33774333ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=1024 completed_seeds=1 amortized_wins=0 best_speedup=0.0608
+=== L=1024 seed-index=2 ===
+L=1024 seed=12295 -> Completed direct_prod=2031100ns direct_tiled=600700ns direct_full=1217400ns ntt_amort=34275900ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=1024 completed_seeds=1 amortized_wins=0 best_speedup=0.0593
+=== L=1024 seed-index=3 ===
+L=1024 seed=16393 -> Completed direct_prod=1997100ns direct_tiled=613800ns direct_full=1206900ns ntt_amort=34308400ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=1024 completed_seeds=1 amortized_wins=0 best_speedup=0.0582
+=== L=1024 seed-index=4 ===
+L=1024 seed=20491 -> Completed direct_prod=2195800ns direct_tiled=627800ns direct_full=1352400ns ntt_amort=34298900ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=1024 completed_seeds=1 amortized_wins=0 best_speedup=0.0640
+=== L=2048 seed-index=0 ===
+L=2048 seed=4097 -> Completed direct_prod=10650400ns direct_tiled=2010100ns direct_full=8102400ns ntt_amort=150138433ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=2048 completed_seeds=1 amortized_wins=0 best_speedup=0.0709
+=== L=2048 seed-index=1 ===
+L=2048 seed=8195 -> Completed direct_prod=10492000ns direct_tiled=1980100ns direct_full=7104400ns ntt_amort=152149500ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=2048 completed_seeds=1 amortized_wins=0 best_speedup=0.0690
+=== L=2048 seed-index=2 ===
+L=2048 seed=12295 -> Completed direct_prod=16724000ns direct_tiled=3570600ns direct_full=11778300ns ntt_amort=153186733ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=2048 completed_seeds=1 amortized_wins=0 best_speedup=0.1092
+=== L=2048 seed-index=3 ===
+L=2048 seed=16393 -> Completed direct_prod=10733300ns direct_tiled=2027800ns direct_full=7828700ns ntt_amort=151614266ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=2048 completed_seeds=1 amortized_wins=0 best_speedup=0.0708
+=== L=2048 seed-index=4 ===
+L=2048 seed=20491 -> Completed direct_prod=9942100ns direct_tiled=1986800ns direct_full=7870500ns ntt_amort=149727300ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=2048 completed_seeds=1 amortized_wins=0 best_speedup=0.0664
+=== L=4096 seed-index=0 ===
+L=4096 seed=4097 -> Completed direct_prod=114592600ns direct_tiled=10434600ns direct_full=100955700ns ntt_amort=1642913633ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=4096 completed_seeds=1 amortized_wins=0 best_speedup=0.0697
+=== L=4096 seed-index=1 ===
+L=4096 seed=8195 -> Completed direct_prod=116315400ns direct_tiled=11630600ns direct_full=90041600ns ntt_amort=1663623133ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=4096 completed_seeds=1 amortized_wins=0 best_speedup=0.0699
+=== L=4096 seed-index=2 ===
+L=4096 seed=12295 -> Completed direct_prod=122834700ns direct_tiled=12139200ns direct_full=99761600ns ntt_amort=1730597166ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=4096 completed_seeds=1 amortized_wins=0 best_speedup=0.0710
+=== L=4096 seed-index=3 ===
+L=4096 seed=16393 -> Completed direct_prod=192796100ns direct_tiled=27215000ns direct_full=189102400ns ntt_amort=1721162766ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=4096 completed_seeds=1 amortized_wins=0 best_speedup=0.1120
+=== L=4096 seed-index=4 ===
+L=4096 seed=20491 -> Completed direct_prod=193776600ns direct_tiled=26876700ns direct_full=179724800ns ntt_amort=1792686633ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=4096 completed_seeds=1 amortized_wins=0 best_speedup=0.1081
+=== L=8192 seed-index=0 ===
+L=8192 seed=4097 -> Completed direct_prod=996010500ns direct_tiled=113006400ns direct_full=938562800ns ntt_amort=3738474833ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=8192 completed_seeds=1 amortized_wins=0 best_speedup=0.2664
+=== L=8192 seed-index=1 ===
+L=8192 seed=8195 -> Completed direct_prod=935232400ns direct_tiled=103648600ns direct_full=939817100ns ntt_amort=3655421533ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=8192 completed_seeds=1 amortized_wins=0 best_speedup=0.2558
+=== L=8192 seed-index=2 ===
+L=8192 seed=12295 -> Completed direct_prod=877464900ns direct_tiled=100915900ns direct_full=907390000ns ntt_amort=3515916433ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=8192 completed_seeds=1 amortized_wins=0 best_speedup=0.2496
+=== L=8192 seed-index=3 ===
+L=8192 seed=16393 -> Completed direct_prod=885807700ns direct_tiled=106414900ns direct_full=891493000ns ntt_amort=3527967733ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=8192 completed_seeds=1 amortized_wins=0 best_speedup=0.2511
+=== L=8192 seed-index=4 ===
+L=8192 seed=20491 -> Completed direct_prod=881761600ns direct_tiled=103199500ns direct_full=850179400ns ntt_amort=3524113000ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=8192 completed_seeds=1 amortized_wins=0 best_speedup=0.2502
+=== L=16384 seed-index=0 ===
+L=16384 seed=4097 -> Completed direct_prod=3964468100ns direct_tiled=329960400ns direct_full=4448732400ns ntt_amort=6372247400ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=16384 completed_seeds=1 amortized_wins=0 best_speedup=0.6221
+=== L=16384 seed-index=1 ===
+L=16384 seed=8195 -> Completed direct_prod=5283625800ns direct_tiled=506522200ns direct_full=5185081000ns ntt_amort=14420528333ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=16384 completed_seeds=1 amortized_wins=0 best_speedup=0.3664
+=== L=16384 seed-index=2 ===
+L=16384 seed=12295 -> Completed direct_prod=4257441700ns direct_tiled=255126500ns direct_full=4489054900ns ntt_amort=6057450233ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=16384 completed_seeds=1 amortized_wins=0 best_speedup=0.7028
+=== L=16384 seed-index=3 ===
+L=16384 seed=16393 -> Completed direct_prod=5130742000ns direct_tiled=560536600ns direct_full=5152770700ns ntt_amort=16192454700ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=16384 completed_seeds=1 amortized_wins=0 best_speedup=0.3169
+=== L=16384 seed-index=4 ===
+L=16384 seed=20491 -> Completed direct_prod=5478794300ns direct_tiled=289750900ns direct_full=5264220400ns ntt_amort=14428217566ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=16384 completed_seeds=1 amortized_wins=0 best_speedup=0.3797

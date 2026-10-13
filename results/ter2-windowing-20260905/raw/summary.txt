@@ -1,0 +1,18 @@
+TER^2 residual windowing spike
+verdict: WINDOWING_GEOMETRY_UNPROMISING
+
+authentic tiles       9890364
+valid lanes (P0)      620966064
+true lanes            619303
+median window slots   18745
+mean window slots     19225.00022
+lane mass <=1024      4.65403855e-07
+lane mass <=4096      7.890447295e-05
+t_pair this exe       0.6860415141 ns (prior 0.6605 ns, agreement 1.038669968)
+timing stability      acceptable (worst relative IQR 0.01238937028)
+fewest-tile config    Bx=16 Bq=16 tiles=649189 (0.06563853464x rank tiles) but 613614944 rectangle tests at 1.011980021 pairs per test
+best mixed projection Bx=65536 Bq=65536 cost=164.2307287 ms (optimistic, not achieved)
+t_rect=t_pair fields are sensitivity scenarios, not lower bounds.
+phase 3 triggered     no
+
+route_A (window-local leaf on the existing rank tiles): authentic lane mass with window <= 1024 slots = 4.65403855e-07, <= 4096 slots = 7.890447295e-05; median window = 18745 slots -> NOT ELIGIBLE. route_B (value retiling): the configuration with the fewest tiles is Bx=16 Bq=16 at 649189 tiles (0.06563853464x rank), but it issues 613614944 rectangle tests for 620966064 source pairs -- 1.011980021 pairs per test. Charging the measured range-query implementation, tiny regions (<=1024 slots) at 2.9 ns/tile and larger regions at the prior K2 tile cost, the best optimistic mixed projection over 19 configurations is Bx=65536 Bq=65536 is 164.2307287 ms, versus the real K2 138.524 ms. The material-gain heuristic requires < 92.34933333 ms -> NOT ELIGIBLE. No universal routing lower bound or optimal-grouping theorem is claimed. Omitted construction/verification costs can only increase this modeled cost.

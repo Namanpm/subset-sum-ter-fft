@@ -1,0 +1,13 @@
+preflight n=144 family=FiniteSanity
+  shape_status=Completed
+  r1=53 r2=16 root_Q=91 l2_to_l1_Q=37
+  representation1=256376887255990870197659395110000 floor_log2=107
+  representation2=9465511770 floor_log2=33
+  l2_to_l1_backend=bounded tiled (streaming, no pair index)
+  l2_to_l1_decision=low-32 quotient prefilter + arbitrary-width residue authority (r1-r2 > 32)
+  root_backend=bounded tiled (streaming, no pair index)
+  root_decision=low-64 quotient prefilter + arbitrary-width residue authority (Q > 64)
+  memory_limit_bytes=4294967296
+  execution_mode=FullTer
+  pair_materializing_fallback=no
+  VERDICT: bounded exact path on both merge stages

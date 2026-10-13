@@ -1,0 +1,18 @@
+quantity,proposal_projection,actual,actual_over_projection,evidence_class,note
+H (X shards),570 (upper bound),542,0.951,MEASURED,sum over t of ceil(|X_t unique|/64) on the authentic capture
+jobs,36480,34688,0.951,DERIVED,H x 64
+forward transforms,1204,1148,0.953,DERIVED,2H + 64
+inverse transforms,72960,69376,0.951,DERIVED,2 x jobs
+inverse butterflies,8367636480,7956594688,0.951,DERIVED,inverse transforms x 114688
+transform time (ms),105 expected,145.010,1.381,MEASURED,pooled median of 120 verdict-eligible samples; PAIR kernel; upload excluded
+transform time steady-state blocks (ms),105 expected,144.945,1.380,MEASURED,90 confirmation samples only
+transform time first authoritative block (ms),105 expected,186.891,1.780,MEASURED,30 samples in a lower device performance state
+butterflies per second (B/s),79.69 required,55.78,0.700,DERIVED,8088256512 butterflies (forward + inverse) / 145.010 ms; multiply pass included in the time
+nonzero masks,13.149M,NOT MEASURED,,NOT MEASURED,Phase C not executed (transform gate stopped the spike)
+candidate probes,46.935M,NOT MEASURED,,NOT MEASURED,Phase C not executed
+count>4 probes,8.438M,NOT MEASURED,,NOT MEASURED,Phase C not executed
+candidate stage (ms),10 expected,NOT MEASURED,,NOT MEASURED,Phase C not executed
+CPU authority (ms),22 expected,NOT MEASURED,,NOT MEASURED,Phase C not executed
+total (ms),163 expected,>= 152.7,>= 0.937,DERIVED LOWER BOUND,measured transform 145.010 + measured steady upload 7.7; every other stage counted as free
+device memory (MiB),~110,127.95,1.163,MEASURED ALLOCATION,capped configuration sized to the frozen 128 MiB cap
+exact pair-level answer by GPU brute force (ms),not proposed,26.73,,MEASURED CONTROL,620490266 pairs; 618857 hits equal to truth; never verdict-eligible

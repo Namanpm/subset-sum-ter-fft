@@ -1,0 +1,22 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x2003_a0.snap : Completed
+# n=108 seed=0x2003 |A|=7135973 |B|=7117133 |C|=7132352 Q=69 F=64 W=58 hi=5 microproblems=1 load_s=10.9
+# exactness EXACT | frozen K2: triples(25-bit)=2630456618 fullQ32=20551008 residue=0 structural=0 | K2_WIDE: triples=0 | A64: triples=0 residue=0 structural=0 | K2_WIDE hits25=2630456618 A64(k=32) hits32=20551008
+# single-shot ms: K2 140439.0 | K2_WIDE 65463.9 | A64 107223.7
+# A64 k=64 digits=13-13-13-13-6 threshold=128 tasks/level=1/67108864/18023476/0/0/0 digit_pairs=10909026782 direct_pairs=1511670898 logical_pairs=12388234950 refine/logical=1.0026 projected=0 fast=0 full=0 index_MiB=7.6
+# sweep k=25 projected=2630456618 model=2630456618.0 refine/logical=0.9997 a64_ms=115742.0
+# sweep k=29 projected=164402766 model=164403538.6 refine/logical=1.0022 a64_ms=108233.3
+# sweep k=33 projected=10274018 model=10275221.2 refine/logical=1.0026 a64_ms=107320.8
+# sweep k=37 projected=641518 model=642201.3 refine/logical=1.0026 a64_ms=107105.1
+# sweep k=41 projected=39987 model=40137.6 refine/logical=1.0026 a64_ms=107105.2
+# sweep k=45 projected=2500 model=2508.6 refine/logical=1.0026 a64_ms=106944.8
+# sweep k=48 projected=299 model=313.6 refine/logical=1.0026 a64_ms=107089.9
+# sweep k=49 projected=150 model=156.8 refine/logical=1.0026 a64_ms=107013.1
+# sweep k=52 projected=16 model=19.6 refine/logical=1.0026 a64_ms=107111.2
+# sweep k=56 projected=0 model=1.2 refine/logical=1.0026 a64_ms=106981.2
+# sweep k=60 projected=0 model=0.1 refine/logical=1.0026 a64_ms=107086.0
+# sweep k=64 projected=0 model=0.0 refine/logical=1.0026 a64_ms=107328.4
+# threshold=0 a64_ms=110504.4 tasks/level=1/67108864/20496277/2500/0/0 digit_pairs=12418390400 direct_pairs=0
+# threshold=16 a64_ms=110127.6 tasks/level=1/67108864/20496219/0/0/0 digit_pairs=12397829090 direct_pairs=20560722
+# threshold=128 a64_ms=107522.8 tasks/level=1/67108864/18023476/0/0/0 digit_pairs=10909026782 direct_pairs=1511670898
+# threshold=1024 a64_ms=101864.8 tasks/level=1/67108864/0/0/0/0 digit_pairs=67108864 direct_pairs=12388234950
+# K2 0.000 ms [0.000, 0.000] | K2_WIDE 0.000 ms [0.000, 0.000] | A64 0.000 ms [0.000, 0.000] | K2/A64 = 0.000x | K2/K2_WIDE = 0.000x | kill=PAIR_BOUND | peak_ws_MiB=4006

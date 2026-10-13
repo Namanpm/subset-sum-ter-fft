@@ -1,0 +1,119 @@
+{
+ "protocol": "Pre-registered confirmation measurement for the Phase B transform kill test.\n\nWHY.  In run 20260912-0112 the verdict-eligible end-to-end block measured the PAIR\nkernel at 186.9 ms median (IQR 0.06 ms), while later blocks in the same process and\nin a fresh process measured 144.8-150.5 ms.  Upload time moved 14.2 ms -> 6.5-7.8 ms\nat the same time.  nvidia-smi during the run showed pstates P2-P5, PCIe gen 2-5 and\ngraphics clocks 247-2692 MHz.  A sync-cadence experiment (sync every 1/2/8 batches\nvs end-only) moved device time by < 3 ms, so queued launches are not the cause; the\nevidence points to device power/performance state.\n\nPROTOCOL (frozen before running).\n  * 60 s sustained warm-up executing the PAIR pipeline.\n  * 3 blocks of 30 samples, both kernels alternating, Pipeline.run_end_to_end, the\n    verdict-eligible 128 MiB capped configuration, unchanged code path.\n  * last-batch output check against direct pair enumeration after every sample.\n  * nvidia-smi sampled every 100 ms; per-sample host timestamps recorded to join.\n\nDECISION RULE (frozen).  The transform gate is applied to the pooled median of ALL\nverdict-eligible capped end-to-end samples of the better kernel: the original 30\nfrom run 20260912-0112 plus the 90 recorded here.  No sample is discarded.\n",
+ "warmup_runs": 394,
+ "batch_jobs": 447,
+ "output_check_failures": 0,
+ "per_block": {
+  "stage_block0": {
+   "device": {
+    "median": 274.00865,
+    "p25": 273.84677500000004,
+    "p75": 274.159625,
+    "p95": 274.89776000000006,
+    "iqr": 0.312849999999969,
+    "min": 273.6935,
+    "max": 332.5618,
+    "samples": 30
+   },
+   "upload_median": 7.776400000000001
+  },
+  "stage_block1": {
+   "device": {
+    "median": 273.94995,
+    "p25": 273.812825,
+    "p75": 274.53797499999996,
+    "p95": 320.95543499999997,
+    "iqr": 0.7251499999999851,
+    "min": 273.6845,
+    "max": 328.0847,
+    "samples": 30
+   },
+   "upload_median": 7.80455
+  },
+  "stage_block2": {
+   "device": {
+    "median": 273.84855000000005,
+    "p25": 273.78677500000003,
+    "p75": 274.032125,
+    "p95": 274.866095,
+    "iqr": 0.24534999999997353,
+    "min": 273.6911,
+    "max": 313.4659,
+    "samples": 30
+   },
+   "upload_median": 7.99005
+  },
+  "pair_block0": {
+   "device": {
+    "median": 144.9177,
+    "p25": 144.873125,
+    "p75": 144.977075,
+    "p95": 156.04574499999993,
+    "iqr": 0.10395000000002597,
+    "min": 144.814,
+    "max": 175.6629,
+    "samples": 30
+   },
+   "upload_median": 7.6822
+  },
+  "pair_block1": {
+   "device": {
+    "median": 144.97815,
+    "p25": 144.88909999999998,
+    "p75": 145.091125,
+    "p95": 172.462395,
+    "iqr": 0.20202500000002033,
+    "min": 144.8202,
+    "max": 175.9445,
+    "samples": 30
+   },
+   "upload_median": 7.587149999999999
+  },
+  "pair_block2": {
+   "device": {
+    "median": 144.9678,
+    "p25": 144.88225,
+    "p75": 145.0474,
+    "p95": 160.00127999999995,
+    "iqr": 0.16515000000001123,
+    "min": 144.8258,
+    "max": 175.7335,
+    "samples": 30
+   },
+   "upload_median": 7.91785
+  }
+ },
+ "pooled": {
+  "stage": {
+   "original_block_median": 355.38665000000003,
+   "confirmation_median": 273.94140000000004,
+   "pooled_all_verdict_eligible": {
+    "median": 274.0983,
+    "p25": 273.83247500000004,
+    "p75": 329.203975,
+    "p95": 355.41661500000004,
+    "iqr": 55.37149999999997,
+    "min": 273.6845,
+    "max": 360.5685,
+    "samples": 120
+   }
+  },
+  "pair": {
+   "original_block_median": 186.8909,
+   "confirmation_median": 144.94515,
+   "pooled_all_verdict_eligible": {
+    "median": 145.01005,
+    "p25": 144.89552500000002,
+    "p75": 178.664075,
+    "p95": 186.94863999999998,
+    "iqr": 33.768549999999976,
+    "min": 144.814,
+    "max": 187.1592,
+    "samples": 120
+   }
+  }
+ },
+ "best_variant": "pair",
+ "pooled_transform_ms": 145.01005,
+ "classification": "TRANSFORM_NO_GO"
+}

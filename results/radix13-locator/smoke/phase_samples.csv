@@ -1,0 +1,13 @@
+phase,milliseconds,note
+target_class_build,0.536,instrumented pass
+shifted_view_build,3.002,instrumented pass
+source_class_build,0.5693,instrumented pass
+translation_build,1.9329,instrumented pass; 64 builds
+primary_route_extract_sink,824.5464,instrumented pass; includes candidate extraction and the sink
+overflow,59.3426,instrumented pass
+sink_expansion_only,5.1893,timed replay median
+sink_with_quotient_prefilter,6.3873,timed replay median
+sink_full_authority,6.6172,timed replay median
+translated_tag_group_only,829.6096,timed median; locator with the sink stopped at residual equality
+locality_control,588.9857,DIAGNOSTIC ONLY: real query stream through one family's tables; not a valid TER sweep and never verdict-eligible
+tile_build_control,14.8041,timed median; K2's tile materialization cost

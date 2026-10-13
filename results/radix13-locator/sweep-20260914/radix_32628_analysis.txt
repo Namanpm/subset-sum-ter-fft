@@ -1,0 +1,41 @@
+Why R = 32628 was not benchmarked
+================================================================
+
+1. IT IS NOT CONSTRUCTIBLE IN THIS ARCHITECTURE.
+
+   Three independent parts of the construction require a power-of-two radix,
+   and 32628 = 2^2 * 3 * 2719 fails all three:
+
+     split      v = i + R*a is a mask and a shift, not a division.
+                32628 is not a power of two, so i = v mod R becomes a real
+                division on the hot path.
+     views      a rotation by r decomposes into a whole-word rotation by r/64
+                plus a bit shift by r mod 64 only when 64 divides R.
+                32628 mod 64 = 52, so the ring is 509.8125 machine words long and
+                the circular seam falls inside a word at a position that moves
+                with every wrap.
+     carry      c_i = [i + r >= R] is exact only because the residual universe
+                wraps at 2^19 and R divides 2^19.
+                2^19 mod 32628 = 2240, so wrapping the universe also displaces
+                the position by 2240, and the single-rotation guard and the
+                single-rotation leaf both cease to exist.
+
+   The geometry is a compile-time template with the assertion
+     static_assert((kResidualMask + 1) % kR == 0)
+   so a non-power-of-two radix is rejected by the type system, not at runtime.
+
+2. EVEN IF IT WERE CONSTRUCTIBLE, IT WOULD BE UNMEASURABLE.
+
+   MEASURED, this run: R=16384 -> 294.7181 ms, R=32768 -> 294.5544 ms.
+   The curve is flat to 0.1637 ms across a full doubling of R.
+   32628 sits 0.427% below 32768, which is 1/162 of that doubling in log space.
+   Linear interpolation in log R gives 294.5554 ms, i.e. 0.00101 ms from R=32768.
+   The measured sample-to-sample IQR at R=32768 is 12.6041 ms.
+   The predicted difference is smaller than the measurement noise by a factor
+   of about 12465, so no number of repetitions would separate them.
+
+3. THE BUCKET COUNT, WHICH IS WHAT R CONTROLS, DIFFERS BY 0.43%.
+
+   Bucket interactions scale as 1/R.  R=32628 would emit about 0.43% more
+   than R=32768: 9805010 instead of 9763118.  That is inside the run-to-run
+   variation of the timing, not outside it.

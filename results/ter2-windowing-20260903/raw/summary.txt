@@ -1,0 +1,18 @@
+TER^2 residual windowing spike
+verdict: WINDOWING_GEOMETRY_UNPROMISING
+
+authentic tiles       9890364
+valid lanes (P0)      620966064
+true lanes            619303
+median window slots   18745
+mean window slots     19225.00022
+lane mass <=1024      4.65403855e-07
+lane mass <=4096      7.890447295e-05
+t_pair this exe       0.6690899531 ns (prior 0.6605 ns, agreement 1.013005228)
+timing stability      acceptable (worst relative IQR 0.03656360828)
+fewest-tile config    Bx=16 Bq=16 tiles=649189 (0.06563853464x rank tiles) but 613614944 rectangle tests at 1.011980021 pairs per test
+best routing-incl.    Bx=65536 Bq=65536 ceiling=12.53655586x
+unchanged rank tiles  14.30075326x at the same measured K3 cost class
+phase 3 triggered     no
+
+route_A (window-local leaf on the existing rank tiles): authentic lane mass with window <= 1024 slots = 4.65403855e-07, <= 4096 slots = 7.890447295e-05 against a 0.10 threshold; median window = 18745 slots -> NOT VIABLE. route_B (value retiling): the configuration with the fewest tiles is Bx=16 Bq=16 at 649189 tiles (0.06563853464x rank), but it issues 613614944 rectangle tests for 620966064 source pairs -- 1.011980021 pairs per test, i.e. the original pairwise scan under another name. Charging every rectangle at the floor cost of one pair probe, the best routing-inclusive ceiling over all 19 configurations is Bx=65536 Bq=65536 at 12.53655586x, versus 14.30075326x for the UNCHANGED rank tiling at the same measured K3 cost class and the 4.4415x needed to materially beat the previous 2.961x -> NOT VIABLE.

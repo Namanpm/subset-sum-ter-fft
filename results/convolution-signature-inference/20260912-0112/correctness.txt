@@ -1,0 +1,34 @@
+CORRECTNESS EVIDENCE -- convolution/source-signature spike, Phase B
+
+What was proven (fresh runs, this session)
+  tests/convsig_tests.py --nvrtc-dir <NVRTC 13.1.115>: checks=109 failures=0
+    field constants: omega=81 has order exactly 16384; M^-1 = 65533
+    twiddle table equal to direct powers at spans 2, 4, 64, 1024, 16384
+    CPU NTT round trip (zeros, impulses, all p-1, random, sparse, wraparound)
+    CPU NTT convolution == O(M^2) np.convolve cyclic convolution (12 cases)
+    decoder no-false-negative property: EXHAUSTIVE over all 814,384 multisets
+      (count 1: 64, count 2: 2,080, count 3: 45,760, count 4: 766,480)
+    synthetic signature decoding over every residue r in [0,16384): counts
+      0,1,2,3,4,>4 all observed, repeated source positions observed, no true
+      position dropped, count>4 returns the live mask
+    GPU field multiply exact on the 9x9 edge grid (0 .. 65536) plus 1M random
+    GPU STAGE and PAIR forward bit-exact vs CPU reference; round trips exact
+    GPU count and signature convolutions exact vs direct pair enumeration
+
+  Authentic transform outputs (convsig_transform_bench.py, before timing)
+    STAGE: 34,688 jobs, 0 mismatched count/signature arrays, 0 conservation failures
+    PAIR : 34,688 jobs, 0 mismatched count/signature arrays, 0 conservation failures
+    oracle: np.bincount over every unique (x, q) pair, 620,490,266 pairs per kernel
+    every timed sample (60 + 180) re-checked the last batch outside timing: 0 failures
+
+  GPU brute-force control (convsig_gpu_bruteforce_control.py)
+    620,490,266 pairs, hit flags equal to NumPy for all 64 classes,
+    618,857 hits == authenticated distinct residual pair hits
+
+What was NOT proven
+  The source-signature INFERENCE architecture was never built (the frozen
+  transform gate stopped the spike), so residual pair hits, residual-group
+  triples, expanded EntryId triples, full-Q survivors, structural survivors and
+  final outputs were not produced by it.  Inference-level false negatives and
+  false positives are therefore NOT MEASURED.  compute-sanitizer was not run:
+  no CUDA toolkit is installed on this machine.

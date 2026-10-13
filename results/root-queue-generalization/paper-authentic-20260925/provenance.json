@@ -1,0 +1,25 @@
+{
+  "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build\\Release\\ter_root_queue_generalization_bench.exe",
+  "executable_sha256": "4ee49f235deaef76fa70d26d8345c34d54577fd8a4c94106b19c518d0d99f5a4",
+  "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+  "git_dirty": true,
+  "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+  "arguments": [
+    "--out=results/root-queue-generalization/paper-authentic-20260925",
+    "--tiers=authentic",
+    "--authentic-n=72",
+    "--samples=31",
+    "--warmups=3"
+  ],
+  "power_before": {
+    "power_online": true,
+    "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+    "timestamp": "2026-09-25T22:09:35.0139106+05:30"
+  },
+  "power_after": {
+    "power_online": true,
+    "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+    "timestamp": "2026-09-25T22:20:06.3729337+05:30"
+  },
+  "exit_code": 0
+}

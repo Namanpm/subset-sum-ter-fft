@@ -1,0 +1,55 @@
+TER^2 radix-13 occupancy locator -- matched-scope summary
+verdict: NO_GO_SLOWER_THAN_K2
+note: matched median is at or above the matched K2 median
+
+MEASURED, this executable, matched scope (median of 7 full authentic sweeps):
+  scalar                 485.4919 ms
+  K2 (frozen)            307.3556 ms
+  translated tag (11+8)  798.3571 ms
+  radix-13 dense  (13+6) 554.6438 ms
+  radix-13 compact(13+6) 583.7143 ms
+  radix-13 batched(13+6) 527.3593 ms
+  radix-13 best          527.3593 ms (batched), p95 532.77907 ms
+  speedup vs scalar      0.9206093455x
+  speedup vs K2          0.5828201001x
+
+MEASURED phase decomposition (differences of matched medians, not a sum of
+independently timed regions):
+  build (classes + shifted views) 2.4683 ms, gate 8 ms
+  guard phase                     24.9959 ms, gate 70 ms
+  bucket resolution               521.5093 ms, gate 105 ms
+    of which bit extraction       416.6679 ms (11.14955944 ns/bucket)
+    of which tag load+rotate+AND  104.8414 ms (2.805436705 ns/bucket)
+  reporting + authority + output  5.6703 ms
+  guard cost                      0.6389398648 ns/vector
+  bucket resolution cost          13.95499614 ns/bucket
+
+MEASURED geometry:
+  queries                         1222528
+  guard vectors                   39120896
+  guard zero vectors              14990454 (38.3182788%)
+  compatible bucket interactions  37370795, gate 40000000
+  nonempty bucket interactions    618846
+  exact residual witnesses        618857
+  auxiliary bytes                 18350564, gate 16777216 (FAIL)
+  scalar reference agreement      exact over 273 sampled witnesses
+
+guard population histogram (256-bit vectors):
+  0         14990454
+  1         14438597
+  2         6894857
+  3         2175697
+  4         510100
+  5-8       111161
+  9-16      30
+  17-32     0
+  33-64     0
+  65-128    0
+  129-256   0
+  >256      0
+
+failed gates:
+  bucket resolution > 105 ms
+  auxiliary memory > 16 MiB
+  matched median >= 225.558 ms
+  p95 >= matched K2 median

@@ -1,0 +1,9 @@
+quantity,projected,actual,actual_over_projected
+occupancy_vector_intersections,39135000,39120896,0.9996396065
+tag_plane_comparisons,104651000,89967483,0.8596906193
+overflow_probes,11775000,10697120,0.9084602972
+exact_residual_witnesses,620100,608382,0.9811030479
+routing_ms,66.749,732.8634,10.97939145
+total_ms,89.6,725.2375,8.094168527
+aux_bytes_low,37748736,42609416,1.128764047
+aux_bytes_high,39845888,42609416,1.069355413

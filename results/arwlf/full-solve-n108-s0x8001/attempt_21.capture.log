@@ -1,0 +1,8 @@
+# ter_root_snapshot_capture n=108 seed=0x8001 memory_limit_mib=4096 buffer_mib=4 commit=8e9fe7fdda447088738b5e682ba6aea4cf83a121
+# stream status=Completed
+# n=108 r1=39 r2=12 Q=69 attempt=21 attempt_seed=0x8016 record_bytes=48
+# level2 sizes: 149827 150586 149980 150292 150115 150339 150342 150405 150713
+# level1 sizes: A=6979584 B=6974461 C=7031688
+# declared accounting (MiB): base=8.9246 group peaks=1020.93/1020.71/1023.36 peak=1023.36 (limit 4096)
+# elapsed_s=117.939
+# snapshot results\arwlf\full-solve-n108-s0x8001\attempt_21.snap bytes=1007315608 process_peak_working_set_mib=1552.64 (measured by the OS in this capture process)

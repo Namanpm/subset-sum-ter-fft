@@ -1,0 +1,8 @@
+# snapshot results/arwlf/holdout-snapshots/n108_s0x5003_a0.snap : Completed
+# root n108_s0x5003_a0 n=108 seed=0x5003 Q=69 W=58 anchor cell=2730 (L=126.13) strata=16 phase=stratified-corners role=holdout
+# sentinel start 65.737 ms
+# case cell:c438 [AUTHENTIC_FULLTER, discovery] L=125.51 pairs=12174751368 : k2=84492.42 k2_wide=53465.59 arwlf=1627.67 dispatch=1645.27 ms | K2/ARWLF=51.91 regret=1.011 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20188378 | COMPLETED
+# case cell:c1491 [AUTHENTIC_FULLTER, discovery] L=126.55 pairs=12299638125 : k2=85862.52 k2_wide=53906.40 arwlf=1644.89 dispatch=1656.60 ms | K2/ARWLF=52.20 regret=1.007 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20349296 | COMPLETED
+# case cell:c1815 [AUTHENTIC_FULLTER, discovery] L=125.57 pairs=12296881660 : k2=84997.93 k2_wide=53922.43 arwlf=1639.00 dispatch=1656.76 ms | K2/ARWLF=51.86 regret=1.011 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20375325 | COMPLETED
+# case cell:c2847 [AUTHENTIC_FULLTER, discovery] L=126.48 pairs=12186654480 : k2=100505.85 k2_wide=53393.56 arwlf=1619.61 dispatch=1641.53 ms | K2/ARWLF=62.06 regret=1.014 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20160542 | COMPLETED
+# sentinel end 65.763 ms

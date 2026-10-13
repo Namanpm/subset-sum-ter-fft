@@ -1,0 +1,142 @@
+{
+  "campaigns": [
+    "results\\root-queue-generalization\\paper-authentic-20260925"
+  ],
+  "aggregates": {
+    "ALL": {
+      "backend_total": {
+        "cells": 8,
+        "geometric_mean": 1.7670604475397977,
+        "median": 1.747527,
+        "p25": 1.72256375,
+        "p75": 1.8968907499999998,
+        "min": 1.502748,
+        "max": 1.931896,
+        "wins": 8
+      },
+      "steady": {
+        "cells": 8,
+        "geometric_mean": 1.7865821339471595,
+        "median": 1.761647,
+        "p25": 1.75027925,
+        "p75": 1.9144445,
+        "min": 1.521732,
+        "max": 1.950342,
+        "wins": 8
+      }
+    },
+    "AUTHENTIC_FULLTER": {
+      "backend_total": {
+        "cells": 8,
+        "geometric_mean": 1.7670604475397977,
+        "median": 1.747527,
+        "p25": 1.72256375,
+        "p75": 1.8968907499999998,
+        "min": 1.502748,
+        "max": 1.931896,
+        "wins": 8
+      },
+      "steady": {
+        "cells": 8,
+        "geometric_mean": 1.7865821339471595,
+        "median": 1.761647,
+        "p25": 1.75027925,
+        "p75": 1.9144445,
+        "min": 1.521732,
+        "max": 1.950342,
+        "wins": 8
+      }
+    },
+    "AUTHENTIC_FULLTER (declared seeds only, anchor excluded)": {
+      "backend_total": {
+        "cells": 7,
+        "geometric_mean": 1.772930453247646,
+        "median": 1.75432,
+        "p25": 1.7257280000000002,
+        "p75": 1.9054305,
+        "min": 1.502748,
+        "max": 1.931896,
+        "wins": 7
+      },
+      "steady": {
+        "cells": 7,
+        "geometric_mean": 1.7911371096839201,
+        "median": 1.767759,
+        "p25": 1.745796,
+        "p75": 1.923298,
+        "min": 1.521732,
+        "max": 1.950342,
+        "wins": 7
+      }
+    },
+    "CONTROLLED (both synthetic families)": {
+      "backend_total": {
+        "cells": 0
+      },
+      "steady": {
+        "cells": 0
+      }
+    },
+    "SYNTHETIC_UNIFORM": {
+      "backend_total": {
+        "cells": 0
+      },
+      "steady": {
+        "cells": 0
+      }
+    },
+    "RESIDUAL_PROFILE_EMULATION": {
+      "backend_total": {
+        "cells": 0
+      },
+      "steady": {
+        "cells": 0
+      }
+    }
+  },
+  "correlations": {
+    "ln rho_q": {
+      "pearson": 0.747538709877031,
+      "spearman": 0.23809523809523808
+    },
+    "bits per queued word": {
+      "pearson": 0.7170182943896414,
+      "spearman": 0.23809523809523808
+    },
+    "mean popcount": {
+      "pearson": 0.7170182943896414,
+      "spearman": 0.23809523809523808
+    },
+    "ln P0": {
+      "pearson": 0.699330276658463,
+      "spearman": 0.5952380952380952
+    },
+    "ln candidate bits": {
+      "pearson": 0.6425680846087536,
+      "spearman": 0.47619047619047616
+    },
+    "ln (candidate bits / P0)": {
+      "pearson": -0.4689518854886972,
+      "spearman": -0.16666666666666666
+    }
+  },
+  "crossover_fit": {
+    "model": "ln S = a + b ln rho_q",
+    "a": 1.0858736782413423,
+    "b": 0.33189802976867616,
+    "r_squared": 0.558814122764616,
+    "rho_q_at_S_equal_1": 0.03794154017463916
+  },
+  "verdict": "EXCELLENT",
+  "verdict_note": "queue wins across most authentic and controlled cells with S_G >= 1.4",
+  "post_hoc": {
+    "quadratic_fit_ln_s_on_ln_rho": {
+      "c2": -1.196460451069948,
+      "c1": -3.8182524726132376,
+      "c0": -2.4390205892529204,
+      "r_squared": 0.6561341453178753,
+      "peak_rho_q": 0.20277767777584385
+    },
+    "break_even_points": []
+  }
+}

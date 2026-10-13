@@ -1,0 +1,13 @@
+# snapshot results/root-queue-generalization/snapshots/n72_anchor.snap : Completed
+# n=72 seed=0x46554c4c544552 |A|=19109 |B|=32496 |C|=33505 Q=47 F=47 W=41 hi=0 microproblems=4096 load_s=0.0
+# exactness EXACT | frozen K2: triples(25-bit)=619579 fullQ32=4718 residue=0 structural=0 | K2_WIDE: triples=0 | A64: triples=0 residue=0 structural=0 | K2_WIDE hits25=619579 A64(k=32) hits32=4718
+# single-shot ms: K2 258.7 | K2_WIDE 290.1 | A64 4986.4
+# A64 k=47 digits=13-13-13-2 threshold=1024 tasks/level=4096/36700401/0/0/0 digit_pairs=592052392 direct_pairs=38491335 logical_pairs=620966064 refine/logical=1.0154 projected=0 fast=0 full=0 index_MiB=1.9
+# sweep k=25 projected=619579 model=619579.0 refine/logical=1.0154 a64_ms=5271.0
+# sweep k=29 projected=38698 model=38723.7 refine/logical=1.0154 a64_ms=5260.1
+# sweep k=33 projected=2394 model=2420.2 refine/logical=1.0154 a64_ms=5300.6
+# sweep k=37 projected=154 model=151.3 refine/logical=1.0154 a64_ms=5309.9
+# sweep k=41 projected=14 model=9.5 refine/logical=1.0154 a64_ms=5261.8
+# sweep k=45 projected=0 model=0.6 refine/logical=1.0154 a64_ms=5232.2
+# queue_dense EXACT (== frozen K2)
+# K2 436.260 ms [435.259, 442.612] | K2_WIDE 404.785 ms [403.475, 408.351] | A64 5244.542 ms [5236.590, 5264.727] | K2/A64 = 0.083x | K2/K2_WIDE = 1.078x | QUEUE 211.905 ms | kill=PAIR_BOUND | peak_ws_MiB=44

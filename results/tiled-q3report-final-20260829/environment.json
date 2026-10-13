@@ -1,0 +1,72 @@
+{
+  "timestamp_local": "2026-08-29T22:30:55.4747397+05:30",
+  "timestamp_utc": "2026-08-29T17:00:55.4783354Z",
+  "timezone": "India Standard Time",
+  "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+  "git_short_commit": "53431a8",
+  "working_tree_dirty": true,
+  "git_status_porcelain": " M CMakeLists.txt\n M FULL_TER_COMPLIANCE.md\n M README.md\n M bench/ter_tiled_parameter_sweep.cpp\n M tiling_implementation_idea.md",
+  "git_diff_stat": " CMakeLists.txt                      |  69 ++++++++++\n FULL_TER_COMPLIANCE.md              |  19 ++-\n README.md                           |  12 ++\n bench/ter_tiled_parameter_sweep.cpp |  57 +++++++--\n tiling_implementation_idea.md       | 248 ++++++++++++++++++++++++++++++++----\n 5 files changed, 370 insertions(+), 35 deletions(-)",
+  "os_caption": "Microsoft Windows 11 Pro Insider Preview",
+  "os_version": "10.0.26300",
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 275HX",
+  "cpu_physical_cores": 24,
+  "cpu_logical_processors": 24,
+  "cpu_max_clock_mhz": 2700,
+  "l2_cache_kb_os_aggregate": 40960,
+  "l3_cache_kb_os_aggregate": 36864,
+  "win32_cache_memory": [
+    {
+      "level_code": 3,
+      "max_cache_size_kb": 2432
+    },
+    {
+      "level_code": 4,
+      "max_cache_size_kb": 40960
+    },
+    {
+      "level_code": 5,
+      "max_cache_size_kb": 36864
+    }
+  ],
+  "installed_ram_bytes": 33777467392,
+  "compiler_identity": "MSVC",
+  "compiler_path": [],
+  "compiler_version": "19.51.36252.0",
+  "cmake_version": "cmake version 4.3.3",
+  "cmake_generator": "Visual Studio 18 2026",
+  "build_configuration": "Release",
+  "ter_native_opt": "ON",
+  "benchmark_thread_count": 1,
+  "benchmark_executables": [
+    {
+      "name": "ter_q3report_paper_crossover_bench.exe",
+      "path": ".\\build-full\\Release\\ter_q3report_paper_crossover_bench.exe",
+      "sha256": "acc8951b99e45c0e14ffb4c1199a28095e5e24f65f3eba13865965d73ffb38ca",
+      "size_bytes": 213504
+    },
+    {
+      "name": "ter_tiled_parameter_sweep.exe",
+      "path": ".\\build-full\\Release\\ter_tiled_parameter_sweep.exe",
+      "sha256": "8b0f2b8e95ad7d4a5ba852fa8dec2063425482eea790273ff68df1f8c1c37e81",
+      "size_bytes": 115712
+    },
+    {
+      "name": "ter_full_bench.exe",
+      "path": ".\\build-full\\Release\\ter_full_bench.exe",
+      "sha256": "3a6980e7ca3746adf1f5e47b660ecc9ccc65aacbe59c9e22c7d5642fa61e1911",
+      "size_bytes": 232960
+    },
+    {
+      "name": "ter_tiled_complete_merge_bench.exe",
+      "path": ".\\build-full\\Release\\ter_tiled_complete_merge_bench.exe",
+      "sha256": "ca8300fb6253292ed26483d08e894e3e1549060a2d447dff6923e4d6a9893000",
+      "size_bytes": 144896
+    }
+  ],
+  "python_version": "Python 3.12.10",
+  "matplotlib_version": null,
+  "matplotlib_available": false,
+  "hardware_cache_counters_collected": false,
+  "hardware_cache_counter_reason": "No already-installed hardware performance-counter tool was available, and the campaign is not permitted to install profiling drivers or services."
+}

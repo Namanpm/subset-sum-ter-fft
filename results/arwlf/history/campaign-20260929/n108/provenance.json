@@ -1,0 +1,86 @@
+[
+  {
+    "snapshot": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\root-queue-generalization\\snapshots\\n108_s0x1001_a0.snap",
+    "snapshot_sha256": "63fc31e837f8d8d9b0385ad111e69c4902198e46fd9e5f4beadd41f4af3ac161",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_bench.exe",
+    "executable_sha256": "e44e6b6e65b5d39fe84e045a5ea7c6495ad25673d4a3bf496143ebbb39840af8",
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true,
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "arguments": [
+      "--snapshot=results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap",
+      "--out-dir=results/arwlf/campaign-20260929/n108",
+      "--label=n108_s0x1001_a0",
+      "--microproblems=1",
+      "--warmups=3",
+      "--samples=7"
+    ],
+    "power_before": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T18:39:55.1077095+05:30"
+    },
+    "exit_code": 0,
+    "power_after": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T18:58:48.4087800+05:30"
+    }
+  },
+  {
+    "snapshot": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\root-queue-generalization\\snapshots\\n108_s0x2003_a0.snap",
+    "snapshot_sha256": "3789645fa5de26f4a60f11ebe88c1d4d02a2ec9bbbba50aa5fbee41dea19d1f5",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_bench.exe",
+    "executable_sha256": "e44e6b6e65b5d39fe84e045a5ea7c6495ad25673d4a3bf496143ebbb39840af8",
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true,
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "arguments": [
+      "--snapshot=results/root-queue-generalization/snapshots/n108_s0x2003_a0.snap",
+      "--out-dir=results/arwlf/campaign-20260929/n108",
+      "--label=n108_s0x2003_a0",
+      "--microproblems=1",
+      "--warmups=3",
+      "--samples=7"
+    ],
+    "power_before": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T18:58:48.4404425+05:30"
+    },
+    "exit_code": 0,
+    "power_after": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T19:37:53.1000955+05:30"
+    }
+  },
+  {
+    "snapshot": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\results\\root-queue-generalization\\snapshots\\n108_s0x3007_a0.snap",
+    "snapshot_sha256": "e4ccd34ae817d4254df768d656adca4f7972c3345a7f44f4516bf54f89517b16",
+    "executable": "C:\\Users\\naman\\Desktop\\subset-sum-ter-fft\\build-full\\Release\\ter_arwlf_bench.exe",
+    "executable_sha256": "e44e6b6e65b5d39fe84e045a5ea7c6495ad25673d4a3bf496143ebbb39840af8",
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true,
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "arguments": [
+      "--snapshot=results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap",
+      "--out-dir=results/arwlf/campaign-20260929/n108",
+      "--label=n108_s0x3007_a0",
+      "--microproblems=1",
+      "--warmups=3",
+      "--samples=7"
+    ],
+    "power_before": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T19:37:53.1228698+05:30"
+    },
+    "exit_code": 0,
+    "power_after": {
+      "power_online": true,
+      "power_plan": "Power Scheme GUID: b2553b63-a22d-40ba-b806-97313de1002a  (High performance)",
+      "timestamp": "2026-09-29T20:17:29.2686213+05:30"
+    }
+  }
+]

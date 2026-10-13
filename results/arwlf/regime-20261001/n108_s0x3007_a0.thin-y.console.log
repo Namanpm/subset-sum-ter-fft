@@ -1,0 +1,7 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap : Completed
+# root n108_s0x3007_a0 n=108 seed=0x3007 Q=69 W=58 anchor cell=2730 (L=127.33) strata=16 phase=thin-y role=calibration
+# sentinel start 66.270 ms
+# case y:p0.5:s0xa11ce001 [AUTHENTIC_TARGET_THINNED, discovery] L=127.33 pairs=12273266941 : k2=48008.16 k2_wide=31983.22 arwlf=1531.99 dispatch=1540.41 ms | K2/ARWLF=31.34 regret=1.005 best=arwlf dispatch ran ARWLF | witnesses=0 k32=10240491 | COMPLETED
+# case y:p0.25:s0xa11ce001 [AUTHENTIC_TARGET_THINNED, discovery] L=127.33 pairs=12273266941 : k2=28190.93 k2_wide=19595.84 arwlf=1442.23 dispatch=1453.35 ms | K2/ARWLF=19.55 regret=1.008 best=arwlf dispatch ran ARWLF | witnesses=0 k32=5121709 | COMPLETED
+# case y:p0.125:s0xa11ce001 [AUTHENTIC_TARGET_THINNED, discovery] L=127.33 pairs=12273266941 : k2=17715.42 k2_wide=13013.27 arwlf=1221.14 dispatch=1231.23 ms | K2/ARWLF=14.51 regret=1.008 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2591136 | COMPLETED
+# sentinel end 66.071 ms

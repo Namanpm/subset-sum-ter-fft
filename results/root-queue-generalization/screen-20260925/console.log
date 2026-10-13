@@ -1,0 +1,194 @@
+# ter_root_queue_generalization_bench
+# configure_time_commit=53431a8e037bec94163d4d2a1c4fe0565a673423 configure_time_dirty=yes
+# compiler=MSVC 195136257
+# cpu=Intel(R) Core(TM) Ultra 9 275HX avx2+bmi2 executable=yes
+# thread_affinity=cpu0 + high priority ac_line_status=1 memory_limit_mib=4096 warmups=3 samples=7
+# capturing the n=72 reference anchor root...
+# cell authentic_n72_s0x46554c4c544552_anchor : Completed
+#   exactness EXACT (sorted pair keys + digests) anchor-identity=PASS pairs=619303 groups=618857 triples=619579 fullQ=4718
+#   K2 305.787 ms | QUEUE 181.063 ms | S = 1.689x | rho_q = 0.2129
+# cell authentic_n36_s0x1001 : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x2003 : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x3007 : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x4009 : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x500b : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x600d : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n36_s0x700f : NotApplicable (quotient width Q=24 is below the 25-bit projection (6 split bits + 19 residual bits); the 19-bit residual microproblem does not exist at this n)
+# cell authentic_n72_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=650578 groups=650174 triples=650915 fullQ=5175
+#   K2 313.196 ms | QUEUE 219.864 ms | S = 1.425x | rho_q = 0.1346
+# cell authentic_n72_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1142379 groups=1141568 triples=1142776 fullQ=8924
+#   K2 567.890 ms | QUEUE 315.867 ms | S = 1.798x | rho_q = 0.2187
+# cell authentic_n72_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1407075 groups=1405854 triples=1408180 fullQ=10992
+#   K2 665.057 ms | QUEUE 374.953 ms | S = 1.774x | rho_q = 0.2446
+# cell authentic_n72_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1196088 groups=1194734 triples=1196969 fullQ=9424
+#   K2 583.671 ms | QUEUE 298.358 ms | S = 1.956x | rho_q = 0.2229
+# cell authentic_n72_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=658451 groups=657749 triples=658911 fullQ=5099
+#   K2 323.585 ms | QUEUE 169.061 ms | S = 1.914x | rho_q = 0.2240
+# cell authentic_n72_s0x600d : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1217041 groups=1215953 triples=1217575 fullQ=9548
+#   K2 563.334 ms | QUEUE 294.648 ms | S = 1.912x | rho_q = 0.2288
+# cell authentic_n72_s0x700f : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=1193985 groups=1192685 triples=1194667 fullQ=9215
+#   K2 561.262 ms | QUEUE 288.546 ms | S = 1.945x | rho_q = 0.2235
+# cell uniform_x0.25_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9606 groups=9600 triples=9607 fullQ=0
+#   K2 17.618 ms | QUEUE 22.878 ms | S = 0.770x | rho_q = 0.0155
+# cell profile_x0.25_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9784 groups=9772 triples=9788 fullQ=0
+#   K2 17.292 ms | QUEUE 22.534 ms | S = 0.767x | rho_q = 0.0155
+# cell uniform_x0.25_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9865 groups=9865 triples=9866 fullQ=0
+#   K2 17.467 ms | QUEUE 23.641 ms | S = 0.739x | rho_q = 0.0155
+# cell profile_x0.25_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9812 groups=9800 triples=9816 fullQ=0
+#   K2 17.449 ms | QUEUE 23.481 ms | S = 0.743x | rho_q = 0.0155
+# cell uniform_x0.25_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9836 groups=9836 triples=9836 fullQ=0
+#   K2 17.770 ms | QUEUE 24.207 ms | S = 0.734x | rho_q = 0.0155
+# cell profile_x0.25_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9658 groups=9639 triples=9667 fullQ=0
+#   K2 17.747 ms | QUEUE 25.116 ms | S = 0.707x | rho_q = 0.0154
+# cell uniform_x0.25_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9822 groups=9820 triples=9824 fullQ=0
+#   K2 17.724 ms | QUEUE 23.298 ms | S = 0.761x | rho_q = 0.0155
+# cell profile_x0.25_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9701 groups=9693 triples=9708 fullQ=0
+#   K2 17.505 ms | QUEUE 23.521 ms | S = 0.744x | rho_q = 0.0155
+# cell uniform_x0.25_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9674 groups=9673 triples=9677 fullQ=0
+#   K2 17.819 ms | QUEUE 23.105 ms | S = 0.771x | rho_q = 0.0155
+# cell profile_x0.25_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=9756 groups=9748 triples=9768 fullQ=0
+#   K2 17.556 ms | QUEUE 23.978 ms | S = 0.732x | rho_q = 0.0155
+# cell uniform_x0.50_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77161 groups=77097 triples=77190 fullQ=0
+#   K2 68.703 ms | QUEUE 54.088 ms | S = 1.270x | rho_q = 0.0595
+# cell profile_x0.50_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77671 groups=77593 triples=77718 fullQ=0
+#   K2 69.843 ms | QUEUE 53.377 ms | S = 1.308x | rho_q = 0.0597
+# cell uniform_x0.50_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77867 groups=77804 triples=77901 fullQ=0
+#   K2 69.061 ms | QUEUE 53.138 ms | S = 1.300x | rho_q = 0.0595
+# cell profile_x0.50_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77767 groups=77633 triples=77834 fullQ=0
+#   K2 69.730 ms | QUEUE 53.270 ms | S = 1.309x | rho_q = 0.0596
+# cell uniform_x0.50_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77599 groups=77584 triples=77607 fullQ=0
+#   K2 68.627 ms | QUEUE 54.791 ms | S = 1.253x | rho_q = 0.0594
+# cell profile_x0.50_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77873 groups=77720 triples=77934 fullQ=0
+#   K2 69.529 ms | QUEUE 52.594 ms | S = 1.322x | rho_q = 0.0595
+# cell uniform_x0.50_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77651 groups=77623 triples=77691 fullQ=0
+#   K2 68.860 ms | QUEUE 53.342 ms | S = 1.291x | rho_q = 0.0597
+# cell profile_x0.50_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77600 groups=77503 triples=77683 fullQ=0
+#   K2 69.928 ms | QUEUE 53.212 ms | S = 1.314x | rho_q = 0.0597
+# cell uniform_x0.50_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77192 groups=77181 triples=77220 fullQ=0
+#   K2 69.085 ms | QUEUE 53.129 ms | S = 1.300x | rho_q = 0.0597
+# cell profile_x0.50_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=77826 groups=77717 triples=77876 fullQ=0
+#   K2 70.111 ms | QUEUE 53.786 ms | S = 1.304x | rho_q = 0.0596
+# cell uniform_x1.00_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=618548 groups=618234 triples=618921 fullQ=0
+#   K2 313.772 ms | QUEUE 173.465 ms | S = 1.809x | rho_q = 0.2126
+# cell profile_x1.00_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=618283 groups=617132 triples=618807 fullQ=0
+#   K2 310.623 ms | QUEUE 173.397 ms | S = 1.791x | rho_q = 0.2122
+# cell uniform_x1.00_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=618874 groups=618373 triples=619182 fullQ=0
+#   K2 312.658 ms | QUEUE 173.598 ms | S = 1.801x | rho_q = 0.2122
+# cell profile_x1.00_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=618987 groups=617810 triples=619647 fullQ=0
+#   K2 310.425 ms | QUEUE 174.976 ms | S = 1.774x | rho_q = 0.2117
+# cell uniform_x1.00_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619422 groups=618962 triples=619592 fullQ=0
+#   K2 310.285 ms | QUEUE 172.954 ms | S = 1.794x | rho_q = 0.2120
+# cell profile_x1.00_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619690 groups=618907 triples=620398 fullQ=0
+#   K2 309.612 ms | QUEUE 170.882 ms | S = 1.812x | rho_q = 0.2117
+# cell uniform_x1.00_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619079 groups=618656 triples=619372 fullQ=0
+#   K2 312.236 ms | QUEUE 172.469 ms | S = 1.810x | rho_q = 0.2123
+# cell profile_x1.00_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619288 groups=617852 triples=620057 fullQ=0
+#   K2 309.651 ms | QUEUE 173.531 ms | S = 1.784x | rho_q = 0.2117
+# cell uniform_x1.00_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619418 groups=619046 triples=619687 fullQ=0
+#   K2 314.586 ms | QUEUE 174.256 ms | S = 1.805x | rho_q = 0.2118
+# cell profile_x1.00_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=619827 groups=618838 triples=620433 fullQ=0
+#   K2 309.690 ms | QUEUE 172.859 ms | S = 1.792x | rho_q = 0.2129
+# cell uniform_x2.00_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4958067 groups=4951109 triples=4963090 fullQ=0
+#   K2 1437.133 ms | QUEUE 1255.888 ms | S = 1.144x | rho_q = 0.5942
+# cell profile_x2.00_s0x1001 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4955682 groups=4943883 triples=4962546 fullQ=0
+#   K2 1400.024 ms | QUEUE 1136.339 ms | S = 1.232x | rho_q = 0.5936
+# cell uniform_x2.00_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4957401 groups=4950511 triples=4962279 fullQ=0
+#   K2 1365.034 ms | QUEUE 1117.657 ms | S = 1.221x | rho_q = 0.5938
+# cell profile_x2.00_s0x2003 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4953863 groups=4943368 triples=4960157 fullQ=0
+#   K2 1359.962 ms | QUEUE 1106.039 ms | S = 1.230x | rho_q = 0.5935
+# cell uniform_x2.00_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4955021 groups=4946790 triples=4959852 fullQ=0
+#   K2 1346.909 ms | QUEUE 1095.684 ms | S = 1.229x | rho_q = 0.5946
+# cell profile_x2.00_s0x3007 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4949606 groups=4937500 triples=4957238 fullQ=0
+#   K2 1346.921 ms | QUEUE 1097.768 ms | S = 1.227x | rho_q = 0.5934
+# cell uniform_x2.00_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4957620 groups=4949739 triples=4961913 fullQ=0
+#   K2 1341.275 ms | QUEUE 1090.791 ms | S = 1.230x | rho_q = 0.5936
+# cell profile_x2.00_s0x4009 : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4950898 groups=4939302 triples=4957334 fullQ=0
+#   K2 1330.720 ms | QUEUE 1083.338 ms | S = 1.228x | rho_q = 0.5940
+# cell uniform_x2.00_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4954419 groups=4946247 triples=4958976 fullQ=0
+#   K2 1322.289 ms | QUEUE 1075.903 ms | S = 1.229x | rho_q = 0.5945
+# cell profile_x2.00_s0x500b : Completed
+#   exactness EXACT (sorted pair keys + digests) pairs=4950445 groups=4939674 triples=4957675 fullQ=0
+#   K2 1318.718 ms | QUEUE 1074.800 ms | S = 1.227x | rho_q = 0.5937
+# cell uniform_x4.00_s0x1001 : Completed
+#   exactness EXACT (digests only) pairs=39600970 groups=39467919 triples=39678118 fullQ=0
+#   K2 6000.926 ms | QUEUE 6275.136 ms | S = 0.956x | rho_q = 0.9613
+# cell profile_x4.00_s0x1001 : Completed
+#   exactness EXACT (digests only) pairs=39577764 groups=39409521 triples=39683552 fullQ=0
+#   K2 5957.941 ms | QUEUE 6209.365 ms | S = 0.960x | rho_q = 0.9602
+# cell uniform_x4.00_s0x2003 : Completed
+#   exactness EXACT (digests only) pairs=39616072 groups=39487718 triples=39688052 fullQ=0
+#   K2 5927.469 ms | QUEUE 6228.173 ms | S = 0.952x | rho_q = 0.9615
+# cell profile_x4.00_s0x2003 : Completed
+#   exactness EXACT (digests only) pairs=39592818 groups=39439270 triples=39682352 fullQ=0
+#   K2 5929.386 ms | QUEUE 6174.617 ms | S = 0.960x | rho_q = 0.9607
+# cell uniform_x4.00_s0x3007 : Completed
+#   exactness EXACT (digests only) pairs=39597545 groups=39482245 triples=39684042 fullQ=0
+#   K2 6102.722 ms | QUEUE 6421.016 ms | S = 0.950x | rho_q = 0.9619
+# cell profile_x4.00_s0x3007 : Completed
+#   exactness EXACT (digests only) pairs=39588728 groups=39429417 triples=39679241 fullQ=0
+#   K2 6156.907 ms | QUEUE 6502.788 ms | S = 0.947x | rho_q = 0.9602
+# cell uniform_x4.00_s0x4009 : Completed
+#   exactness EXACT (digests only) pairs=39604571 groups=39475042 triples=39679018 fullQ=0
+#   K2 6329.665 ms | QUEUE 6643.282 ms | S = 0.953x | rho_q = 0.9612
+# cell profile_x4.00_s0x4009 : Completed
+#   exactness EXACT (digests only) pairs=39585809 groups=39423454 triples=39685977 fullQ=0
+#   K2 6266.256 ms | QUEUE 6593.012 ms | S = 0.950x | rho_q = 0.9599
+# cell uniform_x4.00_s0x500b : Completed
+#   exactness EXACT (digests only) pairs=39604388 groups=39480236 triples=39681078 fullQ=0
+#   K2 6216.255 ms | QUEUE 6533.968 ms | S = 0.951x | rho_q = 0.9619
+# cell profile_x4.00_s0x500b : Completed
+#   exactness EXACT (digests only) pairs=39569546 groups=39419715 triples=39675078 fullQ=0
+#   K2 6349.660 ms | QUEUE 6716.208 ms | S = 0.945x | rho_q = 0.9606
+# cell authentic_n108_s0x1001 : ResourceLimit (root capture did not complete; solver status=ResourceLimit (declared memory limit 4096 MiB, solver peak working bytes 3033378032: root capture exceeds the declared memory limit))
+# cell authentic_n108_s0x2003 : ResourceLimit (root capture did not complete; solver status=ResourceLimit (declared memory limit 4096 MiB, solver peak working bytes 3222511560: root capture exceeds the declared memory limit))
+# cell authentic_n108_s0x3007 : ResourceLimit (root capture did not complete; solver status=ResourceLimit (declared memory limit 4096 MiB, solver peak working bytes 3219730768: root capture exceeds the declared memory limit))
+
+# cells=68 timed_valid_ac=58 queue_wins=38 geometric_mean_speedup=1.2237 campaign_minutes=82.53
+# checksum sink = 6681217154984218842
+# artifacts: results/root-queue-generalization/screen-20260925

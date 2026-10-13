@@ -1,0 +1,170 @@
+{
+  "manuscript.tex": {
+    "sha256": "aaa41f360d49600b16eaccc05e4f8e413235019c54ae623339fbfd5459380947",
+    "bytes": 73405
+  },
+  "tiling_implementation_idea.pdf": {
+    "sha256": "52d7bd523ec1db8883b66ee8c7ec6e718aac27d3ca91139bea10de3d0a2725c5",
+    "bytes": 67696
+  },
+  "docs\\idea_inventory_2026-10-02.pdf": {
+    "sha256": "1ee5c38b59361d583f9a35185f71a860291a97078afb25f9ea8939c35ff83a5d",
+    "bytes": 274921
+  },
+  "paper\\ARWLF_Naman_PM.pdf": {
+    "sha256": "99a44a7b28ed2747ff4667a1e64a7414def98fdc75a4f37dc1003d6f83b01ebd",
+    "bytes": 690413
+  },
+  "paper\\manuscript.tex": {
+    "sha256": "1b6f35e239a47f9aa886aa059420106778d504646fccf7ceeccb1cc86f338b8a",
+    "bytes": 76718
+  },
+  "Research papers\\1612.02384v1.pdf": {
+    "sha256": "4b6f55105ad29c47d831aa43a0a8198275fe425036a44e9fa125f27545f65266",
+    "bytes": 1612676
+  },
+  "Research papers\\2010.08576v2.pdf": {
+    "sha256": "c2c2e925361ecc327eadbaf6bc21b1a0f5ae5795a3bd162010c43b9554f6a440",
+    "bytes": 1219231
+  },
+  "Research papers\\2301.07134v2.pdf": {
+    "sha256": "fdb92408e875c36f9e8b4c3b45c0066100f72834afc667bbed465481ae058333",
+    "bytes": 1110261
+  },
+  "Research papers\\2409.03526v1.pdf": {
+    "sha256": "98bf054e69a22e1ff3baeef582650517bfdbb238f7c2cfe71cab182eaa65384a",
+    "bytes": 941666
+  },
+  "Research papers\\arwlf-journal-paper.pdf": {
+    "sha256": "3640d02f6116803d19ab9bc2d3f0d8314af29a4a2eac09b53127a4e472213cd3",
+    "bytes": 21585
+  },
+  "Research papers\\BCJ.pdf": {
+    "sha256": "6b7cbbe0ec66c3ddf715142b4d7b145ea453dc5270fa264bdfc610c1f81c9049",
+    "bytes": 477117
+  },
+  "Research papers\\Fermat-Wiles.pdf": {
+    "sha256": "1f439d8fd9b35cda684c272956f69d6dbd0830c8833414b2297e1a006aa7da5b",
+    "bytes": 611693
+  },
+  "Research papers\\HGJ.pdf": {
+    "sha256": "c107ce6e703031efb6d5636643194b847eef12015de3bdb85312661c1a80209e",
+    "bytes": 320213
+  },
+  "Research papers\\Meet-in-the-Middle.pdf": {
+    "sha256": "87653e41a0b422fc258663db144e59a8bb3b221bec2dcafe3bf9a27af226b166",
+    "bytes": 1027145
+  },
+  "Research papers\\navier-stokes.pdf": {
+    "sha256": "0e779481c4da40bd28d1e642e1d8ca57447d129610df28dfa5a11e9af8ae228f",
+    "bytes": 2959204
+  },
+  "Research papers\\research-paper.pdf": {
+    "sha256": "99a44a7b28ed2747ff4667a1e64a7414def98fdc75a4f37dc1003d6f83b01ebd",
+    "bytes": 690413
+  },
+  "Research papers\\Schroeppel-Shamir.pdf": {
+    "sha256": "8dcec065c0792bac1bac3507ac6265492657c050aad009e86791a7a290626953",
+    "bytes": 3863418
+  },
+  "Research papers\\TER.pdf": {
+    "sha256": "b004e1c9d5e9f2f1c2755cdd1ece01cf4c88c98428dbe55ff45d91d188423725",
+    "bytes": 621166
+  },
+  "docs\\history\\TER_2pow47_Root_Research_Map.pdf": {
+    "sha256": "1ef004e277b3f2af667543b230860e5a65b1ff5d8f03c787d3e6c9134ee63e63",
+    "bytes": 102272
+  },
+  "docs\\history\\TER_Hybrid_Partition_Backend_v2.0_CODEX.pdf": {
+    "sha256": "52308160a1a2323f2d0bf64c59f983b8ef6453cc967be71605fa40f129317501",
+    "bytes": 106911
+  },
+  "docs\\history\\TER_L1_to_L0_Radix_Refined_Root_Architecture_v2.1_CODEX.pdf": {
+    "sha256": "31172874ccfbf3b4e6fa1ac57bf8fd1cecfb51deb57f67d72465427bbab594a6",
+    "bytes": 122705
+  },
+  "docs\\history\\TER_Tiled_L2_L1_End_to_End_Implementation_Spec.pdf": {
+    "sha256": "6988bfc4bdc56178f3f285c64eee18baeae12165395f70b7eb3b38f58fe98e73",
+    "bytes": 280825
+  },
+  "docs\\history\\the holy markdown files\\final_architecture.pdf": {
+    "sha256": "c414f9fd645b2a13c89005d7f931fe5bdd61bacb23a91863bb6102e178754761",
+    "bytes": 958738
+  },
+  "docs\\history\\the holy markdown files\\final_candidate.pdf": {
+    "sha256": "98122a8039a326a26b023a78da5cb85172e4238e71c4f724b468a5b06e06d7cb",
+    "bytes": 604308
+  },
+  "docs\\history\\the holy markdown files\\TER_Radix13_Packed_Tag_Mask_Consumer_Architecture.pdf": {
+    "sha256": "400d5f09ab083b3e086ab82cf98b4b498bee16bae007906900170e2d1c140a1d",
+    "bytes": 454133
+  },
+  "paper\\figures\\crossover.pdf": {
+    "sha256": "f32a60486b10dc0f24c9f6f3c5b1b6ea5f49cd09105f1335b96a28dda634eaa5",
+    "bytes": 23511
+  },
+  "paper\\figures\\dense.pdf": {
+    "sha256": "d081b7f45ca0d161dcde44f133c774c96750f0e693ff1f58780a8917ca102e27",
+    "bytes": 26762
+  },
+  "paper\\figures\\pipeline.pdf": {
+    "sha256": "84983afabe31c972735fe7e063dcb8314efa43d8fcd02b310907daf467a979e1",
+    "bytes": 34406
+  },
+  "paper\\figures\\target.pdf": {
+    "sha256": "28189311d18869c96d0276264217196d8d729606d3542a65214af64fa574d4b3",
+    "bytes": 24403
+  },
+  "paper\\figures\\topology.pdf": {
+    "sha256": "c5caa6cff328c0678bd9304a384d77e4cca2a22846b3cc1455c73bbec4d3450e",
+    "bytes": 32046
+  },
+  "paper\\qa\\manuscript.pdf": {
+    "sha256": "99a44a7b28ed2747ff4667a1e64a7414def98fdc75a4f37dc1003d6f83b01ebd",
+    "bytes": 690413
+  },
+  "paper\\qa\\template-reference.pdf": {
+    "sha256": "94f4ad4cbdd9760b1e5e6d3b04e6e4b0be3b70ffedece50b88d7a97526fa728f",
+    "bytes": 252027
+  },
+  "paper\\qa\\word-render.pdf": {
+    "sha256": "dc72c915666da0ccc2a65fa7cbdc26da0e4317089c6ee6de32b547b2df47d513",
+    "bytes": 1382858
+  },
+  "paper\\qa\\source_bundle_check\\ARWLF_Naman_PM.pdf": {
+    "sha256": "99a44a7b28ed2747ff4667a1e64a7414def98fdc75a4f37dc1003d6f83b01ebd",
+    "bytes": 690413
+  },
+  "paper\\qa\\source_bundle_check\\manuscript.tex": {
+    "sha256": "1b6f35e239a47f9aa886aa059420106778d504646fccf7ceeccb1cc86f338b8a",
+    "bytes": 76718
+  },
+  "paper\\qa\\source_bundle_check\\figures\\crossover.pdf": {
+    "sha256": "f32a60486b10dc0f24c9f6f3c5b1b6ea5f49cd09105f1335b96a28dda634eaa5",
+    "bytes": 23511
+  },
+  "paper\\qa\\source_bundle_check\\figures\\dense.pdf": {
+    "sha256": "d081b7f45ca0d161dcde44f133c774c96750f0e693ff1f58780a8917ca102e27",
+    "bytes": 26762
+  },
+  "paper\\qa\\source_bundle_check\\figures\\pipeline.pdf": {
+    "sha256": "84983afabe31c972735fe7e063dcb8314efa43d8fcd02b310907daf467a979e1",
+    "bytes": 34406
+  },
+  "paper\\qa\\source_bundle_check\\figures\\target.pdf": {
+    "sha256": "28189311d18869c96d0276264217196d8d729606d3542a65214af64fa574d4b3",
+    "bytes": 24403
+  },
+  "paper\\qa\\source_bundle_check\\figures\\topology.pdf": {
+    "sha256": "c5caa6cff328c0678bd9304a384d77e4cca2a22846b3cc1455c73bbec4d3450e",
+    "bytes": 32046
+  },
+  "paper\\qa\\source_bundle_check\\qa\\word-render.pdf": {
+    "sha256": "dc72c915666da0ccc2a65fa7cbdc26da0e4317089c6ee6de32b547b2df47d513",
+    "bytes": 1382858
+  },
+  "paper\\working\\literature\\abadi2007.pdf": {
+    "sha256": "d246fe158da0bcc4a9c873ed5d5902798c83564a1d782c262dbd317a7f70c3df",
+    "bytes": 335231
+  }
+}

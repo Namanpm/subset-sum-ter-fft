@@ -1,0 +1,4 @@
+L=256 seed=12295 -> Completed direct_prod=74100ns direct_tiled=97100ns direct_full=65100ns ntt_amort=1662033ns exact=1 
+
+-- amortized NTT versus DIRECT_PRODUCTION (speedup > 1 favours NTT) --
+L=256 completed_seeds=1 amortized_wins=0 best_speedup=0.0446

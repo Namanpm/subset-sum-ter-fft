@@ -1,0 +1,15 @@
+# snapshot results/arwlf/holdout-snapshots/n72_s0x7201_auto.snap : Completed
+# root n72_s0x7201_auto n=72 seed=0x7201 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=anchor role=holdout
+# sentinel start 79.126 ms
+# case anchor:c2730 [AUTHENTIC_FULLTER, final] L=1.06 pairs=167164 : k2=0.10 k2_wide=0.09 queue_dense=2.77 arwlf=0.94 dispatch=10.92 ms | K2/ARWLF=0.10 regret=119.355 best=k2_wide dispatch ran K2_WIDE | witnesses=0 k32=3 | COMPLETED
+# sentinel end 77.676 ms
+# snapshot results/arwlf/holdout-snapshots/n72_s0x7201_auto.snap : Completed
+# root n72_s0x7201_auto n=72 seed=0x7201 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=anchor role=holdout
+# sentinel start 65.912 ms
+# skip (already written) anchor:c2730
+# sentinel end 65.771 ms
+# snapshot results/arwlf/holdout-snapshots/n72_s0x7201_auto.snap : Completed
+# root n72_s0x7201_auto n=72 seed=0x7201 Q=47 W=41 anchor cell=2730 (L=1.06) strata=16 phase=anchor role=holdout
+# sentinel start 85.243 ms
+# skip (already written) anchor:c2730
+# sentinel end 83.236 ms

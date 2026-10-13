@@ -1,0 +1,46 @@
+=== FullTer n=36 attempt-cost ===
+# compiler=MSVC-1951 build=Release native_opt=on threads=1 configure_time_commit=53431a8e037bec94163d4d2a1c4fe0565a673423 configure_time_dirty=yes build_stamp=Aug 29 2026T20:10:36 exe_sha256=3a6980e7ca3746adf1f5e47b660ecc9ccc65aacbe59c9e22c7d5642fa61e1911 mode=attempt-cost attempt_limit=1 attempts_executed=1 warmup=1 repeat=5 time_limit_ms=0 memory_limit_bytes=4294967296 seed=19797034556212562 execution_mode=FullTer target=Random audit=off family=FiniteSanity command="C:\Users\naman\Desktop\subset-sum-ter-fft\build-full\Release\ter_full_bench.exe --n=36 --attempt-limit=1 --warmup=1 --repeat=5"
+status,n,r1,r2,L3_left,L3_right,L2_sizes,L1_sizes,L0,l3_generation_ns,l3_to_l2_ns,l2_to_l1_ns,l1_to_l0_ns,verification_ns,total_solver_ns,binary_pairs,binary_modular,binary_structural_rejects,binary_distribution_rejects,binary_survivors,binary_deduplicated,middle_pairs,middle_modular,middle_structural_rejects,middle_distribution_rejects,middle_survivors,middle_deduplicated,root_pairs,root_modular,root_structural_rejects,root_distribution_rejects,root_survivors,root_deduplicated,l3_list_bytes,arithmetic_bytes,l2_list_bytes,l1_list_bytes,l0_list_bytes,l2_active_bytes,l1_active_bytes,root_active_bytes,peak_working_bytes,hot_entry_bytes,packed_vector_bytes,fingerprint,l2_to_l1_tiled_used,l2_to_l1_pair_records,l2_to_l1_tile_bits,l2_to_l1_tiled_pair_probes,l2_to_l1_tiled_nonempty_windows,l2_to_l1_tiled_auxiliary_bytes,l2_to_l1_tiled_setup_ns,l2_to_l1_tiled_scan_ns,l1_to_l0_tiled_used,l1_to_l0_pair_records,l1_to_l0_quotient_bits,l1_to_l0_prefilter_bits,l1_to_l0_low_prefilter_candidates,l1_to_l0_full_quotient_rejects,l1_to_l0_tile_bits,l1_to_l0_tiled_pair_probes,l1_to_l0_tiled_nonempty_windows,l1_to_l0_tiled_auxiliary_bytes,l1_to_l0_tiled_setup_ns,l1_to_l0_tiled_scan_ns,l1_to_l0_root_policy,l1_to_l0_valid_roots,l1_to_l0_early_stopped,l1_to_l0_output_peak_bytes,l1_to_l0_output_live_bytes,l1_to_l0_working_peak_bytes,l1_to_l0_first_witness_ceiling_bytes,attempts_used,terminal_attempt_index,terminal_attempt_seed,terminal_attempt_status,sum_attempt_ns,mean_attempt_ns,median_attempt_ns,total_root_pair_candidates
+AttemptLimitReached,36,12,3,18,18,"39:39:41:43:41:39:43:41:40","31:59:73",0,18100,169000,175400,302800,0,734900,2916,366,0,0,366,366,5047,395,128,0,267,163,1829,0,0,0,0,0,2872,1152,32304,22336,0,1224,7384,274548,333548,56,16,7166414566313962079,1,0,9,5047,3,7384,17200,97100,1,0,24,24,0,0,15,500,272,274548,127500,136400,0,0,0,0,0,274548,88,1,0,19797034556212562,NoWitnessThisAttempt,614300,614300,614300,1829
+=== FullTer n=72 preflight ===
+preflight n=72 family=FiniteSanity
+  shape_status=Completed
+  r1=25 r2=7 root_Q=47 l2_to_l1_Q=18
+  representation1=3384731762521200 floor_log2=51
+  representation2=34650 floor_log2=15
+  l2_to_l1_backend=bounded tiled (streaming, no pair index)
+  l2_to_l1_decision=quotient projection is decisive (r1-r2 <= 32)
+  root_backend=bounded tiled (streaming, no pair index)
+  root_decision=quotient congruence is decisive (Q <= 64)
+  memory_limit_bytes=4294967296
+  execution_mode=FullTer
+  pair_materializing_fallback=no
+  VERDICT: bounded exact path on both merge stages
+=== FullTer n=108 preflight ===
+preflight n=108 family=FiniteSanity
+  shape_status=Completed
+  r1=39 r2=12 root_Q=69 l2_to_l1_Q=27
+  representation1=879619727485803060256500 floor_log2=79
+  representation2=17153136 floor_log2=24
+  l2_to_l1_backend=bounded tiled (streaming, no pair index)
+  l2_to_l1_decision=quotient projection is decisive (r1-r2 <= 32)
+  root_backend=bounded tiled (streaming, no pair index)
+  root_decision=low-64 quotient prefilter + arbitrary-width residue authority (Q > 64)
+  memory_limit_bytes=4294967296
+  execution_mode=FullTer
+  pair_materializing_fallback=no
+  VERDICT: bounded exact path on both merge stages
+=== FullTer n=144 preflight ===
+preflight n=144 family=FiniteSanity
+  shape_status=Completed
+  r1=53 r2=16 root_Q=91 l2_to_l1_Q=37
+  representation1=256376887255990870197659395110000 floor_log2=107
+  representation2=9465511770 floor_log2=33
+  l2_to_l1_backend=bounded tiled (streaming, no pair index)
+  l2_to_l1_decision=low-32 quotient prefilter + arbitrary-width residue authority (r1-r2 > 32)
+  root_backend=bounded tiled (streaming, no pair index)
+  root_decision=low-64 quotient prefilter + arbitrary-width residue authority (Q > 64)
+  memory_limit_bytes=4294967296
+  execution_mode=FullTer
+  pair_materializing_fallback=no
+  VERDICT: bounded exact path on both merge stages

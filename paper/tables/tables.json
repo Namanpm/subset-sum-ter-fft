@@ -1,0 +1,990 @@
+{
+  "anchors": {
+    "caption": "Final-protocol medians for six authentic dimension-108 anchor cells (seconds).",
+    "headers": [
+      "Seed",
+      "Role",
+      "L",
+      "K2",
+      "K2-WIDE",
+      "ARWLF",
+      "Dispatch"
+    ],
+    "rows": [
+      [
+        "0x1001",
+        "calibration",
+        "78.44",
+        "44.5583",
+        "27.1931",
+        "0.8424",
+        "0.8642"
+      ],
+      [
+        "0x2003",
+        "calibration",
+        "126.26",
+        "131.1588",
+        "54.5698",
+        "1.6794",
+        "1.7017"
+      ],
+      [
+        "0x3007",
+        "calibration",
+        "127.33",
+        "86.3898",
+        "54.5793",
+        "1.6376",
+        "1.6537"
+      ],
+      [
+        "0x4001",
+        "holdout",
+        "125.94",
+        "83.9879",
+        "53.2772",
+        "1.6578",
+        "1.6739"
+      ],
+      [
+        "0x5003",
+        "holdout",
+        "126.13",
+        "85.6578",
+        "54.2728",
+        "1.6549",
+        "1.6717"
+      ],
+      [
+        "0x6007",
+        "holdout",
+        "125.56",
+        "84.4173",
+        "52.3676",
+        "1.6107",
+        "1.6260"
+      ]
+    ],
+    "notes": "Three warmup rounds and seven timed rounds per cell; each value is a median. All rows cover one selected cell, not a whole root. QUEUE-DENSE is capacity-inapplicable. The 0x2003 K2 median has IQR 91.0567–145.7907 s; that row is retained. A separate later run on the 0x1001 cell (one warmup and three timed rounds per backend, data/hash_join_n108_anchor.csv) gives medians K2 47.9287, K2-WIDE 27.4693 and ARWLF 0.8902 s, and 72.6718 s (11.83 ns per logical pair) for an untuned scalar exact hash join (linear-probing table keyed on the W-bit residual, then a high-bit check; table build included). In every round each backend matches an untimed K2-WIDE reference; the cell has no full-quotient matches, so this checks only for false matches."
+  },
+  "aggregates": {
+    "caption": "Geometric-mean speedups on authentic dimension-108 cells, with the final-protocol subset kept separate.",
+    "headers": [
+      "Subset",
+      "Roots / cells",
+      "K2 / ARWLF",
+      "Wide / ARWLF",
+      "K2 / dispatch",
+      "95% CI: K2 / ARWLF"
+    ],
+    "rows": [
+      [
+        "Pooled cells, calibration",
+        "3 / 14",
+        "53.0875",
+        "32.7769",
+        "52.3649",
+        "[48.17, 57.61]"
+      ],
+      [
+        "Pooled cells, holdout",
+        "3 / 15",
+        "52.8933",
+        "32.4378",
+        "52.3819",
+        "[51.81, 53.81]"
+      ],
+      [
+        "Final anchors, calibration",
+        "3 / 3",
+        "60.1774",
+        "32.6977",
+        "59.2128",
+        "[52.75, 78.10]"
+      ],
+      [
+        "Final anchors, holdout",
+        "3 / 3",
+        "51.6060",
+        "32.4806",
+        "51.1069",
+        "[50.66, 52.41]"
+      ]
+    ],
+    "notes": "Pooled estimates weight cells equally and combine declared discovery/final protocols. Intervals resample entire roots as blocks (10,000 percentile draws, seed 0xB007); only three independent roots occur per role. Equal-root calibration sensitivity gives 52.7449, 32.7335, and 52.0020 for the three ratios; holdout equal-root estimates coincide with pooled estimates. Final anchors have one cell per root."
+  },
+  "sparse": {
+    "caption": "Complete authentic dimension-72 prepared-root medians (milliseconds), covering all 4,096 cells.",
+    "headers": [
+      "Root",
+      "K2",
+      "K2-WIDE",
+      "QUEUE-DENSE",
+      "ARWLF",
+      "Dispatch",
+      "Regret"
+    ],
+    "rows": [
+      [
+        "anchor (cal.)",
+        "301.499",
+        "298.367",
+        "167.555",
+        "1137.442",
+        "178.176",
+        "1.0634"
+      ],
+      [
+        "0x7201 (hold.)",
+        "327.703",
+        "317.924",
+        "269.858",
+        "2300.027",
+        "307.724",
+        "1.1403"
+      ],
+      [
+        "0x7203 (hold.)",
+        "545.324",
+        "544.682",
+        "298.074",
+        "1846.978",
+        "309.589",
+        "1.0386"
+      ],
+      [
+        "0x7207 (hold.)",
+        "551.480",
+        "556.351",
+        "299.240",
+        "2002.560",
+        "315.252",
+        "1.0535"
+      ]
+    ],
+    "notes": "Final protocol: three warmup and seven timed rounds. QUEUE-DENSE wins all four rows and the dispatcher runs it in every sample. Regret divides dispatcher median by the fastest legal reporter median, including K2. No end-to-end list-generation cost is included."
+  },
+  "positive": {
+    "caption": "Constructed target augmentation on authentic source families of calibration root 0x1001: medians in seconds.",
+    "headers": [
+      "Appended M",
+      "Condition",
+      "Residue-exact",
+      "K2",
+      "K2-WIDE",
+      "ARWLF",
+      "Dispatch"
+    ],
+    "rows": [
+      [
+        "100",
+        "positive",
+        "100",
+        "46.1093",
+        "27.7730",
+        "0.9115",
+        "0.9283"
+      ],
+      [
+        "100",
+        "decoy",
+        "0",
+        "45.2586",
+        "27.7191",
+        "0.9103",
+        "0.9230"
+      ],
+      [
+        "1,000",
+        "positive",
+        "1,000",
+        "78.9186",
+        "30.8078",
+        "1.0205",
+        "1.0547"
+      ],
+      [
+        "1,000",
+        "decoy",
+        "0",
+        "73.0600",
+        "27.6073",
+        "0.8851",
+        "0.9043"
+      ],
+      [
+        "10,000",
+        "positive",
+        "10,000",
+        "51.6717",
+        "29.1376",
+        "0.9143",
+        "0.9291"
+      ],
+      [
+        "10,000",
+        "decoy",
+        "0",
+        "59.6852",
+        "29.2994",
+        "0.9071",
+        "0.9128"
+      ],
+      [
+        "100,000",
+        "positive",
+        "100,000",
+        "80.6972",
+        "44.5106",
+        "1.1462",
+        "1.1775"
+      ],
+      [
+        "100,000",
+        "decoy",
+        "0",
+        "72.2938",
+        "44.3863",
+        "1.0401",
+        "1.0643"
+      ],
+      [
+        "1,000,000",
+        "positive",
+        "1,000,000",
+        "248.8130",
+        "101.0825",
+        "20.4859",
+        "20.6871"
+      ],
+      [
+        "1,000,000",
+        "decoy",
+        "0",
+        "263.4709",
+        "105.1932",
+        "19.4581",
+        "19.6438"
+      ]
+    ],
+    "notes": "Every case uses one warmup and three timed rounds. Residue-exact counts also equal the attached finite-predicate counts in these records: M for positives and zero for decoys. That predicate has (negative, zero, positive) = (2,86,20), not the production binary-root distribution. Constructed coordinates and residues are assigned separately; original-weight consistency and native L1 membership are unestablished. Only one root has completed repeated evidence."
+  },
+  "whole": {
+    "caption": "Complete dimension-108 prepared root 0x1001: every backend over all 4,096 cells (single measured passes).",
+    "headers": [
+      "Run",
+      "Calls",
+      "Backend time (s)",
+      "Hours",
+      "ns per logical pair",
+      "K2 / run",
+      "Peak (MiB)"
+    ],
+    "rows": [
+      [
+        "K2",
+        "64 checkpointed calls",
+        "197,243.2",
+        "54.79",
+        "7.830",
+        "1.00",
+        "3279.5"
+      ],
+      [
+        "ARWLF (before K2)",
+        "1 call",
+        "3,575.5",
+        "0.993",
+        "0.1419",
+        "55.17",
+        "3278.5"
+      ],
+      [
+        "Dispatch (before K2)",
+        "1 call",
+        "3,557.1",
+        "0.988",
+        "0.1412",
+        "55.45",
+        "3278.6"
+      ],
+      [
+        "ARWLF (after K2)",
+        "1 call",
+        "3,469.8",
+        "0.964",
+        "0.1377",
+        "56.85",
+        "3279.3"
+      ],
+      [
+        "Dispatch (after K2)",
+        "1 call",
+        "3,436.1",
+        "0.954",
+        "0.1364",
+        "57.40",
+        "3279.3"
+      ]
+    ],
+    "notes": "Each run covers 4,096 cells and 25,189,929,333,072 logical pairs and reports the same single residue-exact EntryId triple (the constructed target). K2 runs family-major as 64 calls, one per target family u, in the order of a single call; its chunks took 2,694 to 4,959 s (median 2,885 s). The dispatcher selected ARWLF in both passes (probes 200 and 176 ms). No warmup or repeated rounds; the K2 run spans daytime machine use, and no interference log was recorded."
+  },
+  "scaling_validation": {
+    "caption": "Occupancy model and cross-root checks at the measured dimensions.",
+    "headers": [
+      "Quantity",
+      "Dimension 72",
+      "Dimension 108"
+    ],
+    "rows": [
+      [
+        "Captured mean entries per L1 list",
+        "34,047",
+        "6,991,452"
+      ],
+      [
+        "Model mean entries per leaf",
+        "0.0649",
+        "13.3"
+      ],
+      [
+        "Conceptual packet L: model / census",
+        "1.07 / 1.05",
+        "125.7 / 126.2"
+      ],
+      [
+        "Byte-pass probability: model / observed",
+        "3.53e-10 / zero survivors",
+        "9.69e-06 / 9.2e-6 to 1.1e-5"
+      ],
+      [
+        "K2 projected-pair survival: model / observed",
+        "0.0010 / 0.0010",
+        "0.1881 / 0.1858"
+      ],
+      [
+        "Root time (s): model / observed",
+        "Dense-rate prediction inapplicable; QUEUE-DENSE ran",
+        "6,733 / 6,403 to 7,396"
+      ]
+    ],
+    "notes": "Sizes use 22 captures of seed 0x7201 and seven captures of seed 0x8001 (attempts 0-6); n108 times use six completed roots (attempts 0-5). Census and survival checks use comparable campaign roots, not those same captures. Poisson means use |L1|/(64*8192); byte widths are 8,8,8,4 at n72 and 8,8,8,8 at n108. Only dense time uses the observed 0.1377 ns/pair coefficient. Zero n72 survivors does not validate the tiny predicted probability."
+  },
+  "scaling_n144": {
+    "caption": "Hypothetical dimension-144 geometry retaining thirteen-bit leaves.",
+    "headers": [
+      "Quantity",
+      "72-calibrated",
+      "108-calibrated",
+      "Uncalibrated"
+    ],
+    "rows": [
+      [
+        "Entries per L1 list",
+        "4.46e+09",
+        "5.92e+09",
+        "7.29e+09"
+      ],
+      [
+        "Mean entries per 13-bit leaf",
+        "8,510",
+        "11,288",
+        "13,897"
+      ],
+      [
+        "Conceptual packet L",
+        "255.5",
+        "255.7",
+        "255.7"
+      ],
+      [
+        "Byte-pass probability",
+        "1.000",
+        "1.000",
+        "1.000"
+      ],
+      [
+        "K2 projected-pair survival",
+        "1.000",
+        "1.000",
+        "1.000"
+      ],
+      [
+        "Logical root pairs",
+        "1.99e+19",
+        "3.5e+19",
+        "5.31e+19"
+      ],
+      [
+        "Three lists, 48-byte proxy (decimal TB)",
+        "0.64",
+        "0.85",
+        "1.05"
+      ],
+      [
+        "Three snapshots, 68 bytes/entry (decimal TB)",
+        "0.91",
+        "1.21",
+        "1.49"
+      ]
+    ],
+    "notes": "Equation (8) is scaled by the n72 measured/model ratio (0.6123), the n108 ratio (0.8122), or left unscaled. These are scenarios, not confidence bounds. Q=91 and n=144 exceed the frozen key implementation's limits; no n144 backend ran. Storage excludes prepared keys, directories, temporaries and output. The 48-byte record is an n108 proxy; the native snapshot formula gives 68 bytes/entry at n144."
+  },
+  "scaling_cost": {
+    "caption": "Conditional cost scenarios for one dimension-144 root.",
+    "headers": [
+      "Quantity",
+      "72-calibrated",
+      "108-calibrated",
+      "Uncalibrated"
+    ],
+    "rows": [
+      [
+        "Fixed geometry, one core (years)",
+        "4.13e+06",
+        "9.63e+06",
+        "1.8e+07"
+      ],
+      [
+        "Fixed geometry, all hardware CPU cores (years)",
+        "6.54",
+        "15.26",
+        "28.49"
+      ],
+      [
+        "Pair sweep only, one core (years)",
+        "86.9",
+        "152.9",
+        "231.7"
+      ],
+      [
+        "Pair sweep only, all hardware CPU cores (hours)",
+        "1.21",
+        "2.12",
+        "3.22"
+      ],
+      [
+        "Retuned power-of-two leaves per family",
+        "2^23",
+        "2^23",
+        "2^24"
+      ]
+    ],
+    "notes": "A hypothetical wider-key design retains the observed 0.1377 ns/pair coefficient. Fixed geometry adds a saturated posting scan with coefficient 0.7686 ns inferred from the decoy time contrast. Pair sweep only drops that scan term; the listed retuned geometries were not implemented and their setup, directories, residual recovery and communication are unmodeled. Hardware-core figures divide by 630,784 hypothetical equal-speed CPU cores; Frontier defaults to 551,936 allocatable cores. Intel-to-AMD rate transfer is unmeasured and GPUs are absent. These are conditional model costs, not achieved runtimes or universal lower bounds. List construction adds per attempt; attempt count multiplies the per-attempt sum."
+  },
+  "integration": {
+    "caption": "Staged integration evidence (staged solver lists, frozen root backend, independent witness verification).",
+    "headers": [
+      "Check",
+      "Scope",
+      "Result"
+    ],
+    "rows": [
+      [
+        "Release test suite",
+        "Historical development log: 59 CTest tests; current tree rebuilt 2026-10-13: 61 tests",
+        "59 passed; 61 passed (results/arwlf/ctest-release-20261013)"
+      ],
+      [
+        "Differential vs. classic solver (design-B root)",
+        "n=72, 4 seeds x 8 attempts + pinned attempt 21 of seed 0x7201; DISPATCH and forced ARWLF",
+        "341 checks, 0 failures: same outcome and accepted-triple count on all 33 attempts; the classic witness is among the verified parents on the Found attempt"
+      ],
+      [
+        "AddressSanitizer (MSVC, Debug)",
+        "Historical CTest log: 58 selected tests; n=108 planted excluded",
+        "57 passed; differential timed out at 1 h. Recorded rerun of the differential test (2026-10-11): 341 checks, 0 failures, exit 0, no sanitizer diagnostic"
+      ],
+      [
+        "Fail-closed cases",
+        "n=36 (Q=24), missing and corrupted snapshots",
+        "NotApplicable / refused, never solved"
+      ],
+      [
+        "Staged solve, n=72 seed 0x7201, dispatcher",
+        "22 attempts, budget 32; dispatcher selected QUEUE-DENSE",
+        "Found at attempt 21: 1 verified parent (the planted solution); root 0.23-0.46 s per attempt"
+      ],
+      [
+        "Staged solve, n=72 seed 0x7201, ARWLF forced",
+        "22 attempts, budget 32; ARWLF on every attempt",
+        "Found at attempt 21: the identical verified parent; same outcome and accepted-triple count on every attempt; root 1.67-1.95 s per attempt"
+      ],
+      [
+        "Staged solve, n=108 seed 0x8001, dispatcher",
+        "32 attempts, budget 32; dispatcher selected ARWLF on every attempt",
+        "AttemptLimitReached (not UNSAT): no attempt yields a witness; 17 attempts have 1-3 residue-exact triples, none binary of weight n/2; root 1.77-3.54 h per attempt (median 1.82 h), 62.0 h in total; lists 118-162 s per attempt"
+      ],
+      [
+        "Root time vs. the classic solver's own root (design B), n=72",
+        "3 attempts without a witness (0x7201 attempts 0 and 10, 0x7203 attempt 0) and Found attempt 21 of 0x7201; identical level-one lists checked",
+        "No-witness attempts: design B 583-1008 ms, QUEUE-DENSE via dispatcher 290-317 ms, K2 285-487 ms, ARWLF 1724-1910 ms; design B is 1.89-3.48x slower than QUEUE-DENSE and ARWLF 1.73-3.28x slower than design B. On the Found attempt design B stops at the first witness (213 ms), so it is not compared"
+      ]
+    ],
+    "notes": "Acceptance uses a binary parent of weight n/2, independently verified against the original balanced modular instance. The benchmark sink's FiniteSanity predicate is absent from this path. All staged solves use the same executables; the forced-ARWLF run was unpinned beside the running n108 solve, so neither run's root times are controlled measurements. Release test evidence comes from a saved development log; the differential ASan result is a recorded rerun (data/asan_differential_record.json). The n108 instance has a planted solution, so exhausting 32 attempts reflects TER's finite per-attempt success probability, not unsatisfiability. Design-B times are the classic solver's level-one-to-root stage time, medians of seven solves after three warmups (ter_full_bench reports medians only); staged times are medians of seven pinned runs after one warmup, cover sink reset and the backend call, and exclude snapshot load and key preparation (32-47 ms per run); design B's stage includes its own setup (about 5 ms). The two stage boundaries differ, so the design-B ratios are approximate. No matched full-solver speedup is reported."
+  },
+  "per_root": {
+    "caption": "Per-root geometric-mean speedups over all declared authentic cells of each dimension-108 root.",
+    "headers": [
+      "Root seed",
+      "Role",
+      "Cells",
+      "K2 / ARWLF",
+      "K2-WIDE / ARWLF",
+      "Observed L"
+    ],
+    "rows": [
+      [
+        "0x1001",
+        "calibration",
+        "4",
+        "48.17",
+        "32.13",
+        "77.4-78.4"
+      ],
+      [
+        "0x2003",
+        "calibration",
+        "5",
+        "57.61",
+        "32.84",
+        "125.6-126.7"
+      ],
+      [
+        "0x3007",
+        "calibration",
+        "5",
+        "52.88",
+        "33.24",
+        "125.5-127.3"
+      ],
+      [
+        "0x4001",
+        "holdout",
+        "5",
+        "51.81",
+        "32.50",
+        "125.5-126.5"
+      ],
+      [
+        "0x5003",
+        "holdout",
+        "5",
+        "53.81",
+        "32.86",
+        "125.5-126.6"
+      ],
+      [
+        "0x6007",
+        "holdout",
+        "5",
+        "53.07",
+        "31.97",
+        "125.1-126.2"
+      ]
+    ],
+    "notes": "Each value is a geometric mean over that root's declared cells, mixing the declared discovery and final protocols. With three roots per role, the root-block bootstrap interval of Table 2 equals the range of the three values shown here."
+  },
+  "provenance": {
+    "caption": "Frozen build records of the executables behind each reported experiment.",
+    "headers": [
+      "Experiment",
+      "Executable",
+      "SHA-256 (first 16 hex)",
+      "Source revision",
+      "Tree"
+    ],
+    "rows": [
+      [
+        "Regime campaign (Tables 1-4, Figures 3-5)",
+        "campaign",
+        "932d2803a419aab3",
+        "53431a8e",
+        "dirty"
+      ],
+      [
+        "Constructed-target campaign (Table 5)",
+        "campaign",
+        "342d37ab7b4abd06",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Complete-root passes (Table 6)",
+        "whole-root",
+        "865b97f7eaebc4cf",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=72, dispatcher",
+        "capture",
+        "2f7aab60b7d60a75",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=72, dispatcher",
+        "solve",
+        "1355f45fc6e8ac33",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=72, ARWLF forced",
+        "capture",
+        "2f7aab60b7d60a75",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=72, ARWLF forced",
+        "solve",
+        "1355f45fc6e8ac33",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=108, dispatcher (ARWLF), 32 attempts",
+        "capture",
+        "2f7aab60b7d60a75",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Staged solve n=108, dispatcher (ARWLF), 32 attempts",
+        "solve",
+        "1355f45fc6e8ac33",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Hash-join comparison, n=108 anchor cell of root 0x1001",
+        "hash-join",
+        "e621c594001243a1",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Design-B root comparison, n=72, four attempts",
+        "classic bench",
+        "cf439a54517c6e4c",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Design-B root comparison, n=72, four attempts",
+        "capture",
+        "2f7aab60b7d60a75",
+        "8e9fe7fd",
+        "dirty"
+      ],
+      [
+        "Design-B root comparison, n=72, four attempts",
+        "solve",
+        "1355f45fc6e8ac33",
+        "8e9fe7fd",
+        "dirty"
+      ]
+    ],
+    "notes": "Executables are ter_arwlf_campaign, ter_arwlf_whole_root, ter_root_snapshot_capture (capture), ter_arwlf_solve_attempt (solve), ter_hash_join_bench (hash-join) and ter_full_bench (classic bench). Full hashes, source-manifest hashes and the 0x1001 snapshot hash are in data/provenance_hashes.json. Every build was made from a working tree with uncommitted changes, so the revision alone does not identify the code. The three campaign builds recorded per-file source manifests, which reviewer/check_build_sources.py recovers from the archived tree and history. The staged-solve builds recorded executable hashes only, and the hash-join and design-B entries have no build-freeze record; their hashes are those of the executables that produced the runs."
+  },
+  "protocols": {
+    "caption": "Measurement protocols and completed case counts, preserving workload and scope boundaries.",
+    "headers": [
+      "Dataset / phase",
+      "Cases",
+      "Warmups",
+      "Timed rounds",
+      "Protocol"
+    ],
+    "rows": [
+      [
+        "n=108, anchor",
+        "6",
+        "3",
+        "7",
+        "final"
+      ],
+      [
+        "n=108, stratified-corners",
+        "23",
+        "1",
+        "3",
+        "discovery"
+      ],
+      [
+        "n=72, whole",
+        "4",
+        "3",
+        "7",
+        "final"
+      ],
+      [
+        "n=72, anchor",
+        "4",
+        "3",
+        "7",
+        "final"
+      ],
+      [
+        "n=72, stratified",
+        "64",
+        "1",
+        "3",
+        "discovery"
+      ],
+      [
+        "n=108, thin-qx",
+        "105",
+        "1",
+        "3",
+        "discovery"
+      ],
+      [
+        "n=108, confirm",
+        "6",
+        "3",
+        "7",
+        "final"
+      ],
+      [
+        "n=108, thin-y",
+        "9",
+        "1",
+        "3",
+        "discovery"
+      ],
+      [
+        "Positive / decoy augmentation",
+        "10",
+        "1",
+        "3",
+        "discovery"
+      ],
+      [
+        "n=108 ARWLF / dispatch complete-root passes",
+        "4",
+        "0",
+        "1",
+        "single pass"
+      ],
+      [
+        "n=108 K2 complete root",
+        "1 (64 calls)",
+        "0",
+        "1",
+        "checkpointed pass"
+      ],
+      [
+        "n=72 staged solve, dispatcher",
+        "22 attempts",
+        "0",
+        "1",
+        "Found at attempt 21"
+      ],
+      [
+        "n=72 staged solve, ARWLF forced",
+        "22 attempts",
+        "0",
+        "1",
+        "Found at attempt 21; unpinned"
+      ],
+      [
+        "n=108 hash-join comparison, 0x1001 anchor cell",
+        "1",
+        "1",
+        "3",
+        "separate run"
+      ],
+      [
+        "n=72 design-B root comparison",
+        "4 attempts",
+        "3 classic / 1 staged",
+        "7",
+        "separate run"
+      ],
+      [
+        "Unreachable source-thinning cases",
+        "3",
+        "—",
+        "—",
+        "no timing"
+      ]
+    ],
+    "notes": "The first eight rows sum to 221 completed regime cases. Nine orphan timings from one interrupted attempt remain outside those complete-case groups. All 10 roots are censused at all 4,096 cells; census is not timing. Cases from one root share an independent input instance. Three unreachable rows are statuses, not omitted failures or timed points."
+  },
+  "target_detail": {
+    "caption": "Target-density ablation medians (seconds), with full-density anchor protocol stated explicitly.",
+    "headers": [
+      "Seed",
+      "Target retention",
+      "Protocol",
+      "K2",
+      "K2-WIDE",
+      "ARWLF"
+    ],
+    "rows": [
+      [
+        "0x1001",
+        "1",
+        "final",
+        "44.5583",
+        "27.1931",
+        "0.8424"
+      ],
+      [
+        "0x1001",
+        "1/2",
+        "discovery",
+        "22.6460",
+        "15.9057",
+        "0.7848"
+      ],
+      [
+        "0x1001",
+        "1/4",
+        "discovery",
+        "13.4524",
+        "9.6796",
+        "0.7401"
+      ],
+      [
+        "0x1001",
+        "1/8",
+        "discovery",
+        "8.3117",
+        "6.4016",
+        "0.6214"
+      ],
+      [
+        "0x2003",
+        "1",
+        "final",
+        "131.1588",
+        "54.5698",
+        "1.6794"
+      ],
+      [
+        "0x2003",
+        "1/2",
+        "discovery",
+        "47.3672",
+        "31.9722",
+        "1.5288"
+      ],
+      [
+        "0x2003",
+        "1/4",
+        "discovery",
+        "28.6618",
+        "19.5796",
+        "1.4543"
+      ],
+      [
+        "0x2003",
+        "1/8",
+        "discovery",
+        "17.5418",
+        "12.9889",
+        "1.2339"
+      ],
+      [
+        "0x3007",
+        "1",
+        "final",
+        "86.3898",
+        "54.5793",
+        "1.6376"
+      ],
+      [
+        "0x3007",
+        "1/2",
+        "discovery",
+        "48.0082",
+        "31.9832",
+        "1.5320"
+      ],
+      [
+        "0x3007",
+        "1/4",
+        "discovery",
+        "28.1909",
+        "19.5958",
+        "1.4422"
+      ],
+      [
+        "0x3007",
+        "1/8",
+        "discovery",
+        "17.7154",
+        "13.0133",
+        "1.2211"
+      ]
+    ],
+    "notes": "Source pair mass is fixed within each root. Full-density references use three warmups/seven timed rounds; thinned cases use one/three, seed 0xA11CE001. Target thinning changes occupancy/filter selectivity and posting recovery, while observed packet occupancy L is nearly unchanged. This is a controlled sensitivity study, not an isolated causal instruction-cost decomposition."
+  },
+  "crossover_confirm": {
+    "caption": "Final-protocol confirmations of the source-thinning crossover bracket.",
+    "headers": [
+      "Seed",
+      "Observed L",
+      "K2-WIDE (ms)",
+      "ARWLF (ms)",
+      "ARWLF / rival",
+      "Dispatch regret"
+    ],
+    "rows": [
+      [
+        "0x1001",
+        "1.0000",
+        "0.0395",
+        "1.7126",
+        "43.3570",
+        "2.2203"
+      ],
+      [
+        "0x1001",
+        "1.9998",
+        "155.4762",
+        "45.1552",
+        "0.2904",
+        "3.6530"
+      ],
+      [
+        "0x2003",
+        "1.0000",
+        "0.0614",
+        "2.1208",
+        "34.5407",
+        "2.1270"
+      ],
+      [
+        "0x2003",
+        "1.9999",
+        "169.3821",
+        "62.0819",
+        "0.3665",
+        "2.8158"
+      ],
+      [
+        "0x3007",
+        "1.0000",
+        "0.0105",
+        "1.4286",
+        "136.0571",
+        "4.1429"
+      ],
+      [
+        "0x3007",
+        "1.9999",
+        "181.6719",
+        "66.3434",
+        "0.3652",
+        "2.8233"
+      ]
+    ],
+    "notes": "Three warmups/seven timed rounds, thinning seed 0xA11CE001. Rival = min(K2-WIDE, legal QUEUE-DENSE); QUEUE-DENSE is capacity-inapplicable here. Ratios below one favor ARWLF. The dispatcher runs K2-WIDE in all six cases; it misses the measured ARWLF gain near L=2. The two tested points bracket rather than identify an exact universal threshold."
+  }
+}

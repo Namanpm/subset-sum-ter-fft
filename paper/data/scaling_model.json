@@ -1,0 +1,193 @@
+{
+  "per_dimension": [
+    {
+      "n": 72,
+      "r1": 25,
+      "r2": 7,
+      "Q": 47,
+      "L3": 630,
+      "E_L2": 3100.78125,
+      "E_L1_independence": 55600.73972331652
+    },
+    {
+      "n": 108,
+      "r1": 39,
+      "r2": 12,
+      "Q": 69,
+      "L3": 24804,
+      "E_L2": 150204.69140625,
+      "E_L1_independence": 8607628.135413507
+    },
+    {
+      "n": 144,
+      "r1": 53,
+      "r2": 16,
+      "Q": 91,
+      "L3": 1028790,
+      "E_L2": 16150037.599182129,
+      "E_L1_independence": 7285971590.616532
+    }
+  ],
+  "l1_calibration_measured_over_model": {
+    "72": 0.6123482407058215,
+    "108": 0.8122390683187884
+  },
+  "native_applicability": {
+    "maximum_n": 128,
+    "maximum_full_quotient_bits": 69,
+    "n144_applicable": false
+  },
+  "cost_assumptions": {
+    "processor_rate": "Intel dense prepared-root rate reused on every hypothetical CPU core; AMD rate unmeasured",
+    "resolver_rate": "positive-control time contrast, not an isolated instruction measurement",
+    "fixed_geometry": "hypothetical wider-key implementation retaining thirteen-bit leaves",
+    "retuned": "pair-sweep floor only; setup, communication, memory limits and residual recovery unmodelled"
+  },
+  "arwlf_ns_per_pair_0x1001": 0.1377448791825113,
+  "resolver_ns_per_scan": 0.7686203478093722,
+  "validation": [
+    {
+      "case": "n=72, seed 0x7201 (22 captures)",
+      "l1_measured_mean": 34047.01515151515,
+      "leaf_occupancy": 0.0649395278005889,
+      "L": 1.0667195645007364,
+      "byte_filter_chunk_bits": [
+        8,
+        8,
+        8,
+        4
+      ],
+      "byte_pass": 3.527246713649497e-10,
+      "k2_pair_survival": 0.0010141655080802003,
+      "root_pairs": 1159199240.7275023,
+      "predicted_root_s": null
+    },
+    {
+      "case": "n=108, seed 0x8001 (captures 0-6; completed root timings 0-5)",
+      "l1_measured_mean": 6991451.857142857,
+      "leaf_occupancy": 13.335136141095843,
+      "L": 125.67732330663043,
+      "byte_filter_chunk_bits": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "byte_pass": 9.689989821552458e-06,
+      "k2_pair_survival": 0.18808652485766797,
+      "root_pairs": 48880399070746.305,
+      "predicted_root_s": 6733.024664392889
+    }
+  ],
+  "n144": [
+    {
+      "scenario": "low (n=72 calibration)",
+      "l1": 4461551885.346629,
+      "leaf_occupancy": 8509.734888737925,
+      "L": 255.54934795616265,
+      "byte_filter_chunk_bits": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "byte_pass": 0.9999999999999856,
+      "k2_pair_survival": 1.0,
+      "root_pairs": 1.9905445225640063e+19,
+      "retuned_leaves_per_family": 8388608,
+      "retuned_target_leaf_mean": 8.31028797728313,
+      "list_storage_proxy_bytes": 642463471489.9146,
+      "snapshot_storage_estimate_bytes": 910156584610.7123,
+      "frozen_arwlf_core_years": 4125769.7043517777,
+      "frozen_arwlf_frontier_years": 6.540701261211092,
+      "retuned_core_years": 86.88471707860822,
+      "retuned_frontier_hours": 1.207436190377498
+    },
+    {
+      "scenario": "mid (n=108 calibration)",
+      "l1": 5917950776.559533,
+      "leaf_occupancy": 11287.595322722498,
+      "L": 255.6601423006464,
+      "byte_filter_chunk_bits": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "byte_pass": 1.0,
+      "k2_pair_survival": 1.0,
+      "root_pairs": 3.502214139378158e+19,
+      "retuned_leaves_per_family": 8388608,
+      "retuned_target_leaf_mean": 11.02304230734619,
+      "list_storage_proxy_bytes": 852184911824.5728,
+      "snapshot_storage_estimate_bytes": 1207261958418.1448,
+      "frozen_arwlf_core_years": 9628506.622686774,
+      "frozen_arwlf_frontier_years": 15.264348212203819,
+      "retuned_core_years": 152.867158307326,
+      "retuned_frontier_hours": 2.1243936271719317
+    },
+    {
+      "scenario": "uncalibrated model",
+      "l1": 7285971590.616532,
+      "leaf_occupancy": 13896.887952073159,
+      "L": 255.7239026723836,
+      "byte_filter_chunk_bits": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "byte_pass": 1.0,
+      "k2_pair_survival": 1.0,
+      "root_pairs": 5.3085382019271205e+19,
+      "retuned_leaves_per_family": 16777216,
+      "retuned_target_leaf_mean": 6.785589820348222,
+      "list_storage_proxy_bytes": 1049179909048.7808,
+      "snapshot_storage_estimate_bytes": 1486338204485.7727,
+      "frozen_arwlf_core_years": 17968259.610597808,
+      "frozen_arwlf_frontier_years": 28.485598256451983,
+      "retuned_core_years": 231.71088842630522,
+      "retuned_frontier_hours": 3.2200842886709107
+    }
+  ],
+  "measured": {
+    "census_median_L": {
+      "n108_s0x1001_a0": 77.8805,
+      "n108_s0x2003_a0": 126.18,
+      "n108_s0x3007_a0": 126.04805,
+      "n108_s0x4001_a0": 126.0016,
+      "n108_s0x5003_a0": 125.99755,
+      "n108_s0x6007_a0": 125.59819999999999,
+      "n72_anchor": 1.048,
+      "n72_s0x7201_auto": 1.0501,
+      "n72_s0x7203_auto": 1.0658500000000002,
+      "n72_s0x7207_auto": 1.0669
+    },
+    "n108_anchor_filter_survivors_per_pair": {
+      "n108_s0x1001_a0": 9.174709069449622e-06,
+      "n108_s0x2003_a0": 1.0350142737646415e-05,
+      "n108_s0x3007_a0": 1.0474798651248532e-05,
+      "n108_s0x4001_a0": 9.61716671915788e-06,
+      "n108_s0x5003_a0": 1.0229673922325002e-05,
+      "n108_s0x6007_a0": 1.0040398672231967e-05
+    },
+    "k2_whole_root_pair_survival": 0.18579303776058842,
+    "n108_s0x8001_root_ms": {
+      "0": 6649497.4,
+      "1": 6429844.8,
+      "2": 6526237.5,
+      "3": 6402597.9,
+      "4": 7395553.2,
+      "5": 7178059.5
+    }
+  },
+  "frontier": {
+    "nodes": 9856,
+    "cpu_cores_per_node": 64,
+    "ddr4_gb_per_node": 512,
+    "source": "OLCF Frontier User Guide, https://docs.olcf.ornl.gov/systems/frontier_user_guide.html (accessed 2026-10-08)",
+    "hardware_cpu_cores": 630784,
+    "default_allocatable_cpu_cores": 551936,
+    "source_verified": "2026-10-09"
+  }
+}

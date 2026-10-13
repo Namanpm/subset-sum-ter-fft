@@ -1,0 +1,8 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x2003_a0.snap : Completed
+# root n108_s0x2003_a0 n=108 seed=0x2003 Q=69 W=58 anchor cell=2730 (L=126.26) strata=16 phase=stratified-corners role=calibration
+# sentinel start 65.492 ms
+# case cell:c221 [AUTHENTIC_FULLTER, discovery] L=125.56 pairs=12334989293 : k2=88232.44 k2_wide=54240.42 arwlf=1660.27 dispatch=1678.20 ms | K2/ARWLF=53.14 regret=1.011 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20471051 | COMPLETED
+# case cell:c1599 [AUTHENTIC_FULLTER, discovery] L=126.72 pairs=12463127622 : k2=89214.81 k2_wide=54615.02 arwlf=1652.59 dispatch=1668.66 ms | K2/ARWLF=53.98 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20590266 | COMPLETED
+# case cell:c1828 [AUTHENTIC_FULLTER, discovery] L=126.65 pairs=12341161440 : k2=87942.28 k2_wide=54554.07 arwlf=1651.39 dispatch=1655.02 ms | K2/ARWLF=53.25 regret=1.002 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20636013 | COMPLETED
+# case cell:c2383 [AUTHENTIC_FULLTER, discovery] L=125.71 pairs=12460318507 : k2=88313.64 k2_wide=54742.88 arwlf=1661.15 dispatch=1677.29 ms | K2/ARWLF=53.16 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=0 k32=20688528 | COMPLETED
+# sentinel end 66.246 ms

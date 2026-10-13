@@ -1,0 +1,8 @@
+# ter_root_snapshot_capture n=108 seed=0x3007 memory_limit_mib=4096 buffer_mib=4 commit=53431a8e037bec94163d4d2a1c4fe0565a673423
+# stream status=Completed
+# n=108 r1=39 r2=12 Q=69 attempt=0 attempt_seed=0x3007 record_bytes=48
+# level2 sizes: 150011 150512 150363 149811 150334 149835 149830 150933 150356
+# level1 sizes: A=7105573 B=7061459 C=7161221
+# declared accounting (MiB): base=8.9246 group peaks=1026.72/1024.66/1029.28 peak=1029.28 (limit 4096)
+# elapsed_s=139.362
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap bytes=1023756568 process_peak_working_set_mib=1552.7 (measured by the OS in this capture process)

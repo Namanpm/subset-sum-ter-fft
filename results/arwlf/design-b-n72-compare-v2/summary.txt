@@ -1,0 +1,25 @@
+
+case        reporter                               ms_median ms_min  ms_max  samples
+----        --------                               --------- ------  ------  -------
+s0x7201_a0  design_B_classic(NoWitnessThisAttempt)    583.02                       7
+s0x7201_a0  k2                                        284.60 276.00  289.10        7
+s0x7201_a0  k2_wide                                   282.00 272.70  287.90        7
+s0x7201_a0  arwlf                                    1909.50 1893.00 1982.60       7
+s0x7201_a0  dispatch(ran QUEUE_DENSE)                 307.70 272.40  333.10        7
+s0x7201_a10 design_B_classic(NoWitnessThisAttempt)   1007.61                       7
+s0x7201_a10 k2                                        472.80 460.40  477.00        7
+s0x7201_a10 k2_wide                                   467.50 456.60  476.80        7
+s0x7201_a10 arwlf                                    1747.80 1726.60 1760.10       7
+s0x7201_a10 dispatch(ran QUEUE_DENSE)                 289.80 271.10  304.90        7
+s0x7201_a21 design_B_classic(Found)                   212.65                       7
+s0x7201_a21 k2                                        534.70 530.30  546.50        7
+s0x7201_a21 k2_wide                                   532.30 527.50  537.40        7
+s0x7201_a21 arwlf                                    1949.10 1943.10 1958.30       7
+s0x7201_a21 dispatch(ran QUEUE_DENSE)                 323.30 313.90  329.40        7
+s0x7203_a0  design_B_classic(NoWitnessThisAttempt)    991.83                       7
+s0x7203_a0  k2                                        487.20 475.40  494.70        7
+s0x7203_a0  k2_wide                                   482.10 469.10  505.20        7
+s0x7203_a0  arwlf                                    1723.90 1647.30 2061.00       7
+s0x7203_a0  dispatch(ran QUEUE_DENSE)                 316.60 286.00  364.10        7
+
+

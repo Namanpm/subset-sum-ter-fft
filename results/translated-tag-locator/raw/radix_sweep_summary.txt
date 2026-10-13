@@ -1,0 +1,100 @@
+TER^2 radix occupancy locator -- matched-scope radix sweep
+verdict: NO_GO_SLOWER_THAN_K2
+note: the best radix is at or above the matched K2 median
+
+MEASURED, this executable, matched scope (median of 2 full authentic sweeps, all radices in one interleaved run):
+  scalar                 452.4894 ms
+  K2 (frozen)            271.75135 ms
+  translated tag (11+8)  733.72485 ms
+
+per-radix matched medians (ms), best leaf kernel in parentheses:
+      R     H  guards/q      dense    compact    batched  lane-skip       best  vs K2
+   8192    64        32  509.97545   530.9907  473.01585   377.5685   377.56850.7197405239x  (lane-skip)
+  16384    32        64  442.41105  486.77175  429.43875   338.5229   338.52290.8027561799x  (lane-skip)
+  32768    16       128   447.3008  415.22305  446.38365  318.02105  318.021050.8545074296x  (lane-skip)
+  65536     8       256  642.48135   605.2959  698.28265   496.3667   496.36670.5474810256x  (lane-skip)
+
+MEASURED phase decomposition per radix (differences of matched medians in
+this same run, never a sum of independently timed regions).  The extraction
+and tag rows are measured against the dense kernel, which is the kernel the
+guard-only / extract-only / group-only controls share:
+  R=8192 H=64
+    build                        2.6125 ms (gate 8)
+    guard phase                  23.19945 ms (gate 70), 0.593019393 ns/vector
+    bucket resolution, dense     475.087 ms (gate 105), 12.71278815 ns/bucket
+      of which bit extraction    399.4162 ms
+      of which tag rot+AND       75.6708 ms
+    bucket resolution, best      342.68005 ms, 9.169728661 ns/bucket (lane-skip)
+    report + authority + output  9.0765 ms
+    compatible bucket interactions 37370795 (gate 40000000)
+    guard vectors                39120896, zero 14990454 (38.3182788%)
+    witnesses                    618857
+    scalar reference             exact over 273 sampled witnesses
+    auxiliary bytes              21496292 (20.50046158 MiB, reported without a verdict)
+    hot bytes per (s,t) block    113776 compact / 200704 dense
+    failed gates                 bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=16384 H=32
+    build                        4.5336 ms (gate 8)
+    guard phase                  45.61455 ms (gate 70), 0.5829946993 ns/vector
+    bucket resolution, dense     389.52675 ms (gate 105), 20.23394917 ns/bucket
+      of which bit extraction    295.9957 ms
+      of which tag rot+AND       93.53105 ms
+    bucket resolution, best      285.6386 ms, 14.83748398 ns/bucket (lane-skip)
+    report + authority + output  2.73615 ms
+    compatible bucket interactions 19251148 (gate 40000000)
+    guard vectors                78241792, zero 61166081 (78.17571586%)
+    witnesses                    618857
+    scalar reference             exact over 273 sampled witnesses
+    auxiliary bytes              40551564 (38.67298508 MiB, reported without a verdict)
+    hot bytes per (s,t) block    214128 compact / 399360 dense
+    failed gates                 bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=32768 H=16
+    build                        8.0521 ms (gate 8)
+    guard phase                  102.5257 ms (gate 70), 0.6551850193 ns/vector
+    bucket resolution, dense     286.70835 ms (gate 105), 29.36647391 ns/bucket
+      of which bit extraction    151.36885 ms
+      of which tag rot+AND       135.3395 ms
+    bucket resolution, best      157.4286 ms, 16.12482815 ns/bucket (lane-skip)
+    report + authority + output  50.01465 ms
+    compatible bucket interactions 9763118 (gate 40000000)
+    guard vectors                156483584, zero 147018435 (93.951347%)
+    witnesses                    618857
+    scalar reference             exact over 273 sampled witnesses
+    auxiliary bytes              78629876 (74.98729324 MiB, reported without a verdict)
+    hot bytes per (s,t) block    414832 compact / 796672 dense
+    failed gates                 build > 8 ms; guard phase > 70 ms; bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+  R=65536 H=8
+    build                        16.0898 ms (gate 8)
+    guard phase                  285.20375 ms (gate 70), 0.9112896788 ns/vector
+    bucket resolution, dense     319.46895 ms (gate 105), 64.94248119 ns/bucket
+      of which bit extraction    35.9646 ms
+      of which tag rot+AND       283.50435 ms
+    bucket resolution, best      173.3543 ms, 35.23991413 ns/bucket (lane-skip)
+    report + authority + output  21.71885 ms
+    compatible bucket interactions 4919260 (gate 40000000)
+    guard vectors                312967168, zero 308086278 (98.44044663%)
+    witnesses                    618857
+    scalar reference             exact over 273 sampled witnesses
+    auxiliary bytes              154786500 (147.6159096 MiB, reported without a verdict)
+    hot bytes per (s,t) block    816240 compact / 1591296 dense
+    failed gates                 build > 8 ms; guard phase > 70 ms; bucket resolution > 105 ms; matched median >= 225.558 ms; p95 >= matched K2 median
+
+guard population histogram per radix (256-bit vectors):
+  bucket        R=8192       R=16384       R=32768       R=65536
+  0           14990454      61166081     147018435     308086278
+  1           14438597      15070380       9173325       4842698
+  2            6894857       1845380        285773         38014
+  3            2175697        150298          5959           178
+  4             510100          9170            91             0
+  5-8           111161           483             1             0
+  9-16              30             0             0             0
+  17-32              0             0             0             0
+  33-64              0             0             0             0
+  65-128             0             0             0             0
+  129-256             0             0             0             0
+  >256               0             0             0             0
+
+The 16 MiB auxiliary-memory cap from the original proposal is NOT applied as
+a gate: it conflated capacity with locality.  Auxiliary totals are reported
+above without a verdict, and the number that actually governs a radix -- the
+bytes the hot loop touches per (s,t) block -- is reported beside them.

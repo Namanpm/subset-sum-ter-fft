@@ -1,0 +1,10 @@
+# ter_root_snapshot_capture n=72 seed=0x7203 memory_limit_mib=4096 buffer_mib=4 commit=53431a8e037bec94163d4d2a1c4fe0565a673423
+# classic solve: status=AttemptLimitReached capture=Completed declared_peak_mib=33.1659
+# stream status=Completed
+# n=72 r1=25 r2=7 Q=47 attempt=0 attempt_seed=0x7203 record_bytes=44
+# level2 sizes: 3158 3046 2994 3125 3220 3170 3100 3111 3125
+# level1 sizes: A=31466 B=35097 C=33180
+# declared accounting (MiB): base=4.12322 group peaks=9.68747/9.85314/9.76519 peak=9.85314 (limit 4096)
+# elapsed_s=0.287168
+# snapshot results/arwlf/holdout-snapshots/n72_s0x7203_auto.snap bytes=4389116 process_peak_working_set_mib=45.6211 (measured by the OS in this capture process)
+# identity vs classic solve_full_ter capture (attempt 0): IDENTICAL

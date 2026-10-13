@@ -1,0 +1,6 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap : Completed
+# root n108_s0x3007_a0 n=108 seed=0x3007 Q=69 W=58 anchor cell=2730 (L=127.33) strata=16 phase=confirm role=calibration
+# sentinel start 65.933 ms
+# case qx:L1:s0xa11ce001:confirm [AUTHENTIC_SOURCE_THINNED, final] L=1.00 pairs=1254 : k2=0.02 k2_wide=0.01 arwlf=1.43 dispatch=0.04 ms | K2/ARWLF=0.01 regret=4.143 best=k2_wide dispatch ran K2_WIDE | witnesses=0 k32=3 | COMPLETED
+# case qx:L2:s0xa11ce001:confirm [AUTHENTIC_SOURCE_THINNED, final] L=2.00 pairs=37192901 : k2=279.39 k2_wide=181.67 arwlf=66.34 dispatch=187.31 ms | K2/ARWLF=4.21 regret=2.823 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=61839 | COMPLETED
+# sentinel end 65.437 ms

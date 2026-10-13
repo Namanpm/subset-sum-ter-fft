@@ -1,0 +1,14 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap : Completed
+# root n108_s0x1001_a0 n=108 seed=0x1001 Q=69 W=58 anchor cell=2730 (L=78.44) strata=15 phase=plant role=calibration
+# sentinel start 67.000 ms
+# case plant:pos:M100:s0xb1a57001 [AUTHENTIC_PLANTED_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=46109.34 k2_wide=27772.95 arwlf=911.50 dispatch=928.31 ms | K2/ARWLF=50.59 regret=1.018 best=arwlf dispatch ran ARWLF | witnesses=100 k32=9865410 | COMPLETED
+# case plant:decoy:M100:s0xb1a57001 [AUTHENTIC_DECOY_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=45258.56 k2_wide=27719.08 arwlf=910.33 dispatch=922.98 ms | K2/ARWLF=49.72 regret=1.014 best=arwlf dispatch ran ARWLF | witnesses=0 k32=9865455 | COMPLETED
+# case plant:pos:M1000:s0xb1a57001 [AUTHENTIC_PLANTED_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=78918.58 k2_wide=30807.82 arwlf=1020.52 dispatch=1054.71 ms | K2/ARWLF=77.33 regret=1.034 best=arwlf dispatch ran ARWLF | witnesses=1000 k32=9948643 | COMPLETED
+# case plant:decoy:M1000:s0xb1a57001 [AUTHENTIC_DECOY_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=73059.95 k2_wide=27607.31 arwlf=885.06 dispatch=904.28 ms | K2/ARWLF=82.55 regret=1.022 best=arwlf dispatch ran ARWLF | witnesses=0 k32=9947720 | COMPLETED
+# case plant:pos:M10000:s0xb1a57001 [AUTHENTIC_PLANTED_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=51671.70 k2_wide=29137.58 arwlf=914.32 dispatch=929.11 ms | K2/ARWLF=56.51 regret=1.016 best=arwlf dispatch ran ARWLF | witnesses=10000 k32=10781261 | COMPLETED
+# case plant:decoy:M10000:s0xb1a57001 [AUTHENTIC_DECOY_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=59685.24 k2_wide=29299.45 arwlf=907.07 dispatch=912.84 ms | K2/ARWLF=65.80 regret=1.006 best=arwlf dispatch ran ARWLF | witnesses=0 k32=10773152 | COMPLETED
+# case plant:pos:M100000:s0xb1a57001 [AUTHENTIC_PLANTED_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=80697.24 k2_wide=44510.58 arwlf=1146.15 dispatch=1177.51 ms | K2/ARWLF=70.41 regret=1.027 best=arwlf dispatch ran ARWLF | witnesses=100000 k32=19107290 | COMPLETED
+# case plant:decoy:M100000:s0xb1a57001 [AUTHENTIC_DECOY_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=72293.82 k2_wide=44386.31 arwlf=1040.14 dispatch=1064.25 ms | K2/ARWLF=69.50 regret=1.023 best=arwlf dispatch ran ARWLF | witnesses=0 k32=19013853 | COMPLETED
+# case plant:pos:M1000000:s0xb1a57001 [AUTHENTIC_PLANTED_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=248813.01 k2_wide=101082.53 arwlf=20485.91 dispatch=20687.10 ms | K2/ARWLF=12.15 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=1000000 k32=102412904 | COMPLETED
+# case plant:decoy:M1000000:s0xb1a57001 [AUTHENTIC_DECOY_TARGETS, discovery] L=78.44 pairs=6143192070 : k2=263470.86 k2_wide=105193.15 arwlf=19458.11 dispatch=19643.80 ms | K2/ARWLF=13.54 regret=1.010 best=arwlf dispatch ran ARWLF | witnesses=0 k32=101407358 | COMPLETED
+# sentinel end 67.471 ms

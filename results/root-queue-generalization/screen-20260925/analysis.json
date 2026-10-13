@@ -1,0 +1,388 @@
+{
+  "campaigns": [
+    "results\\root-queue-generalization\\screen-20260925"
+  ],
+  "aggregates": {
+    "ALL": {
+      "backend_total": {
+        "cells": 58,
+        "geometric_mean": 1.2236974719006006,
+        "median": 1.2308404999999998,
+        "p25": 0.9514609999999999,
+        "p75": 1.7740045,
+        "min": 0.706604,
+        "max": 1.95628,
+        "wins": 38
+      },
+      "steady": {
+        "cells": 58,
+        "geometric_mean": 1.2597349456881028,
+        "median": 1.2348905000000001,
+        "p25": 0.952261,
+        "p75": 1.799935,
+        "min": 0.774887,
+        "max": 1.975726,
+        "wins": 38
+      }
+    },
+    "AUTHENTIC_FULLTER": {
+      "backend_total": {
+        "cells": 8,
+        "geometric_mean": 1.793020971431454,
+        "median": 1.854882,
+        "p25": 1.75249275,
+        "p75": 1.921794,
+        "min": 1.424501,
+        "max": 1.95628,
+        "wins": 8
+      },
+      "steady": {
+        "cells": 8,
+        "geometric_mean": 1.8134311056715675,
+        "median": 1.8721104999999998,
+        "p25": 1.77007775,
+        "p75": 1.94969775,
+        "min": 1.44276,
+        "max": 1.975726,
+        "wins": 8
+      }
+    },
+    "AUTHENTIC_FULLTER (declared seeds only, anchor excluded)": {
+      "backend_total": {
+        "cells": 7,
+        "geometric_mean": 1.8084189935697985,
+        "median": 1.911887,
+        "p25": 1.785793,
+        "p75": 1.9295749999999998,
+        "min": 1.424501,
+        "max": 1.95628,
+        "wins": 7
+      },
+      "steady": {
+        "cells": 7,
+        "geometric_mean": 1.827798087948222,
+        "median": 1.929369,
+        "p25": 1.801482,
+        "p75": 1.9541925,
+        "min": 1.44276,
+        "max": 1.975726,
+        "wins": 7
+      }
+    },
+    "CONTROLLED (both synthetic families)": {
+      "backend_total": {
+        "cells": 50,
+        "geometric_mean": 1.1511402880509403,
+        "median": 1.228678,
+        "p25": 0.9504315000000001,
+        "p75": 1.3088632500000001,
+        "min": 0.706604,
+        "max": 1.811847,
+        "wins": 30
+      },
+      "steady": {
+        "cells": 50,
+        "geometric_mean": 1.1884028254194812,
+        "median": 1.2327664999999999,
+        "p25": 0.95122225,
+        "p75": 1.3706455,
+        "min": 0.774887,
+        "max": 1.843002,
+        "wins": 30
+      }
+    },
+    "SYNTHETIC_UNIFORM": {
+      "backend_total": {
+        "cells": 25,
+        "geometric_mean": 1.150220137907864,
+        "median": 1.229004,
+        "p25": 0.951375,
+        "p75": 1.299642,
+        "min": 0.734092,
+        "max": 1.810387,
+        "wins": 15
+      },
+      "steady": {
+        "cells": 25,
+        "geometric_mean": 1.1876876443335544,
+        "median": 1.233023,
+        "p25": 0.952188,
+        "p75": 1.361511,
+        "min": 0.805714,
+        "max": 1.841435,
+        "wins": 15
+      }
+    },
+    "RESIDUAL_PROFILE_EMULATION": {
+      "backend_total": {
+        "cells": 25,
+        "geometric_mean": 1.1520611742933575,
+        "median": 1.228352,
+        "p25": 0.94681,
+        "p75": 1.31412,
+        "min": 0.706604,
+        "max": 1.811847,
+        "wins": 15
+      },
+      "steady": {
+        "cells": 25,
+        "geometric_mean": 1.1891184371607137,
+        "median": 1.23251,
+        "p25": 0.94765,
+        "p75": 1.37688,
+        "min": 0.774887,
+        "max": 1.843002,
+        "wins": 15
+      }
+    }
+  },
+  "sweep": [
+    {
+      "family": "SYNTHETIC_UNIFORM",
+      "scale": 0.25,
+      "rho_q": 0.015495400000000001,
+      "bits_per_word": 1.0076264,
+      "cells": 5,
+      "geometric_mean": 0.7548363460040556,
+      "median": 0.760756,
+      "p25": 0.738849,
+      "p75": 0.770095,
+      "min": 0.734092,
+      "max": 0.771202,
+      "wins": 0,
+      "k2_ms_geo": 17.67923436115645,
+      "queue_ms_geo": 23.421283033058305
+    },
+    {
+      "family": "SYNTHETIC_UNIFORM",
+      "scale": 0.5,
+      "rho_q": 0.059559799999999996,
+      "bits_per_word": 1.0305544,
+      "cells": 5,
+      "geometric_mean": 1.2825918509957406,
+      "median": 1.290928,
+      "p25": 1.270214,
+      "p75": 1.299642,
+      "min": 1.252531,
+      "max": 1.300323,
+      "wins": 5,
+      "k2_ms_geo": 68.86709388804479,
+      "queue_ms_geo": 53.69369235752802
+    },
+    {
+      "family": "SYNTHETIC_UNIFORM",
+      "scale": 1.0,
+      "rho_q": 0.21214819999999998,
+      "bits_per_word": 1.1220725999999999,
+      "cells": 5,
+      "geometric_mean": 1.8039157328489073,
+      "median": 1.805315,
+      "p25": 1.801046,
+      "p75": 1.80885,
+      "min": 1.794029,
+      "max": 1.810387,
+      "wins": 5,
+      "k2_ms_geo": 312.70389496590514,
+      "queue_ms_geo": 173.3473054256677
+    },
+    {
+      "family": "SYNTHETIC_UNIFORM",
+      "scale": 2.0,
+      "rho_q": 0.5941514,
+      "bits_per_word": 1.5068294,
+      "cells": 5,
+      "geometric_mean": 1.2102431810039052,
+      "median": 1.229004,
+      "p25": 1.221335,
+      "p75": 1.229287,
+      "min": 1.144316,
+      "max": 1.229634,
+      "wins": 5,
+      "k2_ms_geo": 1361.9606567401581,
+      "queue_ms_geo": 1125.3610861744012
+    },
+    {
+      "family": "SYNTHETIC_UNIFORM",
+      "scale": 4.0,
+      "rho_q": 0.9615728000000001,
+      "bits_per_word": 3.2966341999999997,
+      "cells": 5,
+      "geometric_mean": 0.9525212297080423,
+      "median": 0.951719,
+      "p25": 0.951375,
+      "p75": 0.952792,
+      "min": 0.950429,
+      "max": 0.956302,
+      "wins": 0,
+      "k2_ms_geo": 6113.700415725275,
+      "queue_ms_geo": 6418.439524444866
+    },
+    {
+      "family": "RESIDUAL_PROFILE_EMULATION",
+      "scale": 0.25,
+      "rho_q": 0.015486,
+      "bits_per_word": 1.0076171999999999,
+      "cells": 5,
+      "geometric_mean": 0.7384325338681833,
+      "median": 0.743098,
+      "p25": 0.732179,
+      "p75": 0.744221,
+      "min": 0.706604,
+      "max": 0.767384,
+      "wins": 0,
+      "k2_ms_geo": 17.509114715696068,
+      "queue_ms_geo": 23.711188210157278
+    },
+    {
+      "family": "RESIDUAL_PROFILE_EMULATION",
+      "scale": 0.5,
+      "rho_q": 0.0596024,
+      "bits_per_word": 1.0304486000000002,
+      "cells": 5,
+      "geometric_mean": 1.311408065291976,
+      "median": 1.308985,
+      "p25": 1.308498,
+      "p75": 1.31412,
+      "min": 1.303513,
+      "max": 1.321999,
+      "wins": 5,
+      "k2_ms_geo": 69.82772919505014,
+      "queue_ms_geo": 53.2463758650258
+    },
+    {
+      "family": "RESIDUAL_PROFILE_EMULATION",
+      "scale": 1.0,
+      "rho_q": 0.21207159999999997,
+      "bits_per_word": 1.1222694,
+      "cells": 5,
+      "geometric_mean": 1.790623260572363,
+      "median": 1.791397,
+      "p25": 1.78441,
+      "p75": 1.791572,
+      "min": 1.774103,
+      "max": 1.811847,
+      "wins": 5,
+      "k2_ms_geo": 309.9998977483061,
+      "queue_ms_geo": 173.12402516130837
+    },
+    {
+      "family": "RESIDUAL_PROFILE_EMULATION",
+      "scale": 2.0,
+      "rho_q": 0.5936199999999999,
+      "bits_per_word": 1.5075336,
+      "cells": 5,
+      "geometric_mean": 1.2287751219482665,
+      "median": 1.228352,
+      "p25": 1.226963,
+      "p75": 1.229579,
+      "min": 1.226942,
+      "max": 1.232047,
+      "wins": 5,
+      "k2_ms_geo": 1350.9789638837458,
+      "queue_ms_geo": 1099.451768462653
+    },
+    {
+      "family": "RESIDUAL_PROFILE_EMULATION",
+      "scale": 4.0,
+      "rho_q": 0.9603314,
+      "bits_per_word": 3.296017,
+      "cells": 5,
+      "geometric_mean": 0.9524723975817598,
+      "median": 0.950439,
+      "p25": 0.94681,
+      "p75": 0.959509,
+      "min": 0.945423,
+      "max": 0.960284,
+      "wins": 0,
+      "k2_ms_geo": 6129.78755074361,
+      "queue_ms_geo": 6435.657939483878
+    }
+  ],
+  "correlations": {
+    "ln rho_q": {
+      "pearson": 0.326767855194175,
+      "spearman": 0.0769325417576671
+    },
+    "bits per queued word": {
+      "pearson": -0.32494478165488727,
+      "spearman": 0.07250299916946076
+    },
+    "mean popcount": {
+      "pearson": -0.32494478165488727,
+      "spearman": 0.07250299916946076
+    },
+    "ln P0": {
+      "pearson": 0.21721304019525842,
+      "spearman": 0.07141424039907962
+    },
+    "ln candidate bits": {
+      "pearson": 0.21572413109476132,
+      "spearman": 0.06899627795379741
+    },
+    "ln (candidate bits / P0)": {
+      "pearson": 0.2118903088768938,
+      "spearman": 0.059152849980005535
+    }
+  },
+  "crossover_fit": {
+    "model": "ln S = a + b ln rho_q",
+    "a": 0.33316395034187285,
+    "b": 0.07360996398286863,
+    "r_squared": 0.10677723118820126,
+    "rho_q_at_S_equal_1": 0.010823112692036457
+  },
+  "verdict": "BAD_SPECIALIZATION",
+  "verdict_note": "speedup is not explained by the measured workload geometry",
+  "post_hoc": {
+    "controlled_ln_s_variance_explained_by_family_x_scale": 0.9974093700849596,
+    "quadratic_fit_ln_s_on_ln_rho": {
+      "c2": -0.16498425761530017,
+      "c1": -0.6198016491753189,
+      "c0": -0.051267783108969435,
+      "r_squared": 0.9335711319301668,
+      "peak_rho_q": 0.15283963759205255
+    },
+    "break_even_points": [
+      {
+        "family": "SYNTHETIC_UNIFORM",
+        "between_scales": [
+          0.25,
+          0.5
+        ],
+        "scale_at_S_equal_1": 0.36111522464019075,
+        "rho_q_at_S_equal_1": 0.03165418345463228,
+        "direction": "queue starts winning"
+      },
+      {
+        "family": "SYNTHETIC_UNIFORM",
+        "between_scales": [
+          2.0,
+          4.0
+        ],
+        "scale_at_S_equal_1": 3.474650388016343,
+        "rho_q_at_S_equal_1": 0.8719875210106034,
+        "direction": "K2 starts winning"
+      },
+      {
+        "family": "RESIDUAL_PROFILE_EMULATION",
+        "between_scales": [
+          0.25,
+          0.5
+        ],
+        "scale_at_S_equal_1": 0.36047391010680324,
+        "rho_q_at_S_equal_1": 0.03154794867778765,
+        "direction": "queue starts winning"
+      },
+      {
+        "family": "RESIDUAL_PROFILE_EMULATION",
+        "between_scales": [
+          2.0,
+          4.0
+        ],
+        "scale_at_S_equal_1": 3.5035721878473933,
+        "rho_q_at_S_equal_1": 0.8759566235378449,
+        "direction": "K2 starts winning"
+      }
+    ]
+  }
+}

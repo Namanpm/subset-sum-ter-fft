@@ -1,0 +1,224 @@
+{
+  "title": "Wide Leaf Filtering for Exact Ternary Subset Sum Root Reporting",
+  "author": "Naman PM",
+  "intended_venue": "ACM Journal of Experimental Algorithmics",
+  "prepared": "2026-10-04",
+  "pdf_pages": 23,
+  "docx_render_pages": 23,
+  "native_word_equations": 157,
+  "figures": 5,
+  "tables": 8,
+  "cited_references": 14,
+  "research_code_modified": false,
+  "native_benchmarks_run": false,
+  "files": {
+    "ARWLF_Naman_PM.docx": {
+      "bytes": 990322,
+      "sha256": "f897337e308187415cb6e7ca249d4013861d23c54d28eecf5b30418029809fa9"
+    },
+    "ARWLF_Naman_PM.pdf": {
+      "bytes": 690413,
+      "sha256": "99a44a7b28ed2747ff4667a1e64a7414def98fdc75a4f37dc1003d6f83b01ebd"
+    },
+    "README.md": {
+      "bytes": 3534,
+      "sha256": "2b48940416f7f44013a4341299531ce9523a0d984ad47dfd84afdf92e6cb37d8"
+    },
+    "SUBMISSION_NOTES.md": {
+      "bytes": 2134,
+      "sha256": "38391966574f5c31a185d0b6d84cb0d4d12840b5b9b2b2c09cae55d512e860bf"
+    },
+    "build_article.py": {
+      "bytes": 15497,
+      "sha256": "d64e6b380787a93942d76051b95b2a80151867226ae9c2c47b0cf42f2af75c04"
+    },
+    "build_results.py": {
+      "bytes": 37741,
+      "sha256": "1457fcf4c4ad55b13d779dc4a3c25cacd368cef1db6d62a1cd24540e9063ed3a"
+    },
+    "claim_ledger.md": {
+      "bytes": 2823,
+      "sha256": "932e0f33003a84c2dd7eb1d6a12372391641fa10c20fd2522978170b84b9a37c"
+    },
+    "compile.ps1": {
+      "bytes": 1029,
+      "sha256": "59054c0bf8b6faca1557849f2b1b06c661448ba83980fd495c09ac2b7f604390"
+    },
+    "data/README.md": {
+      "bytes": 1876,
+      "sha256": "3b7566b3729be5f62b723b6d79e92054c9c0066d4c125e9cc8aa7f9240bd7905"
+    },
+    "data/input_manifest.json": {
+      "bytes": 1556,
+      "sha256": "cf134af12baf8382acea4fdc5f54c9c532b39de0da0e307b6f413c627796954c"
+    },
+    "data/positive_cases.csv": {
+      "bytes": 35119,
+      "sha256": "34b9372b30c74588de58c0289df74d313ab3b094517ab71287ecc78c4cd44d0a"
+    },
+    "data/positive_samples.csv": {
+      "bytes": 32416,
+      "sha256": "2ff811ac786fc4fbef8a5960536efe8b05d86fc0d3c5180452682bffc3cbf643"
+    },
+    "data/recompute_report.json": {
+      "bytes": 3984,
+      "sha256": "5871bb4443ff3d4c9a9196a04ba43f00c850fc11f16b111821b874924f3dd080"
+    },
+    "data/regime_cases.csv": {
+      "bytes": 697819,
+      "sha256": "167bf59b1d725e37c35fe8c46520b648ea87e97a36d4d204de0d5fec462ca5e2"
+    },
+    "data/regime_samples.csv": {
+      "bytes": 801031,
+      "sha256": "f1e67b00aba68f501e8df713b024afff96adbbdbcb8f0b04f58f0702454ea92e"
+    },
+    "data/results_review.json": {
+      "bytes": 749206,
+      "sha256": "3c884aafcb88cd27926c1dc5f7153375fa444d558656ecfd3d810f3a198c4e0d"
+    },
+    "data/snapshot_manifest.json": {
+      "bytes": 10423,
+      "sha256": "1d9cffc839ce8e6186fd7cd750c50a774784726b07852295c22cb43244721f54"
+    },
+    "data/whole_root_cutoff.jsonl": {
+      "bytes": 31036,
+      "sha256": "bdaaf765f33f52158593cb71fe35fb531a98e8606d225d110748a0e835e47b7b"
+    },
+    "figures/crossover.pdf": {
+      "bytes": 23511,
+      "sha256": "f32a60486b10dc0f24c9f6f3c5b1b6ea5f49cd09105f1335b96a28dda634eaa5"
+    },
+    "figures/crossover.png": {
+      "bytes": 203972,
+      "sha256": "6bd2bfbbe81142df0cb78ef6b20f67682544ef10c729ab88effb0a1b764f17c5"
+    },
+    "figures/dense.pdf": {
+      "bytes": 26762,
+      "sha256": "d081b7f45ca0d161dcde44f133c774c96750f0e693ff1f58780a8917ca102e27"
+    },
+    "figures/dense.png": {
+      "bytes": 168629,
+      "sha256": "0d2c5aaf5b58fe33d3e389f93b3b34237110db691ff160f4f38b4906a9ca5466"
+    },
+    "figures/figures.json": {
+      "bytes": 4456,
+      "sha256": "f8285d0ad89bb31b4e3eb0e3bb689ea0b4115893d46c6d103c4796dc7b7d2a3b"
+    },
+    "figures/pipeline.pdf": {
+      "bytes": 34406,
+      "sha256": "84983afabe31c972735fe7e063dcb8314efa43d8fcd02b310907daf467a979e1"
+    },
+    "figures/pipeline.png": {
+      "bytes": 258134,
+      "sha256": "52512211e77ce273edcff8c9dc28eeeb3691e1357dea43dc78b6aade8112c9b8"
+    },
+    "figures/target.pdf": {
+      "bytes": 24403,
+      "sha256": "28189311d18869c96d0276264217196d8d729606d3542a65214af64fa574d4b3"
+    },
+    "figures/target.png": {
+      "bytes": 195552,
+      "sha256": "c8a8e781beda98a04d4335c7d57227aa26218a7b822bf91df352f982ec56705d"
+    },
+    "figures/topology.pdf": {
+      "bytes": 32046,
+      "sha256": "c5caa6cff328c0678bd9304a384d77e4cca2a22846b3cc1455c73bbec4d3450e"
+    },
+    "figures/topology.png": {
+      "bytes": 177947,
+      "sha256": "76df51941cb88ba6c5f11aef6bab4353a5b538b432f39967241c71784d28d29f"
+    },
+    "manuscript.md": {
+      "bytes": 56679,
+      "sha256": "85bbca5f8a88d215e2f8399e921238edcabff411d287929148d17ae5a4d94050"
+    },
+    "manuscript.tex": {
+      "bytes": 76718,
+      "sha256": "1b6f35e239a47f9aa886aa059420106778d504646fccf7ceeccb1cc86f338b8a"
+    },
+    "math_native.py": {
+      "bytes": 5270,
+      "sha256": "e259392d0e16c7686cc6b68a707a9222a92e6a5dd6a817486839a9b972c1bf12"
+    },
+    "package_release.py": {
+      "bytes": 5461,
+      "sha256": "03e249a1d2a1e95d3ae29fc05031a392cf4b72dc14c3722ad50fbba115681abd"
+    },
+    "qa/article_validation.json": {
+      "bytes": 696,
+      "sha256": "ed6fff2bfa14b984e6dc1e79eda284addcd0faf43868636a4e1e35ce3f8822da"
+    },
+    "qa/build_manifest.json": {
+      "bytes": 762,
+      "sha256": "11bddc5228f1b54bf68d30bc7f0eebcebffdc9f8e5fa896e40740388a3c45916"
+    },
+    "qa/docx_visual_review.md": {
+      "bytes": 5786,
+      "sha256": "6495ec296e1dc045cf0913811aa4b4b60d481eaeb6aa417570707787e3318b40"
+    },
+    "qa/latex-pass-3.txt": {
+      "bytes": 14037,
+      "sha256": "9decc906a640f31e87fa69244f45ce1b5dbaf79613c6dd39184ad6d153b5e20c"
+    },
+    "qa/numerical_render_review.md": {
+      "bytes": 4273,
+      "sha256": "0f76ba678857c95a5e899e7fb37ae4c7c648cd03cb8bbd157e6ba23952bd68ce"
+    },
+    "qa/pdf_visual_review.md": {
+      "bytes": 6200,
+      "sha256": "73e543881eddf2d20bd7f6681bb2f5bef22d4545e2a95d1c51ffe98134c41f7f"
+    },
+    "qa/results_build_validation.json": {
+      "bytes": 2366,
+      "sha256": "f2ab32594e9578003677c1d1d305929912523d5a89d4eb9a3273f9a1d47fc381"
+    },
+    "qa/word-render.pdf": {
+      "bytes": 1382858,
+      "sha256": "dc72c915666da0ccc2a65fa7cbdc26da0e4317089c6ee6de32b547b2df47d513"
+    },
+    "references.bib": {
+      "bytes": 7267,
+      "sha256": "fb6d6d279e7669ddaeac14b4ecd06250ba24d811a5785a1d6016ec85a1d63a50"
+    },
+    "references.json": {
+      "bytes": 25433,
+      "sha256": "15dd48352d6e45ee5379c806a3470a032ea047d8252e5d66388ebc741fbca1f1"
+    },
+    "render_word.ps1": {
+      "bytes": 805,
+      "sha256": "114a2a6ccab2db81851dd34a93fe016b2621d340d3bbee0a50454a202ae1fd6c"
+    },
+    "tables/tables.json": {
+      "bytes": 13416,
+      "sha256": "4b3e8341364d0df69ac05d8583557c4870240f2df557aa1ffc09aaf02f59d7fb"
+    },
+    "template/reference.docx": {
+      "bytes": 39695,
+      "sha256": "22c6531e9c00c0218533be28ce2e7def3fc08ca6244a81ce1d9e6d216a10a7a7"
+    },
+    "validate_article.py": {
+      "bytes": 2746,
+      "sha256": "892da9b68c2492db2cdfd2089539dff5689f9e1c19f44a8a2b332fbda52c64cc"
+    },
+    "working/artifact.md": {
+      "bytes": 2392,
+      "sha256": "d70eb0123be3385492f3c264110052fe98ade04cecff992f9789efdb4651ac95"
+    },
+    "working/literature_inventory.json": {
+      "bytes": 7740,
+      "sha256": "1bb3d9a8a893a6b587d09db29f99ddc42d1a60f73b40cd8a884c98fb495dd66b"
+    },
+    "working/math_inventory.json": {
+      "bytes": 66085,
+      "sha256": "712e15ba8a381e7add9dbeb9e9e4aab98f07001788c8267e7cd53c26acee79a6"
+    }
+  },
+  "exclusions": [
+    "large native snapshots",
+    "native executables",
+    "third-party full-text papers",
+    "Claude session transcript",
+    "superseded renders",
+    "per-page review images"
+  ]
+}

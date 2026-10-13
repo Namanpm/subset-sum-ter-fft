@@ -1,0 +1,9 @@
+PHASE B TRANSFORM KILL TEST -- verdict TRANSFORM_NO_GO
+device NVIDIA GeForce RTX 5070 Ti Laptop GPU cc 12.0 driver 13010 nvrtc 13.1
+H_actual 542 (bound 570); jobs 34688; forward 1148; inverse 69376; butterflies 8,088,256,512
+exhaustive verification: [{'variant': 'stage', 'jobs_verified': 34688, 'mismatched_jobs': 0, 'count_conservation_failures': 0, 'unique_pairs_enumerated': 620490266, 'seconds': 8.582374100005836}, {'variant': 'pair', 'jobs_verified': 34688, 'mismatched_jobs': 0, 'count_conservation_failures': 0, 'unique_pairs_enumerated': 620490266, 'seconds': 8.30563859999529}]
+stage: device median 355.38665000000003 ms p25 355.37125 p75 355.413175 min 314.3421 p95 355.607085; upload median 14.160250000000001 ms; launches 1199; instrumented inverse median 260.8318 ms; uncapped diagnostic median 281.3164 ms
+pair: device median 186.8909 ms p25 186.87640000000002 p75 186.9344 min 186.8228 p95 187.06815; upload median 14.1984 ms; launches 639; instrumented inverse median 133.9384 ms; uncapped diagnostic median 146.11725 ms
+transform_ms (best=pair) 186.8909; gate 145.0; classification TRANSFORM_NO_GO; if host launch overhead removed TRANSFORM_NO_GO
+butterflies/s 4.328e+10; required at 105 ms 7.578e+10
+max plausible speedup vs historical K2 1.810x

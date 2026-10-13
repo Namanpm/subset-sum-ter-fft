@@ -1,0 +1,95 @@
+[
+  {
+    "experiment": "Regime campaign (Tables 1-4, Figures 3-5)",
+    "folder": "results/arwlf/regime-20261001",
+    "executables": {
+      "ter_arwlf_campaign": "932d2803a419aab313612861ce363a282c6f41630eb8255524cd8ecdc38ee7ef"
+    },
+    "source_manifest_sha256": "c1d134db224c69331b7acea96faf5035c911fb4e507ee8639edf84a3384562f3",
+    "snapshot_sha256": null,
+    "git_commit": "53431a8e037bec94163d4d2a1c4fe0565a673423",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Constructed-target campaign (Table 5)",
+    "folder": "results/arwlf/positive-20261003",
+    "executables": {
+      "ter_arwlf_campaign": "342d37ab7b4abd062f1f68cf7218db2005a828ce5e9d5abf19e377ecab56ff3c"
+    },
+    "source_manifest_sha256": "5d757cdd62e73d33207140e47e3e1b346174f70c23aa26a2c855161f45c26082",
+    "snapshot_sha256": null,
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Complete-root passes (Table 6)",
+    "folder": "results/arwlf/whole-root-20261003",
+    "executables": {
+      "ter_arwlf_whole_root": "865b97f7eaebc4cf8f30c97a00fa7305ba467c037c81eeec5ecf1d11c945a70c"
+    },
+    "source_manifest_sha256": "a6e76d09094aa6b59a10b60288b3d344659123f4b44c95296a71ccd5c1431b79",
+    "snapshot_sha256": "63fc31e837f8d8d9b0385ad111e69c4902198e46fd9e5f4beadd41f4af3ac161",
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Staged solve n=72, dispatcher",
+    "folder": "results/arwlf/full-solve-n72-s0x7201",
+    "executables": {
+      "ter_root_snapshot_capture": "2f7aab60b7d60a75d7c029a51ef394fbdbe71a595c98c1d7f5927584c46bc202",
+      "ter_arwlf_solve_attempt": "1355f45fc6e8ac33587426fdcb568fed3a3164ab5308f9d7eae7a6260a54924d"
+    },
+    "source_manifest_sha256": null,
+    "snapshot_sha256": null,
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Staged solve n=72, ARWLF forced",
+    "folder": "results/arwlf/full-solve-n72-s0x7201-arwlf",
+    "executables": {
+      "ter_root_snapshot_capture": "2f7aab60b7d60a75d7c029a51ef394fbdbe71a595c98c1d7f5927584c46bc202",
+      "ter_arwlf_solve_attempt": "1355f45fc6e8ac33587426fdcb568fed3a3164ab5308f9d7eae7a6260a54924d"
+    },
+    "source_manifest_sha256": null,
+    "snapshot_sha256": null,
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Staged solve n=108, dispatcher (ARWLF), 32 attempts",
+    "folder": "results/arwlf/full-solve-n108-s0x8001",
+    "executables": {
+      "ter_root_snapshot_capture": "2f7aab60b7d60a75d7c029a51ef394fbdbe71a595c98c1d7f5927584c46bc202",
+      "ter_arwlf_solve_attempt": "1355f45fc6e8ac33587426fdcb568fed3a3164ab5308f9d7eae7a6260a54924d"
+    },
+    "source_manifest_sha256": null,
+    "snapshot_sha256": null,
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Hash-join comparison, n=108 anchor cell of root 0x1001",
+    "folder": "results/arwlf/hash-join-n108-anchor.log",
+    "executables": {
+      "ter_hash_join_bench": "e621c594001243a1ecf2691ff6bbf6ce0832e994186c29a0e13a587ca32148d2"
+    },
+    "source_manifest_sha256": null,
+    "snapshot_sha256": "63fc31e837f8d8d9b0385ad111e69c4902198e46fd9e5f4beadd41f4af3ac161",
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  },
+  {
+    "experiment": "Design-B root comparison, n=72, four attempts",
+    "folder": "results/arwlf/design-b-n72-compare-v2",
+    "executables": {
+      "ter_full_bench": "cf439a54517c6e4c0c1fa431bedc5af1e8a126df802e0760e4888b7ffd69f038",
+      "ter_root_snapshot_capture": "2f7aab60b7d60a75d7c029a51ef394fbdbe71a595c98c1d7f5927584c46bc202",
+      "ter_arwlf_solve_attempt": "1355f45fc6e8ac33587426fdcb568fed3a3164ab5308f9d7eae7a6260a54924d"
+    },
+    "source_manifest_sha256": null,
+    "snapshot_sha256": null,
+    "git_commit": "8e9fe7fdda447088738b5e682ba6aea4cf83a121",
+    "git_dirty": true
+  }
+]

@@ -1,0 +1,9 @@
+# pin=p-core cpu=23 efficiency_class=1
+# snapshot results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap : Completed
+# n=108 seed=0x1001 |A|=3650689 |B|=6900048 |C|=6896564 Q=69 W=58 microproblems=1 | orientation packets AB=3.23422e+11 AC=3.23072e+11 BC=3.80158e+11 best=1 | selected packets (AB)=7.8321e+07
+# exactness EXACT | frozen K2 hits25=1261846123 fullQ32=9856289 residue=0 | ARWLF k=32 hits=9856289 | ARWLF k=51 hits=19 vs K2_WIDE histogram 19 | ARWLF triples=0 K2_WIDE triples=0 | queue NotApplicable (capacity) | dispatcher chose ARWLF ran ARWLF
+# single-shot ms (sweep-instrumented K2_WIDE): K2 46482.0 | K2_WIDE 28480.6 | ARWLF 1701.7 (21.73 ns/packet) | QUEUE 0.0 | DISPATCH 2243.9 (ran ARWLF) | K2 kernel-only 2228.2
+# gates status=1 wide=1 k32=1 mid=1 answer=1 clean=1
+# ARWLF telemetry: leaf_triples=67051520 packets=78320970 lanes=6143192070 logical_pairs=6143192070 survivors=56362 survivor_rate=9.17471e-06 mid_bits=32 chunks=4 avx2=1 index_MiB=3.3
+# dispatcher predicted ms: queue=inf arwlf=1898.1 k2_wide=27929 probe_ms=527.5 probe_mps=1 divisor=64
+# k2=43515.184ms k2_wide=28072.322ms arwlf=1708.891ms dispatch=2255.814ms k2_kernel_only=2226.020ms | K2/ARWLF=25.464x | ARWLF ns/packet=21.82 | dispatch ran ARWLF|ARWLF|ARWLF|ARWLF|ARWLF|ARWLF|ARWLF|ARWLF|ARWLF|ARWLF | peak_ws_MiB=3280

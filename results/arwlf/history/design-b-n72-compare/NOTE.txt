@@ -1,0 +1,6 @@
+2026-10-12: this first run is INVALID for its classic (design_B_classic) rows of s0x7201_a10 and s0x7201_a21.
+The first script version passed --seed=<seed+attempt> --attempt-limit=1 to ter_full_bench, which builds the
+instance from --seed, so those two rows timed attempt 0 of instances 0x720b / 0x7216, not attempts 10 / 21
+of instance 0x7201 (level-one sizes differ: 34710:33993:34676 vs 33886:32661:33100, 34935:36717:36245 vs
+36425:33948:34773). The a0 rows (both seeds) are the same workload. The staged backend rows are valid.
+Superseded by results/arwlf/design-b-n72-compare-v2 (fixed script with list/seed/status checks). Kept, not deleted.

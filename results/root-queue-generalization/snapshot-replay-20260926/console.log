@@ -1,0 +1,18 @@
+# ter_root_queue_generalization_bench
+# configure_time_commit=53431a8e037bec94163d4d2a1c4fe0565a673423 configure_time_dirty=yes
+# compiler=MSVC 195136257
+# cpu=Intel(R) Core(TM) Ultra 9 275HX avx2+bmi2 executable=yes
+# thread_affinity=cpu0 + high priority ac_line_status=1 memory_limit_mib=4096 warmups=3 samples=7
+# cell authentic_n72_s0x46554c4c544552_snapshot_anchor : Completed
+#   exactness EXACT (sorted pair keys + digests) anchor-identity=PASS pairs=619303 groups=618857 triples=619579 fullQ=4718
+#   K2 303.828 ms | QUEUE 164.927 ms | S = 1.842x | rho_q = 0.2129
+# cell authentic_n108_s0x1001_snapshot : Completed
+#   QUEUE_DENSE capacity: largest X family has 98170 and largest Y family 98139 distinct residues; the radix-13 classes hold at most 65536
+# cell authentic_n108_s0x2003_snapshot : Completed
+#   QUEUE_DENSE capacity: largest X family has 100754 and largest Y family 101315 distinct residues; the radix-13 classes hold at most 65536
+# cell authentic_n108_s0x3007_snapshot : Completed
+#   QUEUE_DENSE capacity: largest X family has 100381 and largest Y family 101411 distinct residues; the radix-13 classes hold at most 65536
+
+# cells=4 timed_valid_ac=1 queue_wins=1 geometric_mean_speedup=1.8422 campaign_minutes=0.77
+# checksum sink = 7028382268496059796
+# artifacts: results/root-queue-generalization/snapshot-replay-20260926

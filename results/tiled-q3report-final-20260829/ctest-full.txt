@@ -1,0 +1,95 @@
+Test project C:/Users/naman/Desktop/subset-sum-ter-fft/build-full
+      Start  1: ter_shape_tests
+ 1/45 Test  #1: ter_shape_tests ......................................   Passed    0.06 sec
+      Start  2: ter_core_tests
+ 2/45 Test  #2: ter_core_tests .......................................   Passed    0.06 sec
+      Start  3: ter_generator_tests
+ 3/45 Test  #3: ter_generator_tests ..................................   Passed    0.09 sec
+      Start  4: ter_stress_generator_tests
+ 4/45 Test  #4: ter_stress_generator_tests ...........................   Passed    0.09 sec
+      Start  5: ter_merge_tests
+ 5/45 Test  #5: ter_merge_tests ......................................   Passed    0.02 sec
+      Start  6: ter_packed_tests
+ 6/45 Test  #6: ter_packed_tests .....................................   Passed    0.03 sec
+      Start  7: ter_full_tests
+ 7/45 Test  #7: ter_full_tests .......................................   Passed    0.24 sec
+      Start  8: ter_q3report_audit_tests
+ 8/45 Test  #8: ter_q3report_audit_tests .............................   Passed    0.07 sec
+      Start  9: ter_q3report_crossover_tests
+ 9/45 Test  #9: ter_q3report_crossover_tests .........................   Passed    0.09 sec
+      Start 10: ter_q3report_paper_crossover_tests
+10/45 Test #10: ter_q3report_paper_crossover_tests ...................   Passed    0.41 sec
+      Start 11: ter_tiled_q3report_tests
+11/45 Test #11: ter_tiled_q3report_tests .............................   Passed    0.01 sec
+      Start 12: ter_limitations_tests
+12/45 Test #12: ter_limitations_tests ................................   Passed    0.73 sec
+      Start 13: ter_root_partition_tests
+13/45 Test #13: ter_root_partition_tests .............................   Passed    9.59 sec
+      Start 14: ter_bench_cli_attempt_limit_zero
+14/45 Test #14: ter_bench_cli_attempt_limit_zero .....................   Passed    0.03 sec
+      Start 15: ter_bench_cli_attempt_limit_malformed
+15/45 Test #15: ter_bench_cli_attempt_limit_malformed ................   Passed    0.01 sec
+      Start 16: ter_bench_cli_attempt_limit_overflow
+16/45 Test #16: ter_bench_cli_attempt_limit_overflow .................   Passed    0.01 sec
+      Start 17: ter_bench_cli_attempt_limit_one
+17/45 Test #17: ter_bench_cli_attempt_limit_one ......................   Passed    0.02 sec
+      Start 18: ter_bench_cli_attempt_limit_many
+18/45 Test #18: ter_bench_cli_attempt_limit_many .....................   Passed    0.02 sec
+      Start 19: ter_bench_cli_require_found_rejects_exhausted
+19/45 Test #19: ter_bench_cli_require_found_rejects_exhausted ........   Passed    0.02 sec
+      Start 20: ter_bench_cli_timeout_is_cancelled
+20/45 Test #20: ter_bench_cli_timeout_is_cancelled ...................   Passed    0.03 sec
+      Start 21: ter_bench_cli_tiny_memory_cap
+21/45 Test #21: ter_bench_cli_tiny_memory_cap ........................   Passed    0.02 sec
+      Start 22: ter_bench_cli_memory_limit_zero
+22/45 Test #22: ter_bench_cli_memory_limit_zero ......................   Passed    0.01 sec
+      Start 23: ter_bench_cli_preflight_n72
+23/45 Test #23: ter_bench_cli_preflight_n72 ..........................   Passed    0.01 sec
+      Start 24: ter_bench_cli_preflight_n72_bounded
+24/45 Test #24: ter_bench_cli_preflight_n72_bounded ..................   Passed    0.01 sec
+      Start 25: ter_bench_cli_preflight_n108
+25/45 Test #25: ter_bench_cli_preflight_n108 .........................   Passed    0.01 sec
+      Start 26: ter_bench_cli_preflight_n108_bounded
+26/45 Test #26: ter_bench_cli_preflight_n108_bounded .................   Passed    0.01 sec
+      Start 27: ter_bench_cli_preflight_n108_wide_authority
+27/45 Test #27: ter_bench_cli_preflight_n108_wide_authority ..........   Passed    0.01 sec
+      Start 28: ter_bench_cli_preflight_n144_bounded
+28/45 Test #28: ter_bench_cli_preflight_n144_bounded .................   Passed    0.01 sec
+      Start 29: ter_bench_cli_preflight_n144_wide_l2_l1
+29/45 Test #29: ter_bench_cli_preflight_n144_wide_l2_l1 ..............   Passed    0.01 sec
+      Start 30: ter_bench_cli_preflight_n144_wide_root
+30/45 Test #30: ter_bench_cli_preflight_n144_wide_root ...............   Passed    0.01 sec
+      Start 31: ter_bench_cli_preflight_n100_unsupported
+31/45 Test #31: ter_bench_cli_preflight_n100_unsupported .............   Passed    0.01 sec
+      Start 32: ter_bench_cli_family_invalid
+32/45 Test #32: ter_bench_cli_family_invalid .........................   Passed    0.01 sec
+      Start 33: ter_bench_cli_mode_invalid
+33/45 Test #33: ter_bench_cli_mode_invalid ...........................   Passed    0.01 sec
+      Start 34: ter_bench_cli_unknown_option
+34/45 Test #34: ter_bench_cli_unknown_option .........................   Passed    0.01 sec
+      Start 35: ter_bench_cli_family_finite_sanity
+35/45 Test #35: ter_bench_cli_family_finite_sanity ...................   Passed    0.02 sec
+      Start 36: ter_bench_cli_repeat_zero_rejected
+36/45 Test #36: ter_bench_cli_repeat_zero_rejected ...................   Passed    0.01 sec
+      Start 37: ter_bench_cli_warmup_zero_repeat_one
+37/45 Test #37: ter_bench_cli_warmup_zero_repeat_one .................   Passed    0.02 sec
+      Start 38: ter_bench_cli_provenance_metadata
+38/45 Test #38: ter_bench_cli_provenance_metadata ....................   Passed    0.01 sec
+      Start 39: ter_bench_cli_success_curve
+39/45 Test #39: ter_bench_cli_success_curve ..........................   Passed    0.02 sec
+      Start 40: ter_bench_cli_success_curve_rejects_repeat
+40/45 Test #40: ter_bench_cli_success_curve_rejects_repeat ...........   Passed    0.01 sec
+      Start 41: ter_tiled_sweep_cli_seed_override
+41/45 Test #41: ter_tiled_sweep_cli_seed_override ....................   Passed    1.06 sec
+      Start 42: ter_tiled_sweep_cli_default_seed_base
+42/45 Test #42: ter_tiled_sweep_cli_default_seed_base ................   Passed    0.81 sec
+      Start 43: ter_tiled_sweep_cli_repetitions_zero_rejected
+43/45 Test #43: ter_tiled_sweep_cli_repetitions_zero_rejected ........   Passed    0.01 sec
+      Start 44: ter_tiled_sweep_cli_repetitions_malformed_rejected
+44/45 Test #44: ter_tiled_sweep_cli_repetitions_malformed_rejected ...   Passed    0.01 sec
+      Start 45: ter_tiled_sweep_cli_seed_base_malformed_rejected
+45/45 Test #45: ter_tiled_sweep_cli_seed_base_malformed_rejected .....   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 45
+
+Total Test time (real) =  14.08 sec

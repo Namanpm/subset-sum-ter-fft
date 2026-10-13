@@ -1,0 +1,66 @@
+TER^2 Radix-13 occupancy guard + packed-tag mask consumer -- matched scope
+verdict: IMPROVEMENT_BELOW_1_5X  (faster than same-run K2 but short of the 1.5x runtime gate)
+best packed variant: queued schedule, one deck
+
+MEASURED, this executable, one interleaved run, median of 31 full authentic sweeps (p95 in brackets):
+  scalar pair baseline                   462.8574 ms  [472.2603]
+  K2 frozen (matched)                    286.8439 ms  [292.15415]
+  plain radix-13 lane-skip               361.2019 ms  [377.01685]
+  plain radix-13 dense                   502.6899 ms  [521.0502]
+  packed, lane-skip schedule, 2 decks    444.6222 ms  [470.19515]
+  packed, lane-skip schedule, 1 deck     417.5672 ms  [441.01415]
+  packed, queued schedule, 2 decks       211.1151 ms  [225.02425]
+  packed, queued schedule, 1 deck        197.2873 ms  [203.79125]
+  CONTROL queued, dense leaf, no PEXT    154.1885 ms  [157.88315]
+
+speedup of best packed variant:
+  vs same-run K2 median         1.453940015x   (1.5x gate at 191.2292667 ms)
+  vs spec K2 figure 271.75 ms   1.37743281x   (spec gate 181.17 ms, spec projection 176 ms: PROJECTED, not measured)
+  vs plain radix-13 lane-skip   1.830842127x
+  vs CONTROL (same queue, dense leaf, no packed tags) 0.7815429579x   <- the part of the win attributable to packed-tag consumption
+  vs scalar                     2.346108442x
+
+MEASURED phase decomposition of the best schedule (queued, two-deck controls; differences of matched medians in this run):
+  index/deck build                5.9802 ms   (spec budget 12)
+  occupancy guard scan            38.1384 ms   (spec budget 28)
+  packed consumer common path     124.413 ms   (spec budget 88; 3.73492153 ns/nonzero word, 3.329150477 ns/candidate bit)
+  exact resolver + group mapping  29.3166 ms   (spec budget 28; 10.83710446 ns/explicit resolution)
+  full-Q authority + sink         13.2669 ms   (spec budget 13 + 7)
+  instrumented build breakdown    target classes 1.3199, shifted views 0.2532, source classes 0.995, decks 3.9628 ms
+  both schedules (ms, two-deck controls):
+    lane-skip: guard+skip 172.1363 | consumer 155.8136 | resolver+groups 98.5459 | authority+sink 12.1462 ms
+    queued   : guard+skip 38.1384 | consumer 124.413 | resolver+groups 29.3166 | authority+sink 13.2669 ms
+  plain radix-13: guard 25.8113 ms incl. build; mask->location->tag path (lane-skip - guard) 335.3906 ms over 37.370795 M buckets = 8.974671264 ns/bucket
+  packed: consumer + resolver + report over the same buckets = 7.131389632 ns/bucket
+
+MEASURED geometry and counters (instrumented passes, authentic fixture):
+  queries                         1222528
+  guard vectors                   39120896 (zero 38.3182788%)
+  nonzero 64-bit words            33310740 (33.31074 M; spec model 33.245 M)
+  candidate bits                  37370795 (37.370795 M; plain radix measured 37.371 M)
+  rank 0-7 / 8-15 / 16+ bits      36949914 / 420881 / 0
+  words needing deck 1            409905
+  words with > 8 candidate lanes  0
+  multi-tag candidate bits        2155204 (2.155204 M; spec model 2.29 M)
+  representation-exception bits   two-deck 0 (0 words), one-deck 616630 (409905 words)
+  exception stream (kill gate)    2.155204 M (gate < 3.0 M; multi-tag + representation, may double-count overlap)
+  carry-seam words                250585
+  exact packed singleton survivors 550002
+  explicit resolver inputs        two-deck 2705206 (2.705206 M; spec projection 2.91 M), one-deck 3276221
+  resolver inputs with no witness 2086360
+  exact residual witnesses        618857
+  packed/scalar disagreements     two-deck 0, one-deck 0 (must be 0)
+  whole-stream identity vs plain radix-13 dense kernel: 1222528 queries, 618857 witnesses, mismatching queries 0 (two-deck) / 0 (one-deck) / 0 (queued, both)
+  scalar reference                exact over 273 sampled witnesses
+  directory faults                0
+  deck bytes                      8781824 (8.375 MiB); total auxiliary 28.87546158 MiB
+  common-path hot bytes per block 137216
+
+LOGICAL work (NOT runtime; section 29 of the specification):
+  pair universe / candidate bits  16.61634611x
+  candidate bits / resolver inputs 13.81439898x (spec projection 12.84x)
+  pair universe / resolver inputs 229.5448347x (spec projection 213.4x)
+
+PRE-REGISTERED gates failed: matched median >= 181.17 ms (spec 1.5x gate); matched median >= same-run K2 median / 1.5; packed common path >= 3.05 ns per nonzero word; resolver >= 9.62 ns per explicit resolution
+
+spec reference values (PROJECTED / MODEL, never measured): total 176 ms, nonzero words 33.245 M, resolver inputs 2.91 M, common path 2.65 ns/word central

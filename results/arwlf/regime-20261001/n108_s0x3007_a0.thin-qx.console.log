@@ -1,0 +1,62 @@
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap : Completed
+# root n108_s0x3007_a0 n=108 seed=0x3007 Q=69 W=58 anchor cell=2730 (L=127.33) strata=16 phase=thin-qx role=calibration
+# sentinel start 75.593 ms
+# case qx:L1:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=1.00 pairs=1254 : k2=0.04 k2_wide=0.01 arwlf=1.76 dispatch=0.05 ms | K2/ARWLF=0.02 regret=4.070 best=k2_wide dispatch ran K2_WIDE | witnesses=0 k32=3 | COMPLETED
+# case qx:L1:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=1.00 pairs=42630 : k2=1.00 k2_wide=0.37 arwlf=3.76 dispatch=0.57 ms | K2/ARWLF=0.27 regret=1.558 best=k2_wide dispatch ran K2_WIDE | witnesses=0 k32=88 | COMPLETED
+# case qx:L1:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=1.00 pairs=7280 : k2=0.13 k2_wide=0.05 arwlf=2.21 dispatch=0.12 ms | K2/ARWLF=0.06 regret=2.317 best=k2_wide dispatch ran K2_WIDE | witnesses=0 k32=15 | COMPLETED
+# case qx:L2:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=2.00 pairs=37192901 : k2=350.39 k2_wide=215.74 arwlf=83.61 dispatch=223.05 ms | K2/ARWLF=4.19 regret=2.668 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=61839 | COMPLETED
+# case qx:L2:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=2.00 pairs=36005958 : k2=378.22 k2_wide=205.64 arwlf=79.19 dispatch=214.67 ms | K2/ARWLF=4.78 regret=2.711 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=59900 | COMPLETED
+# case qx:L2:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=2.00 pairs=36923720 : k2=349.45 k2_wide=213.55 arwlf=83.20 dispatch=218.64 ms | K2/ARWLF=4.20 regret=2.628 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=61591 | COMPLETED
+# case qx:L4:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=4.00 pairs=171775493 : k2=1740.62 k2_wide=982.21 arwlf=177.62 dispatch=993.93 ms | K2/ARWLF=9.80 regret=5.596 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=285760 | COMPLETED
+# case qx:L4:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=4.00 pairs=168399393 : k2=1634.23 k2_wide=979.92 arwlf=179.69 dispatch=989.87 ms | K2/ARWLF=9.09 regret=5.509 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=280281 | COMPLETED
+# case qx:L4:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=4.00 pairs=170738389 : k2=1642.71 k2_wide=992.81 arwlf=181.16 dispatch=1002.31 ms | K2/ARWLF=9.07 regret=5.533 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=285010 | COMPLETED
+# case qx:L8:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=8.00 pairs=463230135 : k2=5433.97 k2_wide=2645.48 arwlf=313.68 dispatch=2633.74 ms | K2/ARWLF=17.32 regret=8.396 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=771282 | COMPLETED
+# case qx:L8:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=8.00 pairs=460845000 : k2=5416.06 k2_wide=2607.08 arwlf=294.07 dispatch=2670.82 ms | K2/ARWLF=18.42 regret=9.082 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=768727 | COMPLETED
+# case qx:L8:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=8.00 pairs=459940320 : k2=5044.85 k2_wide=2648.63 arwlf=293.21 dispatch=2713.10 ms | K2/ARWLF=17.21 regret=9.253 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=767379 | COMPLETED
+# case qx:L12:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=12.00 pairs=755451648 : k2=8697.61 k2_wide=4425.94 arwlf=383.40 dispatch=4411.94 ms | K2/ARWLF=22.69 regret=11.507 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1258387 | COMPLETED
+# case qx:L12:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=12.00 pairs=748989199 : k2=6672.48 k2_wide=4238.73 arwlf=375.32 dispatch=4251.23 ms | K2/ARWLF=17.78 regret=11.327 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1250211 | COMPLETED
+# case qx:L12:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=12.00 pairs=746618761 : k2=6606.80 k2_wide=4144.19 arwlf=361.90 dispatch=4153.46 ms | K2/ARWLF=18.26 regret=11.477 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1245415 | COMPLETED
+# case qx:L16:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=16.00 pairs=1035129210 : k2=9139.94 k2_wide=5459.55 arwlf=415.40 dispatch=5498.48 ms | K2/ARWLF=22.00 regret=13.236 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1725283 | COMPLETED
+# case qx:L16:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=16.00 pairs=1032065235 : k2=10976.85 k2_wide=5530.66 arwlf=409.02 dispatch=5428.31 ms | K2/ARWLF=26.84 regret=13.271 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1722919 | COMPLETED
+# case qx:L16:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=16.00 pairs=1030009624 : k2=10876.34 k2_wide=5596.27 arwlf=439.49 dispatch=5671.30 ms | K2/ARWLF=24.75 regret=12.904 best=arwlf dispatch ran K2_WIDE | witnesses=0 k32=1718139 | COMPLETED
+# case qx:L20:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=20.00 pairs=1310869824 : k2=13482.27 k2_wide=7276.26 arwlf=493.82 dispatch=510.93 ms | K2/ARWLF=27.30 regret=1.035 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2184203 | COMPLETED
+# snapshot results/root-queue-generalization/snapshots/n108_s0x3007_a0.snap : Completed
+# root n108_s0x3007_a0 n=108 seed=0x3007 Q=69 W=58 anchor cell=2730 (L=127.33) strata=16 phase=thin-qx role=calibration
+# sentinel start 89.236 ms
+# skip (already written) qx:L1:s0xa11ce001
+# skip (already written) qx:L1:s0xa11ce002
+# skip (already written) qx:L1:s0xa11ce003
+# skip (already written) qx:L2:s0xa11ce001
+# skip (already written) qx:L2:s0xa11ce002
+# skip (already written) qx:L2:s0xa11ce003
+# skip (already written) qx:L4:s0xa11ce001
+# skip (already written) qx:L4:s0xa11ce002
+# skip (already written) qx:L4:s0xa11ce003
+# skip (already written) qx:L8:s0xa11ce001
+# skip (already written) qx:L8:s0xa11ce002
+# skip (already written) qx:L8:s0xa11ce003
+# skip (already written) qx:L12:s0xa11ce001
+# skip (already written) qx:L12:s0xa11ce002
+# skip (already written) qx:L12:s0xa11ce003
+# skip (already written) qx:L16:s0xa11ce001
+# skip (already written) qx:L16:s0xa11ce002
+# skip (already written) qx:L16:s0xa11ce003
+# skip (already written) qx:L20:s0xa11ce001
+# case qx:L20:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=20.00 pairs=1306987756 : k2=19211.05 k2_wide=7927.07 arwlf=573.76 dispatch=604.61 ms | K2/ARWLF=33.48 regret=1.054 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2181379 | COMPLETED
+# case qx:L20:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=20.00 pairs=1308940871 : k2=13384.02 k2_wide=7323.01 arwlf=499.27 dispatch=527.81 ms | K2/ARWLF=26.81 regret=1.057 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2183486 | COMPLETED
+# case qx:L24:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=24.00 pairs=1588065623 : k2=17930.83 k2_wide=8682.57 arwlf=548.01 dispatch=576.61 ms | K2/ARWLF=32.72 regret=1.052 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2647265 | COMPLETED
+# case qx:L24:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=24.00 pairs=1583564010 : k2=14582.85 k2_wide=8440.30 arwlf=528.92 dispatch=556.92 ms | K2/ARWLF=27.57 regret=1.053 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2642283 | COMPLETED
+# case qx:L24:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=24.00 pairs=1584950184 : k2=17440.26 k2_wide=8739.09 arwlf=530.36 dispatch=555.04 ms | K2/ARWLF=32.88 regret=1.047 best=arwlf dispatch ran ARWLF | witnesses=0 k32=2644455 | COMPLETED
+# case qx:L32:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=32.00 pairs=2134372294 : k2=19151.22 k2_wide=10869.11 arwlf=586.53 dispatch=618.76 ms | K2/ARWLF=32.65 regret=1.055 best=arwlf dispatch ran ARWLF | witnesses=0 k32=3558543 | COMPLETED
+# case qx:L32:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=32.00 pairs=2129155252 : k2=15070.12 k2_wide=9805.42 arwlf=528.20 dispatch=558.73 ms | K2/ARWLF=28.53 regret=1.058 best=arwlf dispatch ran ARWLF | witnesses=0 k32=3552213 | COMPLETED
+# case qx:L32:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=32.00 pairs=2130719031 : k2=16007.13 k2_wide=9809.02 arwlf=514.55 dispatch=541.47 ms | K2/ARWLF=31.11 regret=1.052 best=arwlf dispatch ran ARWLF | witnesses=0 k32=3554788 | COMPLETED
+# case qx:L48:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=48.00 pairs=3222767520 : k2=25567.63 k2_wide=14692.61 arwlf=637.01 dispatch=655.58 ms | K2/ARWLF=40.14 regret=1.029 best=arwlf dispatch ran ARWLF | witnesses=0 k32=5372171 | COMPLETED
+# case qx:L48:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=48.00 pairs=3216877020 : k2=22963.93 k2_wide=14674.23 arwlf=628.53 dispatch=649.42 ms | K2/ARWLF=36.54 regret=1.033 best=arwlf dispatch ran ARWLF | witnesses=0 k32=5366337 | COMPLETED
+# case qx:L48:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=48.00 pairs=3220434117 : k2=25646.90 k2_wide=14690.07 arwlf=638.03 dispatch=658.43 ms | K2/ARWLF=40.20 regret=1.032 best=arwlf dispatch ran ARWLF | witnesses=0 k32=5371500 | COMPLETED
+# case qx:L64:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=64.00 pairs=4319054391 : k2=30128.96 k2_wide=19572.27 arwlf=734.31 dispatch=746.67 ms | K2/ARWLF=41.03 regret=1.017 best=arwlf dispatch ran ARWLF | witnesses=0 k32=7199255 | COMPLETED
+# case qx:L64:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=64.00 pairs=4320678324 : k2=30227.28 k2_wide=19580.55 arwlf=735.69 dispatch=747.41 ms | K2/ARWLF=41.09 regret=1.016 best=arwlf dispatch ran ARWLF | witnesses=0 k32=7205551 | COMPLETED
+# case qx:L64:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=64.00 pairs=4324899471 : k2=30225.51 k2_wide=19605.77 arwlf=734.16 dispatch=749.16 ms | K2/ARWLF=41.17 regret=1.020 best=arwlf dispatch ran ARWLF | witnesses=0 k32=7210605 | COMPLETED
+# case qx:L96:s0xa11ce001 [AUTHENTIC_SOURCE_THINNED, discovery] L=96.00 pairs=6806000901 : k2=48112.20 k2_wide=30516.75 arwlf=970.69 dispatch=990.33 ms | K2/ARWLF=49.57 regret=1.020 best=arwlf dispatch ran ARWLF | witnesses=0 k32=11346431 | COMPLETED
+# case qx:L96:s0xa11ce002 [AUTHENTIC_SOURCE_THINNED, discovery] L=96.00 pairs=6790661220 : k2=47726.02 k2_wide=30439.05 arwlf=970.26 dispatch=989.35 ms | K2/ARWLF=49.19 regret=1.020 best=arwlf dispatch ran ARWLF | witnesses=0 k32=11321928 | COMPLETED
+# case qx:L96:s0xa11ce003 [AUTHENTIC_SOURCE_THINNED, discovery] L=96.00 pairs=6827048480 : k2=48258.07 k2_wide=30620.34 arwlf=976.46 dispatch=994.18 ms | K2/ARWLF=49.42 regret=1.018 best=arwlf dispatch ran ARWLF | witnesses=0 k32=11379510 | COMPLETED
+# sentinel end 66.697 ms
