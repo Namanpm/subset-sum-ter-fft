@@ -101,6 +101,14 @@ class Case:
         self.witnesses = first["witnesses"]
         self.exactness = first["exactness"]
         self.off_core = int(first["off_core_samples"] or 0)
+        # Positive-output experiment (absent from older campaign schemas).
+        self.plant_kind = first.get("plant_kind", "")
+        self.plant_count = int(first.get("plant_count") or 0)
+        self.planted_expected = int(first.get("planted_expected") or 0)
+        self.planted_found = int(first.get("planted_found") or 0)
+        self.gate_planted = first.get("gate_planted", "1") == "1"
+        self.y_count = int(first["y_count"])
+        self.structural = int(first["structural"] or 0)
 
     @property
     def timed(self):
@@ -257,12 +265,45 @@ def main(directory):
                  f"{fmt(m['k2_wide'] / m['arwlf'])}× | {c.k2_hits32} |")
         emit("")
 
+    # --- positive-output experiment -----------------------------------------------------
+    planted = [c for c in timed if c.plant_count > 0]
+    if planted:
+        emit("## Positive-output experiment (planted final outputs vs matched decoys)\n")
+        emit("Positive: M planted C entries that each complete one authentic (q, x) pair to a known final output "
+             "(full key, low-32 quotient, residue and structural checks all pass). Decoy: M random C entries, the "
+             "same Y growth, no final output. Planted entries are constructed, not TER vectors. "
+             "Marginal cost per output = (median positive - median decoy) / M.\n")
+        emit("| root | M | \\|Y_u\\| | found / planted | gate | K2 ms (pos / decoy) | K2_WIDE | ARWLF | DISPATCH (ran) | "
+             "ARWLF vs K2 (pos / decoy) | marginal ns per output: K2 / K2_WIDE / ARWLF |")
+        emit("|---|---|---|---|---|---|---|---|---|---|---|")
+        for root in sorted({c.root for c in planted}):
+            for count in sorted({c.plant_count for c in planted if c.root == root}):
+                pos = [c for c in planted if c.root == root and c.plant_count == count and c.plant_kind == "positive"]
+                dec = [c for c in planted if c.root == root and c.plant_count == count and c.plant_kind == "decoy"]
+                if not pos or not dec:
+                    continue
+                p, d = pos[0], dec[0]
+
+                def pair(backend):
+                    return f"{fmt(p.median[backend], 1)} / {fmt(d.median[backend], 1)}"
+
+                def marginal(backend):
+                    return fmt((p.median[backend] - d.median[backend]) * 1e6 / count, 1)
+
+                emit(f"| {root} | {count:,} | {p.y_count:,} | {p.planted_found:,} / {p.planted_expected:,} | "
+                     f"{'PASS' if p.gate_planted and d.gate_planted and p.exactness == 'EXACT' and d.exactness == 'EXACT' else 'FAIL'} | "
+                     f"{pair('k2')} | {pair('k2_wide')} | {pair('arwlf')} | {pair('dispatch')} ({p.ran} / {d.ran}) | "
+                     f"{fmt(p.speedup('arwlf'))}x / {fmt(d.speedup('arwlf'))}x | "
+                     f"{marginal('k2')} / {marginal('k2_wide')} / {marginal('arwlf')} |")
+        emit("")
+
     # --- dispatcher ---------------------------------------------------------------------
     emit("## Dispatcher (frozen v3) regret = median(DISPATCH) / fastest legal exact backend\n")
     emit("| set | cases | median | p95 | max | ran the fastest |")
     emit("|---|---|---|---|---|---|")
     sets = [("all timed", timed)] + [(k, [c for c in timed if c.kind == k]) for k in
-                                     ("AUTHENTIC_FULLTER", "AUTHENTIC_SOURCE_THINNED", "AUTHENTIC_TARGET_THINNED")]
+                                     ("AUTHENTIC_FULLTER", "AUTHENTIC_SOURCE_THINNED", "AUTHENTIC_TARGET_THINNED",
+                                      "AUTHENTIC_PLANTED_TARGETS", "AUTHENTIC_DECOY_TARGETS")]
     for label, group in sets:
         if not group:
             continue

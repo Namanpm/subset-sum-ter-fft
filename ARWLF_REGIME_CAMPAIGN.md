@@ -119,3 +119,42 @@ n=144. Distribution-matched widths are not part of this run.
 The campaign sources were relocated with `git mv`, contents unchanged: `bench/ter_arwlf_campaign*` is now
 `ter2_root/campaign/`, the backends are in `ter2_root/frozen/`, the scripts in `ter2_root/scripts/`. See
 `ter2_root/README.md`.
+
+## Amendment 2 (2026-10-03, after the campaign, before any positive-output timing): positive outputs
+
+**Why.** All 221 exact campaign cases emitted zero final triples (every backend's residue-exact and
+structural counts are 0; checked from `results/arwlf/regime-20261001/cases.csv`). The campaign
+therefore measures the backends on authentic microproblems *without final outputs* and says nothing
+about the cost of emitting one. This amendment adds an experiment in which the outputs are known in
+advance. The frozen backends and every gate above are unchanged.
+
+**Construction** (`PlantedTargets`, `ter2_root/campaign/ter_arwlf_campaign.cpp`; tested independently
+in `ter_arwlf_planted_tests`). On the anchor microproblem (s, t) of a root, with u = (s + t) & 63:
+
+| Label | What is appended to the root's C list (family u, then Y_u re-sorted and the TargetSet rebuilt) |
+|---|---|
+| `AUTHENTIC_PLANTED_TARGETS` | M records c, one per distinct authentic pair (q in Q_s, x in X_t) drawn by `H(root seed, cell, 0x504C414E54, draw, seed)`, with full key d = q_a + q_b mod 2^Q, low-32 quotient tau_low32 - d_lo, residue root - res_a - res_b mod 2^n, and digits completing the pair's parent to the expected distribution: every (q, x, c) is a final output the frozen authority accepts |
+| `AUTHENTIC_DECOY_TARGETS` | M records with a random key in family u, a quotient consistent with that key, a random residue and zero digits: the same Y growth, no final output |
+
+The planted records are constructed, **not** TER vectors and not outputs of the L1 merge; the A, B
+lists and every authentic C record are untouched. The experiment measures what a backend pays per
+emitted output on authentic sources; it does not say how many outputs a real TER root has.
+
+**Cases.** Phase `plant`, calibration roots only, M in {100, 1 000, 10 000, 100 000, 1 000 000}, a
+positive and a decoy case per M, seed 0xB1A57001, discovery protocol, roots in the order
+**0x1001, 0x3007, 0x2003** (attempt 0). Order reason: 0x1001 has the most memory headroom (authentic
+anchor peak 3280 MiB against about 4000 MiB for the other two); M planted records add about 0.3 GiB at
+M = 10^6, so the M = 10^6 cases of 0x3007 and 0x2003 are expected to hit the existing 4096 MiB guard and
+be recorded `RESOURCE_LIMIT` (never silently skipped). A single smoke-protocol run of the M = 10^6
+positive case on 0x1001 (one timed round, all gates passed, peak 3589 MiB) was made to size this
+amendment; it is not part of the results.
+
+**Gate** (added to the exactness pass; a failure aborts as before): the planted part of frozen K2's
+witness list (C EntryId >= the first planted id) equals the planted set exactly, and the structural
+count is >= M; for a decoy the planted part must be empty. Every other backend must equal K2's full
+witness list, as before.
+
+**Analysis.** Per root and M: the medians of each backend for the positive and the decoy case,
+S_b = median(K2) / median(b) for both, and the **marginal cost per output**
+(median_positive - median_decoy) / M for K2, K2_WIDE and ARWLF, reported as measured (it can be
+negative within noise at small M). No cross-root pooling, no outlier removal.

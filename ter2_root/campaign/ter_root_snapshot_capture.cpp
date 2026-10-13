@@ -15,11 +15,13 @@
 #include "ter_root_generalization_workload.hpp"
 #include "ter_root_snapshot.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <string_view>
 
@@ -131,7 +133,7 @@ int main(const int argc, char** const argv) {
   }
 
   const ter::Instance instance = rg::authentic_instance(n, seed);
-  const ter::FullTerConfig config = rg::authentic_config(seed);
+  ter::FullTerConfig config = rg::authentic_config(seed);
   std::cout << "# ter_root_snapshot_capture n=" << n << " seed=0x" << std::hex << seed << std::dec
             << " memory_limit_mib=" << config.memory_limit_bytes / 1048576U
             << " buffer_mib=" << buffer_mib << " commit=" << TER_CONFIGURE_TIME_COMMIT << '\n';
@@ -168,6 +170,13 @@ int main(const int argc, char** const argv) {
   } else {
     attempt = static_cast<std::uint32_t>(std::strtoul(attempt_text.c_str(), nullptr, 10));
   }
+  // The stream admits attempt k only inside a budget of more than k attempts;
+  // the budget gates nothing else, so attempt k's lists are solve_full_ter's.
+  if (attempt == std::numeric_limits<std::uint32_t>::max()) {
+    std::cerr << "FATAL: attempt " << attempt << " is outside every attempt budget\n";
+    return EXIT_FAILURE;
+  }
+  config.attempt_limit = std::max(config.attempt_limit, attempt + 1U);
 
   const rs::CaptureOutcome outcome = rs::capture_to_file(
       instance, config, attempt, out, buffer_mib * 1048576U, TER_CONFIGURE_TIME_COMMIT);

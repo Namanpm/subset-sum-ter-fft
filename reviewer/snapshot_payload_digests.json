@@ -1,0 +1,66 @@
+{
+  "about": "SHA-256 of each measured root snapshot excluding header bytes 352-423 (run metadata: peak working set, elapsed time, git commit, header checksum; layout 1). Computed from the measured files, each first checked against file_sha256 from results/arwlf/regime-20261001/snapshots.json.",
+  "generator": "reviewer/recapture_snapshot.ps1 -RecordDigests",
+  "snapshots": [
+    {
+      "root": "n108_s0x4001_a0",
+      "file_sha256": "f04448501e8b5d3ea76f83ef8ed874489062d586f599cf25516a5d01e0065af6",
+      "file_bytes": 1017692392,
+      "payload_sha256": "da9a50394a33b0484f98d98b55c44b6d6d9158b06ca9b9e7807eb0ba1dc48613"
+    },
+    {
+      "root": "n108_s0x5003_a0",
+      "file_sha256": "0c86218948fc8f1d4287815551b298576fb82a98b2030e86d6ca784b5f8d5e22",
+      "file_bytes": 1021140088,
+      "payload_sha256": "07b56f4cbbfbc2e81fc05a29da06fe5bce4368572b3317c2e7ab5ca3e218c52b"
+    },
+    {
+      "root": "n108_s0x6007_a0",
+      "file_sha256": "e9ec992d468bf7c864ced427f373bce9a3a5182bc06b462137e040534429e8e0",
+      "file_bytes": 1007065384,
+      "payload_sha256": "51b50a13570af221c2979c21bd384fb301cfb9b71f35e9d634c0959e8acbc6a9"
+    },
+    {
+      "root": "n72_s0x7201_auto",
+      "file_sha256": "4a5dfae18bbeef96d849cc1af18ed4128ab320fab183d3bb63e69cf8a4913f68",
+      "file_bytes": 3937940,
+      "payload_sha256": "cd5fd7e617a954e5dde7e3e4bb735660d0e2e187ea39a6a0be0421b1f211ff06"
+    },
+    {
+      "root": "n72_s0x7203_auto",
+      "file_sha256": "50aecddc9c07fc10b5601247f5597969b11445d2a5e065d1119c2f49cb1b93fc",
+      "file_bytes": 4389116,
+      "payload_sha256": "c9bc8b88b284fbaf24d6a5c033df0e5cfee1770fabaee5040755566936bffadb"
+    },
+    {
+      "root": "n72_s0x7207_auto",
+      "file_sha256": "0fcdfd323da9bb4cda505125c5d4077d76919fe4c644d63568a2dd740634d872",
+      "file_bytes": 4485212,
+      "payload_sha256": "ff2e9d5944b0978c1c191b6b63886f03cbcedf06506e6e58d088c1c512a01c3c"
+    },
+    {
+      "root": "n108_s0x1001_a0",
+      "file_sha256": "63fc31e837f8d8d9b0385ad111e69c4902198e46fd9e5f4beadd41f4af3ac161",
+      "file_bytes": 837470872,
+      "payload_sha256": "f1ec1d5d6ab19403355a02ed988be5688a804ff7f9a9a29892c7fa3bd2cba642"
+    },
+    {
+      "root": "n108_s0x2003_a0",
+      "file_sha256": "3789645fa5de26f4a60f11ebe88c1d4d02a2ec9bbbba50aa5fbee41dea19d1f5",
+      "file_bytes": 1026502408,
+      "payload_sha256": "3bd4593c026fcb5545b2a0b6ad56e371df1e5bd775b1fd7f4a1edd13d9181762"
+    },
+    {
+      "root": "n108_s0x3007_a0",
+      "file_sha256": "e4ccd34ae817d4254df768d656adca4f7972c3345a7f44f4516bf54f89517b16",
+      "file_bytes": 1023756568,
+      "payload_sha256": "1fcbd78539532d4687c48a30118e64b714d54d6966b64d367d130ca12f780429"
+    },
+    {
+      "root": "n72_anchor",
+      "file_sha256": "fafbcf18a4af67a307089e3d38a99b77d4437aad4c2dcdc31113054fb20d0914",
+      "file_bytes": 3745264,
+      "payload_sha256": "b5f3e6fe405e3efcc0a1253523c065879570f95db6d3905b29378f80b7a52371"
+    }
+  ]
+}

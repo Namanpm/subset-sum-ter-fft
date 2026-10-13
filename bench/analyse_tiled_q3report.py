@@ -1336,7 +1336,7 @@ ALLOWED_CHANGED_PATHS = {
     "bench/run_tiled_publication_campaign.ps1",
     "bench/ter_tiled_complete_merge_bench.cpp",
     "bench/ter_tiled_parameter_sweep.cpp",
-    "tiling_implementation_idea.md",
+    "docs/history/tiling_implementation_idea.md",
 }
 
 # Runs withdrawn during this campaign, recorded here because the repository's
@@ -1466,7 +1466,7 @@ def verify_documentation_reconciled(repo: str) -> dict[str, Any]:
         return re.sub(r"~~.*?~~", "", markdown, flags=re.DOTALL)
 
     tiling = active_text(
-        read_text_if_present(os.path.join(repo, "tiling_implementation_idea.md"))
+        read_text_if_present(os.path.join(repo, "docs", "history", "tiling_implementation_idea.md"))
     )
     compliance = active_text(
         read_text_if_present(os.path.join(repo, "FULL_TER_COMPLIANCE.md"))

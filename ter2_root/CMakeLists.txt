@@ -114,6 +114,62 @@ ter2_test(ter_translated_tag_tests tests/translated_tag_locator_tests.cpp)
 ter2_test(ter_radix13_tests tests/radix13_locator_tests.cpp)
 ter2_test(ter_radix13_packed_tests tests/radix13_packed_tests.cpp)
 
+# Planted-target (positive-output) tests on the authentic n=108 0x1001 root.
+# The snapshot is ~0.8 GB and not versioned; without it the test reports
+# SKIPPED (exit 77), never a silent pass.  Runs for minutes and peaks near 4 GiB.
+ter2_executable(ter_arwlf_planted_tests tests/ter_arwlf_planted_tests.cpp campaign/ter_arwlf_campaign.cpp)
+add_test(NAME ter_arwlf_planted_tests
+         COMMAND ter_arwlf_planted_tests
+                 "${PROJECT_SOURCE_DIR}/results/root-queue-generalization/snapshots/n108_s0x1001_a0.snap")
+set_tests_properties(ter_arwlf_planted_tests PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 3600)
+# The same checks on the small n=72 anchor (no high key bits; fast enough for ASan).
+add_test(NAME ter_arwlf_planted_tests_n72
+         COMMAND ter_arwlf_planted_tests
+                 "${PROJECT_SOURCE_DIR}/results/root-queue-generalization/snapshots/n72_anchor.snap")
+set_tests_properties(ter_arwlf_planted_tests_n72 PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 3600)
+
+# Whole-root runner (ARWLF_WHOLE_ROOT.md) and its tests on the n=72 anchor root.
+ter2_executable(ter_arwlf_whole_root campaign/ter_arwlf_whole_root_main.cpp campaign/ter_arwlf_whole_root.cpp
+                campaign/ter_arwlf_campaign.cpp)
+ter2_executable(ter_arwlf_whole_root_tests tests/ter_arwlf_whole_root_tests.cpp campaign/ter_arwlf_whole_root.cpp
+                campaign/ter_arwlf_campaign.cpp)
+add_test(NAME ter_arwlf_whole_root_tests
+         COMMAND ter_arwlf_whole_root_tests
+                 "${PROJECT_SOURCE_DIR}/results/root-queue-generalization/snapshots/n72_anchor.snap")
+set_tests_properties(ter_arwlf_whole_root_tests PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 3600)
+
+# Full TER attempts with the frozen root backends (ARWLF_FULL_SOLVE.md): the per-attempt root stage plus
+# the solver's own witness verification, and its differential tests against the classic solver.
+ter2_executable(ter_arwlf_solve_attempt campaign/ter_arwlf_solve_attempt_main.cpp campaign/ter_arwlf_solve.cpp
+                campaign/ter_arwlf_whole_root.cpp)
+ter2_executable(ter_arwlf_solve_tests tests/ter_arwlf_solve_tests.cpp campaign/ter_arwlf_solve.cpp
+                campaign/ter_arwlf_whole_root.cpp)
+add_test(NAME ter_arwlf_solve_tests
+         COMMAND ter_arwlf_solve_tests "${CMAKE_CURRENT_BINARY_DIR}/solve_tests_scratch")
+set_tests_properties(ter_arwlf_solve_tests PROPERTIES TIMEOUT 3600)
+
+# Independent scalar hash-join baseline; frozen sources remain unchanged.
+add_library(ter_hash_join_root STATIC campaign/ter_hash_join_root.cpp)
+target_link_libraries(ter_hash_join_root PUBLIC ter2_frozen)
+target_include_directories(ter_hash_join_root PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/campaign")
+ter_enable_strict_warnings(ter_hash_join_root)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(ter_hash_join_root PRIVATE -fno-tree-vectorize)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(ter_hash_join_root PRIVATE -fno-vectorize -fno-slp-vectorize)
+endif()
+ter2_test(ter_hash_join_tests tests/ter_hash_join_tests.cpp)
+target_link_libraries(ter_hash_join_tests PRIVATE ter_hash_join_root)
+set_tests_properties(ter_hash_join_tests PROPERTIES TIMEOUT 120)
+ter2_executable(ter_hash_join_bench campaign/ter_hash_join_bench.cpp campaign/ter_arwlf_campaign.cpp)
+target_link_libraries(ter_hash_join_bench PRIVATE ter_hash_join_root)
+add_test(NAME ter_hash_join_cli_tests
+         COMMAND ${CMAKE_COMMAND}
+                 "-DTEST_EXE=$<TARGET_FILE:ter_hash_join_bench>"
+                 "-DTEST_SCRATCH=${CMAKE_CURRENT_BINARY_DIR}/hash_join_cli_scratch"
+                 -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/ter_hash_join_cli_tests.cmake")
+set_tests_properties(ter_hash_join_cli_tests PROPERTIES TIMEOUT 30)
+
 # Fails if any frozen source differs from its recorded SHA-256 (FROZEN_ROOT_BACKENDS.md).
 add_test(NAME ter_frozen_root_backends
          COMMAND ${CMAKE_COMMAND} -DROOT=${PROJECT_SOURCE_DIR}

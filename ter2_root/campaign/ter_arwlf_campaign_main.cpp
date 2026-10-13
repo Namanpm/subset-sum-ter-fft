@@ -11,7 +11,10 @@
 //               discovery protocol (AUTHENTIC_SOURCE_THINNED);
 //   thin-y      calibration roots only: the anchor with Y_u thinned at
 //               p_Y = 1/2, 1/4, 1/8, discovery (AUTHENTIC_TARGET_THINNED);
-//   whole       every microproblem of the root as one case, final protocol;
+//   plant       calibration roots only: the anchor with M planted final outputs
+//               and, per M, a decoy twin with the same Y growth and no output,
+//               discovery (AUTHENTIC_PLANTED_TARGETS / AUTHENTIC_DECOY_TARGETS);
+//   whole      every microproblem of the root as one case, final protocol;
 //   confirm     an explicit case list, final protocol.
 //
 // Every case: build the (possibly thinned) state, its keys and index, and its
@@ -76,6 +79,10 @@ volatile std::uint64_t g_sink = 0U;
 constexpr std::array<double, 12> kTargetLanes{1.0, 2.0, 4.0, 8.0, 12.0, 16.0, 20.0, 24.0, 32.0, 48.0, 64.0, 96.0};
 constexpr std::array<std::uint64_t, 3> kThinningSeeds{0xA11CE001ULL, 0xA11CE002ULL, 0xA11CE003ULL};
 constexpr std::array<double, 3> kTargetRetention{0.5, 0.25, 0.125};
+// Positive-output experiment (Amendment 2): planted final outputs per case,
+// each with a matched decoy control of the same Y growth.
+constexpr std::array<std::uint32_t, 5> kPlantCounts{100U, 1000U, 10000U, 100000U, 1000000U};
+constexpr std::uint64_t kPlantSeed = 0xB1A57001ULL;
 constexpr std::size_t kSentinelEvery = 20U;
 
 struct Protocol {
@@ -365,7 +372,7 @@ struct Config {
     }
   }
   static const std::set<std::string> phases{"census", "stratified", "stratified-corners", "anchor", "thin-qx",
-                                            "thin-y",  "whole",      "confirm"};
+                                            "thin-y",  "plant",      "whole",              "confirm"};
   return !config.snapshot.empty() && !config.out_dir.empty() && phases.count(config.phase) == 1U &&
          (config.role == "calibration" || config.role == "holdout") &&
          (config.pin == "p-core" || config.pin == "none") &&
@@ -387,6 +394,7 @@ struct CaseSpec {
   std::int64_t members = -1;
   Protocol protocol = kDiscovery;
   bool reachable = true;  // false: target L above the authentic L; recorded, never run
+  ac::Plant plant;        // count > 0: planted targets (positive-output experiment)
 };
 
 // ---------------------------------------------------------------------------
@@ -486,8 +494,9 @@ class Campaign {
       write_census();
       return 0;
     }
-    if ((config_.phase == "thin-qx" || config_.phase == "thin-y") && config_.role != "calibration") {
-      std::cout << "# refused: thinning runs on calibration roots only\n";
+    if ((config_.phase == "thin-qx" || config_.phase == "thin-y" || config_.phase == "plant") &&
+        config_.role != "calibration") {
+      std::cout << "# refused: thinning and planting run on calibration roots only\n";
       return 2;
     }
     const std::vector<CaseSpec> plan = cases();
@@ -575,6 +584,18 @@ class Campaign {
     return spec;
   }
 
+  [[nodiscard]] CaseSpec plant_case(const ac::PlantKind kind, const std::uint32_t count, const std::uint64_t seed,
+                                    const Protocol protocol) const {
+    CaseSpec spec;
+    const bool positive = kind == ac::PlantKind::Positive;
+    spec.id = std::string(positive ? "plant:pos:M" : "plant:decoy:M") + std::to_string(count) + ":s" + hex(seed);
+    spec.source_kind = positive ? "AUTHENTIC_PLANTED_TARGETS" : "AUTHENTIC_DECOY_TARGETS";
+    spec.cell = anchor_;
+    spec.plant = ac::Plant{kind, count, seed};
+    spec.protocol = protocol_for(protocol);
+    return spec;
+  }
+
   [[nodiscard]] CaseSpec whole_case(const Protocol protocol) const {
     CaseSpec spec;
     spec.id = "whole:all";
@@ -604,6 +625,11 @@ class Campaign {
       const std::uint64_t seed = std::stoull(rest.substr(at + 1U), nullptr, 0);
       return kind == "qx" ? source_case(value, seed, kFinal) : target_case(value, seed, kFinal);
     }
+    if ((kind == "pos" || kind == "decoy") && at != std::string::npos) {
+      const auto count = static_cast<std::uint32_t>(std::stoul(rest.substr(0, at)));
+      const std::uint64_t seed = std::stoull(rest.substr(at + 1U), nullptr, 0);
+      return plant_case(kind == "pos" ? ac::PlantKind::Positive : ac::PlantKind::Decoy, count, seed, kFinal);
+    }
     throw std::invalid_argument("bad case spec: " + text);
   }
 
@@ -632,6 +658,11 @@ class Campaign {
     } else if (config_.phase == "thin-y") {
       for (const double p : kTargetRetention) {
         plan.push_back(target_case(p, kThinningSeeds[0], kDiscovery));
+      }
+    } else if (config_.phase == "plant") {
+      for (const std::uint32_t count : kPlantCounts) {
+        plan.push_back(plant_case(ac::PlantKind::Positive, count, kPlantSeed, kDiscovery));
+        plan.push_back(plant_case(ac::PlantKind::Decoy, count, kPlantSeed, kDiscovery));
       }
     } else if (config_.phase == "whole") {
       plan.push_back(whole_case(kFinal));
@@ -767,7 +798,10 @@ class Campaign {
         .str("thinning_seed", hex(spec.thinning.seed))
         .num("retain_sqrt_rule", spec.sqrt_rule, 6)
         .num("target_lanes_per_packet", spec.target_lanes, 2)
-        .num("base_lanes_per_packet", spec.base_lanes, 4);
+        .num("base_lanes_per_packet", spec.base_lanes, 4)
+        .str("plant_kind", spec.plant.count == 0U ? "" : (spec.plant.kind == ac::PlantKind::Positive ? "positive" : "decoy"))
+        .u64("plant_count", spec.plant.count)
+        .str("plant_seed", hex(spec.plant.seed));
     geometry(row, g);
   }
 
@@ -782,6 +816,11 @@ class Campaign {
     bool gate_witness = false;
     bool gate_clean = false;
     bool gate_census = false;
+    bool gate_planted = true;            // planted part of the witnesses == the planted set (planted cases)
+    std::uint64_t planted_expected = 0;  // known final outputs planted
+    std::uint64_t planted_found = 0;     // ... found by frozen K2 (the others must equal K2)
+    std::uint64_t authentic_witnesses = 0;
+    std::uint64_t plant_rejected_pairs = 0;
     std::uint64_t k2_hits25 = 0;   // frozen K2 survivors on 25 low quotient bits
     std::uint64_t k2_hits32 = 0;   // ... passing the low-32 quotient prefilter
     std::uint64_t residue_exact = 0;
@@ -802,7 +841,7 @@ class Campaign {
 
     [[nodiscard]] bool exact() const noexcept {
       return ran && gate_status && gate_wide && gate_k32 && gate_mid && gate_answer && gate_witness && gate_clean &&
-             gate_census && drift_backend.empty();
+             gate_census && gate_planted && drift_backend.empty();
     }
   };
 
@@ -835,6 +874,11 @@ class Campaign {
         .flag("gate_witness", e.gate_witness)
         .flag("gate_clean", e.gate_clean)
         .flag("gate_census", e.gate_census)
+        .flag("gate_planted", e.gate_planted)
+        .u64("planted_expected", e.planted_expected)
+        .u64("planted_found", e.planted_found)
+        .u64("authentic_witnesses", e.authentic_witnesses)
+        .u64("plant_rejected_pairs", e.plant_rejected_pairs)
         .u64("k2_hits25", e.k2_hits25)
         .u64("k2_hits32", e.k2_hits32)
         .u64("residue_exact", e.residue_exact)
@@ -927,6 +971,10 @@ class Campaign {
     std::optional<ac::ThinnedMicroproblem> thinned;
     if (spec.cell != ac::kCells) {
       thinned.emplace(data_, workload_->seed, spec.cell, spec.thinning);
+    }
+    std::optional<ac::PlantedTargets> planted;
+    if (spec.plant.count != 0U) {
+      planted.emplace(*workload_, spec.cell, spec.plant);
     }
     keys_ = a64::FamilyKeys{};
     keys_ = a64::build_family_keys(*workload_);
@@ -1022,6 +1070,20 @@ class Campaign {
     // The census is an independent count of the geometry the counted run walks.
     e.gate_census = at.logical_pairs == g.logical_pairs && at.leaf_triples == g.leaf_triples &&
                     at.packets == g.packets && at.lanes == g.lanes && (!at.avx2 || at.rows == g.rows);
+    e.authentic_witnesses = reference.size();
+    if (planted) {
+      std::vector<Witness> found;
+      for (const Witness& w : reference) {
+        if (w[2] >= planted->first_planted()) {
+          found.push_back(w);
+        }
+      }
+      e.planted_expected = planted->expected().size();
+      e.planted_found = found.size();
+      e.authentic_witnesses = reference.size() - found.size();
+      e.plant_rejected_pairs = planted->rejected_pairs();
+      e.gate_planted = found == planted->expected() && dk.structural >= planted->expected().size();
+    }
     e.k2_hits25 = dk.triples;
     e.k2_hits32 = dk.full_q;
     e.residue_exact = dk.residue;

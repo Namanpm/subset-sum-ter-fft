@@ -206,6 +206,69 @@ class ThinnedMicroproblem {
   bool y_thinned_ = false;
 };
 
+// ---------------------------------------------------------------------------
+// Planted targets (positive-output experiment).
+//
+// Every authentic n=108 campaign case had zero final outputs.  To measure the
+// output path, M extra C entries are appended to microproblem `cell`'s target
+// list Y_u, with EntryIds after the authentic ones.  Their authority data are
+// constructed from the root equations, so they are NOT TER vectors and never
+// solutions; the case label says so (AUTHENTIC_PLANTED_TARGETS).
+//
+//   Positive: for M distinct authentic pairs (a in Q_s, b in X_t), the entry c
+//     has key d = q_a + q_b (mod 2^Q), low-32 quotient tau - d, residue
+//     root - res_a - res_b (mod 2^n), and digits completing a + b + c to a
+//     parent with the expected digit counts.  (a, b, c) therefore passes the
+//     full-key check, the low-32 prefilter, residue equality and the structural
+//     check: a known final output.  A pair whose parent digits cannot be
+//     completed is skipped and counted.
+//   Decoy: an entry with a random key in family u (consistent quotient, random
+//     residue, zero digits): the same Y growth, almost surely no final output.
+//
+// Destruction removes every appended entry and restores Y_u, its target set
+// and view exactly.  The caller rebuilds keys and index for the state it runs.
+// ---------------------------------------------------------------------------
+using Witness = std::array<EntryId, 3>;
+
+enum class PlantKind : std::uint8_t { Positive, Decoy };
+
+struct Plant {
+  PlantKind kind = PlantKind::Positive;
+  std::uint32_t count = 0;
+  std::uint64_t seed = 0;
+};
+
+class PlantedTargets {
+ public:
+  // Throws std::invalid_argument when the workload lacks full keys or authority
+  // tables, or the cell has no work; std::runtime_error when M distinct
+  // completable pairs cannot be found within a bounded number of draws.
+  PlantedTargets(rg::Workload& workload, std::uint32_t cell, const Plant& plant);
+  ~PlantedTargets();
+  PlantedTargets(const PlantedTargets&) = delete;
+  PlantedTargets& operator=(const PlantedTargets&) = delete;
+
+  [[nodiscard]] EntryId first_planted() const noexcept { return first_; }  // ids >= this are planted
+  [[nodiscard]] const std::vector<Witness>& expected() const noexcept { return expected_; }  // sorted
+  [[nodiscard]] std::uint64_t rejected_pairs() const noexcept { return rejected_; }
+
+ private:
+  void point_view_at_target() noexcept;
+
+  rg::Workload& workload_;
+  std::uint32_t u_;
+  EntryId first_;
+  std::size_t key_size_;
+  std::size_t quotient_size_;
+  std::size_t residue_size_;
+  std::size_t digit_size_;
+  std::uint64_t list_size_;
+  std::vector<mr8::Posting> y_;
+  mr8::TargetSet y_target_;
+  std::vector<Witness> expected_;
+  std::uint64_t rejected_ = 0;
+};
+
 // Matched-timing order of round r over `count` backends: the canonical order
 // rotated left by r mod count, reversed on odd rounds.
 [[nodiscard]] std::vector<std::size_t> round_order(std::size_t count, std::uint32_t round);
