@@ -1,6 +1,6 @@
 # Adaptive Wide-Leaf Filtering for Exact Ternary Representation Root Reporting
 
-Naman PM
+Naman Menasagi
 
 ## Abstract
 

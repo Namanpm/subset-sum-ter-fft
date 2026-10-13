@@ -1,11 +1,17 @@
-"""Build a reference-cloned DOCX; --docx-only never opens or writes TeX."""
+"""Build the article on ACM's Word submission template; --docx-only never opens or writes TeX.
+
+The DOCX uses only the template's own styles, section geometry, footers and numbering.
+The 13 October 2026 build on the earlier theory-paper reference is kept unchanged in
+archive/2026-10-13-theory-template/; its builder is this file at commit 04bd1e0.
+"""
 from pathlib import Path
 from copy import deepcopy
 import re,json,zipfile,hashlib,argparse
 from docx import Document
-from docx.shared import Inches,Pt,RGBColor
+from docx.shared import Emu,Pt,Twips
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT,WD_CELL_VERTICAL_ALIGNMENT
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from lxml import etree as E
@@ -14,10 +20,17 @@ from math_native import omml
 ROOT=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--docx-only',action='store_true',help='Preserve TeX and PDF files completely')
+parser.add_argument('--output',type=Path,default=ROOT/'ARWLF_Naman_PM.docx',help='DOCX to write (default: the article)')
 args=parser.parse_args()
-REFERENCE=Path(r'C:\Users\naman\.codex\skills\artifact-template-theory-focused-research-paper\assets\reference.docx')
-if (ROOT/'template'/'reference.docx').exists():REFERENCE=ROOT/'template'/'reference.docx'
-assert hashlib.sha256(REFERENCE.read_bytes()).hexdigest()=='22c6531e9c00c0218533be28ce2e7def3fc08ca6244a81ce1d9e6d216a10a7a7'
+TEMPLATE=ROOT/'template'/'acm_submission_template.docx'
+assert hashlib.sha256(TEMPLATE.read_bytes()).hexdigest()=='05e757a3c93f9cbf9dbca257009d48d141f311b1132f8396b8cdb2fbac9ef0e9'
+# Front matter the manuscript source does not carry, in the template's affiliation format.
+AUTHOR='Naman Menasagi'
+AFFILIATION='Independent Researcher, Bengaluru, Karnataka, India, naman.menasagi@gmail.com'
+SHORT_TITLE='Adaptive Wide-Leaf Filtering for TER Root Reporting'
+# ACM Computing Classification System 2012: (top-level concept, leaf concepts).
+CCS=[('Theory of computation',['Data structures design and analysis'])]
+JOURNAL='ACM Trans. Algorithms'
 text=(ROOT/'manuscript.md').read_text(encoding='utf-8')
 refs=json.loads((ROOT/'references.json').read_text(encoding='utf-8'))
 used=set(re.findall(r'\[@([^\]]+)\]',text))
@@ -125,20 +138,31 @@ tex.append(r'\end{document}')
 if not args.docx_only:
     (ROOT/'manuscript.tex').write_text('\n'.join(tex),encoding='utf-8')
 
-# Clone the retained reference and reuse its direct title/author properties.
-doc=Document(REFERENCE)
-title_pattern=deepcopy(doc.paragraphs[0]._p)
-author_pattern=deepcopy(doc.paragraphs[2]._p)
+# Clone the ACM template: keep its styles, numbering, footers and section geometry, and
+# reuse the paragraph and run properties of its own front-matter samples.
+NS={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+R_NS='{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
+doc=Document(TEMPLATE)
 body=doc._element.body
+sample={}
+for p in doc.paragraphs:sample.setdefault(p.style.name,deepcopy(p._p))
 for x in list(body):
     if x.tag!=qn('w:sectPr'):body.remove(x)
-def newp(style='Normal',pattern=None):
-    p=doc.add_paragraph(style=style)
-    if pattern is not None:
-        prop=pattern.find(qn('w:pPr'))
-        if prop is not None:
-            if p._p.pPr is not None:p._p.remove(p._p.pPr)
-            p._p.insert(0,deepcopy(prop))
+sect=doc.sections[0]
+TEXT_WIDTH=sect.page_width-sect.left_margin-sect.right_margin
+
+def newp(style):
+    return doc.add_paragraph(style=style)
+def from_sample(style,runs):
+    """A `style` paragraph with the template sample's paragraph properties; each run is
+    (text, i) and takes the properties of the sample's run i, or none when i is None."""
+    p=newp(style);src=sample[style]
+    p._p.remove(p._p.pPr);p._p.insert(0,deepcopy(src.find(qn('w:pPr'))))
+    srcruns=src.findall(qn('w:r'))
+    for text,i in runs:
+        r=p.add_run(text)
+        rpr=None if i is None else srcruns[i].find(qn('w:rPr'))
+        if rpr is not None:r._r.insert(0,deepcopy(rpr))
     return p
 
 math_count=0
@@ -150,150 +174,164 @@ def inline(p,s):
             p._p.append(omml(part[1:-1]));math_count+=1
         elif part.startswith('[@'):p.add_run('['+str(nums[part[2:-1]])+']')
         elif part.startswith('**'):p.add_run(part[2:-2]).bold=True
-        elif part.startswith('`'):p.add_run(part[1:-1]).font.name='Consolas'
+        elif part.startswith('`'):p.add_run(part[1:-1],style='In-text code')
         else:p.add_run(part)
     p.paragraph_format.widow_control=True
-def caption(s,keep_next=False):
-    p=newp('Caption');inline(p,s)
-    p.paragraph_format.keep_with_next=keep_next
-    p.paragraph_format.space_before=Pt(6);p.paragraph_format.space_after=Pt(6)
-    return p
+def rule(edges):
+    borders=OxmlElement('w:tcBorders')
+    for edge in edges:
+        z=OxmlElement('w:'+edge);z.set(qn('w:val'),'single');z.set(qn('w:sz'),'4');z.set(qn('w:space'),'0');z.set(qn('w:color'),'auto');borders.append(z)
+    return borders
 def add_table(key,num):
     t=tables[key]
-    caption('Table '+str(num)+'. '+t['caption'],True)
-    n=len(t['headers']);table=doc.add_table(rows=1,cols=n)
+    p=newp('TableCaption');inline(p,'Table '+str(num)+': '+t['caption'])
+    n=len(t['headers']);table=doc.add_table(rows=1,cols=n);table.style=doc.styles['Table Grid']
     table.alignment=WD_TABLE_ALIGNMENT.CENTER;table.autofit=False
-    width=6.7
     weights=[1.25]+[1]*(n-1)
     if key=='protocols':weights=[1.6,.65,.9,1.0,.85]
     if key in ('scaling_validation','integration'):weights=[1.25,1.55,1.8]
     if key in ('scaling_n144','scaling_cost'):weights=[2.2,1,1,1]
-    widths=[Inches(width*w/sum(weights)) for w in weights]
+    widths=[Emu(int(TEXT_WIDTH*w/sum(weights))) for w in weights]
     for col,w in zip(table.columns,widths):col.width=w
     for cell,h in zip(table.rows[0].cells,t['headers']):cell.text=str(h)
     for row in t['rows']:
         for cell,value in zip(table.add_row().cells,row):cell.text=str(value)
+    # The template's table: no grid, zero left cell margin, rules above and below the
+    # header row and below the last row.
+    tblpr=table._tbl.tblPr
+    tblw=tblpr.find(qn('w:tblW'));tblw.set(qn('w:w'),str(sum(w.twips for w in widths)));tblw.set(qn('w:type'),'dxa')
     borders=OxmlElement('w:tblBorders')
     for edge in ('top','left','bottom','right','insideH','insideV'):
-        z=OxmlElement('w:'+edge);z.set(qn('w:val'),'single');z.set(qn('w:sz'),'4');z.set(qn('w:color'),'D9D9D9');borders.append(z)
-    table._tbl.tblPr.insert_element_before(borders,'w:shd','w:tblLayout','w:tblCellMar','w:tblLook','w:tblCaption','w:tblDescription','w:tblPrChange')
+        z=OxmlElement('w:'+edge);z.set(qn('w:val'),'none');z.set(qn('w:sz'),'0');z.set(qn('w:space'),'0');z.set(qn('w:color'),'auto');borders.append(z)
+    tblpr.insert_element_before(borders,'w:shd','w:tblLayout','w:tblCellMar','w:tblLook','w:tblCaption','w:tblDescription','w:tblPrChange')
+    margins=OxmlElement('w:tblCellMar');left=OxmlElement('w:left');left.set(qn('w:w'),'0');left.set(qn('w:type'),'dxa');margins.append(left)
+    tblpr.insert_element_before(margins,'w:tblLook','w:tblCaption','w:tblDescription','w:tblPrChange')
+    last=len(table.rows)-1
     for i,row in enumerate(table.rows):
-        pr=row._tr.get_or_add_trPr();cant=OxmlElement('w:cantSplit');pr.append(cant)
+        pr=row._tr.get_or_add_trPr();pr.append(OxmlElement('w:cantSplit'))
         if i==0:pr.append(OxmlElement('w:tblHeader'))
+        edges=('top','bottom') if i==0 else ('bottom',) if i==last else ()
         for j,cell in enumerate(row.cells):
             cell.width=widths[j]
             cell.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER
-            tcpr=cell._tc.get_or_add_tcPr();marg=OxmlElement('w:tcMar')
-            for edge,val in [('top',75),('left',80),('bottom',75),('right',80)]:
-                a=OxmlElement('w:'+edge);a.set(qn('w:w'),str(val));a.set(qn('w:type'),'dxa');marg.append(a)
-            tcpr.insert_element_before(marg,'w:textDirection','w:tcFitText','w:vAlign','w:hideMark','w:headers','w:cellIns','w:cellDel','w:cellMerge','w:tcPrChange')
-            sh=OxmlElement('w:shd');sh.set(qn('w:val'),'clear');sh.set(qn('w:fill'),'16324F' if i==0 else 'F3F6F8' if i%2==0 else 'FFFFFF')
-            tcpr.insert_element_before(sh,'w:noWrap','w:tcMar','w:textDirection','w:tcFitText','w:vAlign','w:hideMark','w:headers','w:cellIns','w:cellDel','w:cellMerge','w:tcPrChange')
+            if edges:cell._tc.get_or_add_tcPr().insert_element_before(rule(edges),'w:shd','w:noWrap','w:tcMar','w:textDirection','w:tcFitText','w:vAlign','w:hideMark','w:headers','w:cellIns','w:cellDel','w:cellMerge','w:tcPrChange')
             for p in cell.paragraphs:
+                p.style=doc.styles['TableCell']
+                p.paragraph_format.first_line_indent=Twips(0)
                 p.alignment=WD_ALIGN_PARAGRAPH.LEFT if j==0 else WD_ALIGN_PARAGRAPH.CENTER
-                p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.05
                 p.paragraph_format.keep_with_next=True
-                for run in p.runs:
-                    run.font.size=Pt(9)
-                    run.bold=(i==0)
-                    if i==0:run.font.color.rgb=RGBColor.from_string('FFFFFF')
+    # TableFootnote sets no typeface or size of its own; match the template's table text.
     for note in t.get('notes',[]):
-        p=newp();inline(p,note)
-        p.paragraph_format.keep_with_next=False
-        for r in p.runs:r.font.size=Pt(9)
+        p=newp('TableFootnote');inline(p,note)
+        p.alignment=WD_ALIGN_PARAGRAPH.JUSTIFY;p.paragraph_format.space_before=Pt(3)
+        for r in p.runs:r.font.name='Linux Libertine O';r.font.size=Pt(8)
 
 def references_docx():
-    p=newp('Heading 1');p.add_run('References');p.paragraph_format.page_break_before=True
+    # Bib_entry numbers its paragraphs [1], [2], ... in order, matching the citation numbers.
+    newp('ReferenceHead').add_run('REFERENCES')
     for r in refs:
-        p=newp();p.paragraph_format.left_indent=Inches(.22);p.paragraph_format.first_line_indent=Inches(-.22)
-        inline(p,'['+str(nums[r['key']])+'] '+bibplain(r))
+        p=newp('Bib_entry');inline(p,bibplain(r))
         f=r['fields']
         if f.get('doi'):p.add_run(' https://doi.org/'+f['doi'])
         elif f.get('url'):p.add_run(' '+f['url'])
 
-p=newp(pattern=title_pattern);r=p.add_run(title)
-orig=title_pattern.find(qn('w:r'))
-if orig is not None and orig.find(qn('w:rPr')) is not None:r._r.insert(0,deepcopy(orig.find(qn('w:rPr'))))
-p.paragraph_format.keep_with_next=True
-p=newp(pattern=author_pattern);p.add_run('Naman PM').bold=True;p.paragraph_format.keep_with_next=True
-p=newp('Heading 1');p.add_run('Abstract')
-p=newp();inline(p,abstract)
-p=newp();p.add_run('Keywords. ').bold=True;p.add_run(keywords)
+from_sample('Title_document',[(title,0)])
+from_sample('Short Title',[(SHORT_TITLE,0)])
+from_sample('Authors',[(AUTHOR,0)])
+from_sample('Affiliation',[(AFFILIATION,0)])
+p=newp('Abstract');inline(p,abstract)
+ccs=[('CCS CONCEPTS ',0)]
+for g,(top,leaves) in enumerate(CCS):
+    ccs+=[('• ',1),(top,1),(' → '+'; '.join(leaves)+('.' if g==len(CCS)-1 else '; '),2)]
+from_sample('CCSDescription',ccs)
+from_sample('KeyWords',[('Additional Keywords and Phrases: ',0),(keywords.replace('; ',', '),None)])
+from_sample('ACMRefHead',[('ACM Reference Format:',0)])
+from_sample('ACMRef',[(f'{AUTHOR}. 2026. {title}. Manuscript submitted to {JOURNAL}.',0)])
 
-started=False;fnum=0;tnum=0;doc_refs=False
+# Head1 and Head2 number themselves; the manuscript's numbers must equal that sequence,
+# because the text cites sections by number.
+STATEMENT=re.compile(r'\*\*(Lemma|Theorem|Corollary|Proposition|Definition) ')
+started=False;fnum=0;tnum=0;doc_refs=False;appendix=False;h1=h2=0;prev='head'
 for k,v in bs:
     if k=='head2' and v=='1 Introduction':started=True
     if not started:continue
-    if k.startswith('head'):
-        first_appendix=v.startswith('Appendix ') and not doc_refs
-        if first_appendix:references_docx();doc_refs=True
-        p=newp('Heading 1' if k=='head2' else 'Heading 2');p.add_run(v)
-        if first_appendix:p.paragraph_format.page_break_before=True
+    if k=='head2':
+        if v.startswith('Appendix '):
+            if not doc_refs:references_docx();doc_refs=True
+            m=re.fullmatch(r'Appendix ([A-Z]) (.+)',v);assert m,v;appendix=True
+            p=newp('AppendixH1');p.add_run(m[1]);p.add_run(' ');p.add_run(m[2]);prev='head'
+        elif m:=re.fullmatch(r'(\d+) (.+)',v):
+            h1+=1;h2=0;assert not appendix and int(m[1])==h1,v
+            newp('Head1').add_run(m[2]);prev='head'
+        else:
+            assert not appendix,v
+            newp('AckHead').add_run(v.upper());prev='ackhead'
+    elif k=='head3':
+        m=re.fullmatch(r'(\d+)\.(\d+) (.+)',v);h2+=1
+        assert m and not appendix and (int(m[1]),int(m[2]))==(h1,h2),v
+        newp('Head2').add_run(m[3]);prev='head'
     elif k=='para':
-        p=newp();inline(p,v)
-        if v.startswith('**Theorem '):p.paragraph_format.keep_together=True
+        style='Statements' if STATEMENT.match(v) else {'head':'PostHeadPara','ackhead':'AckPara','math':'ParaContinue'}.get(prev,'Para')
+        p=newp(style);inline(p,v)
+        if style=='Statements':p.paragraph_format.keep_together=True
+        if v.startswith('**Proof.**'):p.runs[0].bold=False;p.runs[0].italic=True
+        prev='para'
     elif k=='math':
-        p=newp();p.alignment=WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before=Pt(6);p.paragraph_format.space_after=Pt(6)
-        p._p.append(omml(v,display=True));math_count+=1
+        p=newp('DisplayFormula' if r'\tag{' in v else 'DisplayFormulaUnnum')
+        p._p.append(omml(v,display=True));math_count+=1;prev='math'
     elif k=='code':
-        for line in v.splitlines():
-            p=newp();p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1
+        lines=v.splitlines();m=re.fullmatch(r'Algorithm (\d+)\s+(.+)',lines[0]);assert m,lines[0]
+        newp('AlgorithmCaption').add_run(f'ALGORITHM {m[1]}: {m[2]}')
+        # The template's InconsolataN is rarely installed; its In-text code style (Courier New)
+        # at the template's ComputerCode size of 8 pt keeps the longest line on one line.
+        for line in lines[1:]:
+            p=newp('Algorithm');p.add_run(line,style='In-text code').font.size=Pt(8)
             p.paragraph_format.keep_with_next=True
-            r=p.add_run(line);r.font.name='Consolas';r.font.size=Pt(9)
-        p.paragraph_format.keep_with_next=False
+        p.paragraph_format.keep_with_next=False;prev='para'
     elif k=='figure':
-        fnum+=1;p=newp();p.paragraph_format.keep_with_next=True
-        pic=p.add_run().add_picture(str(ROOT/'figures'/(v+'.png')),width=Inches(6.7))
+        fnum+=1;p=newp('Image')
+        pic=p.add_run().add_picture(str(ROOT/'figures'/(v+'.png')),width=TEXT_WIDTH)
         pic._inline.docPr.set('descr',figs[v].get('description',figs[v]['caption']))
-        caption('Figure '+str(fnum)+'. '+figs[v]['caption'])
-    elif k=='table':tnum+=1;add_table(v,tnum)
-
+        p=newp('FigureCaption');inline(p,'Figure '+str(fnum)+': '+figs[v]['caption']);prev='para'
+    elif k=='table':tnum+=1;add_table(v,tnum);prev='para'
+    else:raise ValueError(k)
 if not doc_refs:references_docx()
 
-# Preserve header/footer paragraph/run design; change only their text slots.
-for sec in doc.sections:
-    for p in sec.header.paragraphs:
-        runs=list(p.runs)
-        if runs:
-            runs[0].text='Adaptive Wide-Leaf Filtering for Exact Ternary Representation Root Reporting'
-            for r in runs[1:]:r.text=''
-    for p in sec.footer.paragraphs:
-        for r in p.runs:
-            if r.text:r.text='Naman PM  •  '
-        run=p.add_run()
-        begin=OxmlElement('w:fldChar');begin.set(qn('w:fldCharType'),'begin')
-        instr=OxmlElement('w:instrText');instr.text=' PAGE '
-        sep=OxmlElement('w:fldChar');sep.set(qn('w:fldCharType'),'separate')
-        value=OxmlElement('w:t');value.text='1'
-        end=OxmlElement('w:fldChar');end.set(qn('w:fldCharType'),'end')
-        for x in (begin,instr,sep,value,end):run._r.append(x)
-doc.core_properties.title=title;doc.core_properties.author='Naman PM'
-doc.core_properties.subject='Research article prepared for ACM Transactions on Algorithms'
-doc.core_properties.keywords=keywords
-settings=doc.settings.element
-u=settings.find(qn('w:updateFields'))
-if u is None:
-    u=OxmlElement('w:updateFields')
-    settings.insert_element_before(u,'w:hdrShapeDefaults','w:footnotePr','w:endnotePr','w:compat','w:docVars','w:rsids','m:mathPr','w:themeFontLang','w:clrSchemeMapping')
-u.set(qn('w:val'),'true')
+# Drop the template's sample images and links, which nothing in the new body references.
+used={v for el in body.iter() for a,v in el.attrib.items() if a.startswith(R_NS)}
+for rId,rel in list(doc.part.rels.items()):
+    if rel.reltype in (RT.IMAGE,RT.HYPERLINK) and rId not in used:del doc.part.rels[rId]
+cp=doc.core_properties
+cp.title=title;cp.author=AUTHOR;cp.last_modified_by=AUTHOR;cp.language='en-US'
+cp.subject='Research article prepared for ACM Transactions on Algorithms';cp.keywords=keywords
 temp=ROOT/'working'/'generated.docx';doc.save(temp)
-final=ROOT/'ARWLF_Naman_PM.docx'
-allowed={'word/document.xml','word/_rels/document.xml.rels','[Content_Types].xml','word/header1.xml','word/footer1.xml','word/settings.xml','docProps/core.xml'}
-with zipfile.ZipFile(REFERENCE) as rz,zipfile.ZipFile(temp) as gz,zipfile.ZipFile(final,'w',zipfile.ZIP_DEFLATED) as oz:
-    baseline=set(rz.namelist())
-    for name in gz.namelist():oz.writestr(name,gz.read(name) if name in allowed or name not in baseline else rz.read(name))
-with zipfile.ZipFile(REFERENCE) as rz,zipfile.ZipFile(final) as fz:
-    altered=[n for n in rz.namelist() if rz.read(n)!=fz.read(n)]
+final=args.output
+allowed={'word/document.xml','word/_rels/document.xml.rels','[Content_Types].xml','docProps/core.xml','word/footnotes.xml'}
+def without_sample_author_note(xml):
+    tree=E.fromstring(xml)
+    for note in tree.xpath('w:footnote[not(@w:type)]',namespaces=NS):tree.remove(note)
+    return E.tostring(tree,xml_declaration=True,encoding='UTF-8',standalone=True)
+with zipfile.ZipFile(TEMPLATE) as tz,zipfile.ZipFile(temp) as gz,zipfile.ZipFile(final,'w',zipfile.ZIP_DEFLATED) as oz:
+    baseline=set(tz.namelist())
+    for name in gz.namelist():
+        if name=='word/footnotes.xml':data=without_sample_author_note(tz.read(name))
+        elif name in allowed or name not in baseline:data=gz.read(name)
+        else:data=tz.read(name)
+        oz.writestr(name,data)
+with zipfile.ZipFile(TEMPLATE) as tz,zipfile.ZipFile(final) as fz:
+    names=set(fz.namelist())
+    removed=sorted(baseline-names)
+    assert all(n.startswith('word/media/') for n in removed),removed
+    altered=[n for n in tz.namelist() if n in names and tz.read(n)!=fz.read(n)]
     assert set(altered)<=allowed,altered
-    # Exact reference section geometry and all preserved styles are retained.
-    ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-    a=E.fromstring(rz.read('word/document.xml')).find('.//w:sectPr',ns)
-    b=E.fromstring(fz.read('word/document.xml')).find('.//w:sectPr',ns)
+    # Exact template section geometry and footers; no template sample content survives.
+    a=E.fromstring(tz.read('word/document.xml')).find('.//w:sectPr',NS)
+    b=E.fromstring(fz.read('word/document.xml')).find('.//w:sectPr',NS)
     assert E.tostring(a)==E.tostring(b)
-    xml=fz.read('word/document.xml').decode()
-    assert '[PAPER TITLE]' not in xml and '[Author One]' not in xml
-manifest={'reference_sha256':hashlib.sha256(REFERENCE.read_bytes()).hexdigest(),'changed_reference_parts':altered,'preserve_only_parts_verified':len(baseline)-len(altered),'math_expressions':math_count,'figures':fnum,'tables':tnum,'citations':nums,'word_count':len(text.split())}
-manifest.update({'mode':'docx-only' if args.docx_only else 'docx-and-tex','intended_venue':'ACM Transactions on Algorithms','abstract_words':len(abstract.split())})
+    xml=fz.read('word/document.xml').decode()+fz.read('word/footnotes.xml').decode()
+    for sample_text in ('Submission Template for ACM Papers','Insert your first CCS term','xxxx@gmail.com','Woodstock','Lorem ipsum','Franklin','Place the footnote text'):
+        assert sample_text not in xml,sample_text
+manifest={'template_sha256':hashlib.sha256(TEMPLATE.read_bytes()).hexdigest(),'changed_template_parts':altered,'removed_template_parts':removed,'preserved_template_parts':len(baseline)-len(altered)-len(removed),'math_expressions':math_count,'figures':fnum,'tables':tnum,'citations':nums,'word_count':len(text.split())}
+manifest.update({'mode':'docx-only' if args.docx_only else 'docx-and-tex','intended_venue':'ACM Transactions on Algorithms','abstract_words':len(abstract.split()),'affiliation_supplied':not AFFILIATION.startswith('[')})
 (ROOT/'qa'/'build_manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
 print(json.dumps(manifest,indent=2))

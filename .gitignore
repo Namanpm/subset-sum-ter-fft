@@ -69,3 +69,4 @@ desktop.ini
 
 # --- Third-party literature, old drafts and a copy of the DOCX (not ours to publish) ---
 /Research papers/
+.gstack/

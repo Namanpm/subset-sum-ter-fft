@@ -279,13 +279,15 @@ tag `pre-cleanup-3eaad92`.
 | File | Status | What it is |
 |---|---|---|
 | `manuscript.md` | PAPER | The article source. |
-| `ARWLF_Naman_PM.docx` | PAPER | The article. |
+| `ARWLF_Naman_PM.docx` | PAPER | The article, built on ACM's Word submission template. |
+| `archive/2026-10-13-theory-template/` | HISTORICAL | The 13 October build on the earlier theory-paper template (same content, SHA-256 `bcfea551…`). Do not cite or submit. |
 | `build_results.py` | PAPER | Validates frozen inputs, regenerates tables and figures. |
 | `build_article.py`, `math_native.py` | PAPER | DOCX builder (TeX math to native Word math). Without `--docx-only` it also rewrites `manuscript.tex`. |
 | `validate_docx_only.py`, `render_docx_pages.ps1`, `rasterize_word_emf.py` | PAPER | DOCX checks and page rendering. |
 | `scaling_model.py` | PAPER | Occupancy and cost model. |
 | `data/` | PAPER | Frozen evidence and manifests (`data/README.md`). |
-| `figures/`, `tables/tables.json`, `template/reference.docx`, `references.{bib,json}` | PAPER | Generated figures and tables, Word template, bibliography. |
+| `figures/`, `tables/tables.json`, `template/acm_submission_template.docx`, `references.{bib,json}` | PAPER | Generated figures and tables, ACM Word template, bibliography. |
+| `template/reference.docx` | HISTORICAL | Theory-paper template of the archived 13 October build; the builder no longer reads it. |
 | `claim_ledger.md` | PAPER | Claim-to-evidence map. |
 | `README.md`, `SUBMISSION_NOTES.md`, `REVIEW_TRIAGE_2026-10-09.md` | LIVE | Build instructions, author items, review triage. |
 | `runs/` | PAPER | Scripts that produced the hash-join, ASan and design-B records (T19). |

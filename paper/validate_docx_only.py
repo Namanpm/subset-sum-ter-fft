@@ -13,6 +13,7 @@ from math_native import mathml,omml
 root=Path(__file__).resolve().parent
 cli=argparse.ArgumentParser(description=__doc__)
 cli.add_argument('--portable',action='store_true',help='Validate the article and frozen numerical inputs without local preservation inventory or Word page renders.')
+cli.add_argument('--docx',type=Path,default=root/'ARWLF_Naman_PM.docx',help='DOCX to check (default: the article)')
 args=cli.parse_args()
 qa=root/('qa/portable' if args.portable else 'qa/continuation-20261009')
 qa.mkdir(parents=True,exist_ok=True)
@@ -28,8 +29,13 @@ for expr,display in maths:
     after=letters(''.join(converted.xpath('.//m:t/text()',namespaces=ns)))
     assert before==after,expr
     expected.append(''.join(converted.xpath('.//m:t/text()',namespaces=ns)))
-with zipfile.ZipFile(root/'ARWLF_Naman_PM.docx') as z:
+with zipfile.ZipFile(args.docx) as z,zipfile.ZipFile(root/'template/acm_submission_template.docx') as tz:
     assert z.testzip() is None
+    # ACM template: its styles, numbering, footers and settings are unchanged, and every
+    # body paragraph uses one of its paragraph styles.
+    for part in ('word/styles.xml','word/numbering.xml','word/footer1.xml','word/footer2.xml','word/settings.xml'):
+        assert z.read(part)==tz.read(part),part
+    style_ids=set(E.fromstring(tz.read('word/styles.xml')).xpath('//w:style[@w:type="paragraph"]/@w:styleId',namespaces=ns))
     xml=E.fromstring(z.read('word/document.xml'))
     actual=[''.join(x.xpath('.//m:t/text()',namespaces=ns)) for x in xml.xpath('.//m:oMath',namespaces=ns)]
     missing=Counter(expected)-Counter(actual)
@@ -37,8 +43,10 @@ with zipfile.ZipFile(root/'ARWLF_Naman_PM.docx') as z:
     # Display equations are display-mode paragraphs; LibreOffice draws floor/ceiling delimiter objects as slashes.
     assert len(xml.xpath('.//m:oMathPara',namespaces=ns))==sum(display for _,display in maths)
     assert not xml.xpath('.//m:d[m:dPr/m:begChr[@m:val="⌈" or @m:val="⌊"]]',namespaces=ns)
+    used=xml.xpath('//w:body//w:p/w:pPr/w:pStyle/@w:val',namespaces=ns)
+    assert len(used)==len(xml.xpath('//w:body//w:p',namespaces=ns)) and set(used)<=style_ids-{'Normal'},sorted(set(used)-style_ids)
     visible=''.join(xml.xpath('.//w:t/text() | .//m:t/text()',namespaces=ns))
-    for token in ('[PAPER TITLE]','[Author One]','[TABLE:','[FIGURE:','\\frac','\\pmod','\ufffd','`'):
+    for token in ('Submission Template for ACM Papers','Insert your first CCS term','xxxx@gmail.com','Woodstock','[TABLE:','[FIGURE:','\\frac','\\pmod','\ufffd','`'):
         assert token not in visible,token
     keys=re.findall(r'^\[TABLE:([^]]+)\]$',source,re.M)
     payload=json.loads((root/'tables/tables.json').read_text(encoding='utf-8'))
@@ -93,6 +101,6 @@ pages=None
 if not args.portable:
     pages=json.loads((qa/'pages/pages.json').read_text(encoding='utf-8-sig'))
     assert all(p['Characters']>80 for p in pages)
-report={'mode':'portable' if args.portable else 'local-preservation','source_body_math_checked':len(maths),'native_word_equations':len(actual),'math_character_loss':False,'all_body_expressions_present':True,'figures':figures,'tables':len(tables),'table_data_rows_verified':row_counts,'total_table_data_rows':sum(row_counts.values()),'abstract_words':len(abstract.split()),'word_rendered_pages':len(pages) if pages is not None else None,'empty_pages':[] if pages is not None else None,'poisson_byte_probabilities_independently_verified':True,'scaling_cost_units_verified':True,'protected_pdf_tex_files_unchanged':len(protected) if protected is not None else None,'new_pdf_tex_files':0 if protected is not None else None,'docx_sha256':hashlib.sha256((root/'ARWLF_Naman_PM.docx').read_bytes()).hexdigest()}
+report={'mode':'portable' if args.portable else 'local-preservation','source_body_math_checked':len(maths),'native_word_equations':len(actual),'math_character_loss':False,'all_body_expressions_present':True,'figures':figures,'tables':len(tables),'table_data_rows_verified':row_counts,'total_table_data_rows':sum(row_counts.values()),'abstract_words':len(abstract.split()),'word_rendered_pages':len(pages) if pages is not None else None,'empty_pages':[] if pages is not None else None,'poisson_byte_probabilities_independently_verified':True,'scaling_cost_units_verified':True,'protected_pdf_tex_files_unchanged':len(protected) if protected is not None else None,'new_pdf_tex_files':0 if protected is not None else None,'acm_template_parts_unchanged':True,'affiliation_supplied':'[Affiliation' not in visible,'docx_sha256':hashlib.sha256(args.docx.read_bytes()).hexdigest()}
 (qa/'docx_validation.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print(json.dumps(report,indent=2))
