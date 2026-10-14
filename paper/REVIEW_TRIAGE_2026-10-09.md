@@ -136,7 +136,7 @@ Each claim was checked against the current DOCX and the repository.
 
 ### Author-only (cannot be done by the assistant)
 - [ ] M. Affiliation and correspondence email; authorship, acknowledgments, assistant-use disclosure.
-- [x] N. Archive location and persistent identifier for the source, supplement and snapshot regeneration (the Data availability paragraph says it "must be supplied at submission"). Resolved 2026-10-14: the article cites the reserved Zenodo DOI 10.5281/zenodo.23353466 for the source archive and full git history; the record is published before submission.
+- [x] N. Archive location and persistent identifier for the source, supplement and snapshot regeneration (the Data availability paragraph says it "must be supplied at submission"). Resolved 2026-10-14: the article cites Zenodo DOI 10.5281/zenodo.23353466 for the source archive and full git history; the record was published on 14 October 2026, before submission.
 - [ ] O. Current TALG author instructions, portal metadata and declarations; confirm the venue's fit (TALG favours provable guarantees; this is a constant-factor engineering result, so lead with the exactness proof and cost model).
 
 ### Not worth doing
